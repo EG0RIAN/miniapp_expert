@@ -13,7 +13,6 @@ import ContactForm from './ContactForm'
 const Home = () => {
   const { t } = useLanguage()
   const [mounted, setMounted] = useState(false)
-  const [activeSlide, setActiveSlide] = useState(0)
   const [currentScreen, setCurrentScreen] = useState('home')
   const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null)
 
@@ -123,7 +122,6 @@ const Home = () => {
               }}
               loop={true}
               className="mySwiper"
-              onSlideChange={(swiper) => setActiveSlide(swiper.realIndex)}
             >
               <SwiperSlide>
                 <div className="home__companies-swiper-slider">

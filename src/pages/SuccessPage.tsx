@@ -1,7 +1,7 @@
 import { useLanguage } from '../contexts/LanguageContext'
 import './SuccessPage.css'
 
-const SuccessPage = ({ onNext }: { onNext?: () => void } = {}) => {
+const SuccessPage = () => {
   const { t } = useLanguage()
   return (
     <div className="success-page">

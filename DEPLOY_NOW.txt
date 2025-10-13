@@ -1,0 +1,76 @@
+========================================
+🚀 MINIAPP EXPERT - READY TO DEPLOY!
+========================================
+
+Your deployment package is ready: miniapp-deploy.tar.gz
+
+STEP 1: Upload to Server
+------------------------
+Run this command from /Users/arkhiptsev/dev/rello:
+
+scp miniapp-deploy.tar.gz root@195.2.73.224:/home/miniapp_expert/
+
+Password: h374w#54EeCTWYLu_qRA
+
+
+STEP 2: Connect to Server
+-------------------------
+ssh root@195.2.73.224
+
+Password: h374w#54EeCTWYLu_qRA
+
+
+STEP 3: Deploy (on the server)
+------------------------------
+cd /home/miniapp_expert
+tar -xzf miniapp-deploy.tar.gz
+chmod +x deploy-configs/one-command-deploy.sh
+./deploy-configs/one-command-deploy.sh
+
+
+That's it! The script will:
+✅ Install Node.js, nginx, certbot
+✅ Configure nginx for all domains
+✅ Setup SSL certificates (HTTPS)
+✅ Deploy your sites
+
+
+STEP 4: Setup Bot (optional)
+----------------------------
+After deployment, setup the Telegram bot:
+
+cd /home/miniapp_expert/bot
+nano .env
+
+Add:
+BOT_TOKEN=your_bot_token_here
+WEBAPP_URL=https://demoapp.miniapp.expert
+
+Then:
+cd /home/miniapp_expert
+./deploy-configs/bot-setup.sh
+
+
+VERIFY DEPLOYMENT
+-----------------
+After deployment, your sites will be live at:
+
+🌐 https://miniapp.expert
+🌐 https://www.miniapp.expert  
+📱 https://demoapp.miniapp.expert
+
+
+TROUBLESHOOTING
+---------------
+View detailed guide: cat DEPLOYMENT_GUIDE.md
+Quick start guide: cat QUICK_START.md
+
+Check nginx: systemctl status nginx
+Check SSL: certbot certificates
+Check bot: pm2 status
+
+
+========================================
+Ready to deploy? Copy Step 1 command!
+========================================
+

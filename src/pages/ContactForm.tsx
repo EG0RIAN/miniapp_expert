@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import './ContactForm.css'
 import SuccessPage from './SuccessPage'
 
-const ContactForm = ({ onNext, onBack }: { onNext?: () => void, onBack?: () => void } = {}) => {
+const ContactForm = ({ onBack }: { onBack?: () => void } = {}) => {
   const { t } = useLanguage()
   const [formData, setFormData] = useState({
     telegramNick: '',
@@ -206,7 +206,7 @@ const ContactForm = ({ onNext, onBack }: { onNext?: () => void, onBack?: () => v
   }
 
   if (showSuccess) {
-    return <SuccessPage onNext={onNext} />
+    return <SuccessPage />
   }
 
   return (
