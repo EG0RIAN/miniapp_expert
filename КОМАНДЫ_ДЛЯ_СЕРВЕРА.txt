@@ -1,0 +1,102 @@
+================================================================
+🚀 КОМАНДЫ ДЛЯ ВЫПОЛНЕНИЯ НА СЕРВЕРЕ
+================================================================
+
+Сервер: 85.198.110.66
+Пользователь: root
+Пароль: h421-5882p7vUqkFn+EF
+Директория: /home/miniapp_expert
+
+================================================================
+ВАРИАНТ 1: Загрузка через transfer.sh (самый быстрый)
+================================================================
+
+Сначала на ВАШЕМ компьютере загрузите файл:
+
+curl --upload-file /Users/arkhiptsev/dev/rello/miniapp-git-deploy.tar.gz https://transfer.sh/miniapp-git-deploy.tar.gz
+
+Вы получите ссылку типа:
+https://transfer.sh/abc123/miniapp-git-deploy.tar.gz
+
+Затем НА СЕРВЕРЕ выполните:
+
+cd /home/miniapp_expert
+wget "ПОЛУЧЕННАЯ_ССЫЛКА" -O miniapp-git-deploy.tar.gz
+tar -xzf miniapp-git-deploy.tar.gz
+chmod +x deploy-configs/*.sh
+echo 'BOT_TOKEN=8395636611:AAH6MAKtZORX_8e9GcxbMvJcnu0D37LCTEY' > bot/.env
+echo 'WEBAPP_URL=https://demoapp.miniapp.expert' >> bot/.env
+export DEBIAN_FRONTEND=noninteractive
+./deploy-configs/full-setup.sh && ./deploy-configs/setup-nginx.sh && ./deploy-configs/setup-ssl.sh && ./deploy-configs/bot-setup.sh
+
+================================================================
+ВАРИАНТ 2: Через GitHub (если хотите создать репозиторий)
+================================================================
+
+1. Создайте репозиторий на https://github.com/new
+   Назовите его: miniapp-expert
+
+2. НА ВАШЕМ компьютере:
+
+cd /Users/arkhiptsev/dev/rello
+git add .
+git commit -m "Deploy"
+git remote add origin https://github.com/ВАШ_РЕАЛЬНЫЙ_USERNAME/miniapp-expert.git
+git push -u origin main
+
+3. НА СЕРВЕРЕ:
+
+cd /home/miniapp_expert
+git clone https://github.com/ВАШ_РЕАЛЬНЫЙ_USERNAME/miniapp-expert.git temp
+cp -r temp/* . 2>/dev/null || true
+cp -r temp/.* . 2>/dev/null || true
+rm -rf temp
+chmod +x deploy-configs/*.sh
+echo 'BOT_TOKEN=8395636611:AAH6MAKtZORX_8e9GcxbMvJcnu0D37LCTEY' > bot/.env
+echo 'WEBAPP_URL=https://demoapp.miniapp.expert' >> bot/.env
+export DEBIAN_FRONTEND=noninteractive
+./deploy-configs/full-setup.sh && ./deploy-configs/setup-nginx.sh && ./deploy-configs/setup-ssl.sh && ./deploy-configs/bot-setup.sh
+
+================================================================
+ВАРИАНТ 3: Через панель хостинга
+================================================================
+
+1. Откройте панель управления хостингом
+2. Найдите File Manager / Файловый менеджер
+3. Загрузите файл: /Users/arkhiptsev/dev/rello/miniapp-git-deploy.tar.gz
+   в директорию: /home/miniapp_expert/
+
+4. В консоли сервера выполните:
+
+cd /home/miniapp_expert
+tar -xzf miniapp-git-deploy.tar.gz
+chmod +x deploy-configs/*.sh
+echo 'BOT_TOKEN=8395636611:AAH6MAKtZORX_8e9GcxbMvJcnu0D37LCTEY' > bot/.env
+echo 'WEBAPP_URL=https://demoapp.miniapp.expert' >> bot/.env
+export DEBIAN_FRONTEND=noninteractive
+./deploy-configs/full-setup.sh && ./deploy-configs/setup-nginx.sh && ./deploy-configs/setup-ssl.sh && ./deploy-configs/bot-setup.sh
+
+================================================================
+⚡ БЫСТРАЯ УСТАНОВКА (одна команда после загрузки файла)
+================================================================
+
+cd /home/miniapp_expert && tar -xzf miniapp-git-deploy.tar.gz && chmod +x deploy-configs/*.sh && echo 'BOT_TOKEN=8395636611:AAH6MAKtZORX_8e9GcxbMvJcnu0D37LCTEY' > bot/.env && echo 'WEBAPP_URL=https://demoapp.miniapp.expert' >> bot/.env && export DEBIAN_FRONTEND=noninteractive && ./deploy-configs/full-setup.sh && ./deploy-configs/setup-nginx.sh && ./deploy-configs/setup-ssl.sh && ./deploy-configs/bot-setup.sh
+
+================================================================
+✅ РЕЗУЛЬТАТ
+================================================================
+
+После установки (10-15 минут):
+
+🌐 https://miniapp.expert
+🌐 https://www.miniapp.expert
+📱 https://demoapp.miniapp.expert
+
+Проверка:
+systemctl status nginx
+certbot certificates
+pm2 status
+pm2 logs miniapp-bot
+
+================================================================
+
