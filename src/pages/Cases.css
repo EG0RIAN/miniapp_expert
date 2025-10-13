@@ -1,0 +1,240 @@
+.cases {
+  padding: 40px 20px 120px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--app-bg-color);
+  animation: fadeIn 0.6s ease-in;
+  position: relative;
+}
+
+.cases__container {
+  max-width: 1200px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+
+.cases__title {
+  text-align: center;
+  max-width: 600px;
+}
+
+.cases__title h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: var(--app-text-color);
+}
+
+.cases__title h1 p {
+  margin: 0;
+}
+
+.cases__title > p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--app-text-secondary);
+  margin: 0;
+}
+
+.cases__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.case-card {
+  background: var(--app-card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px var(--app-shadow-sm);
+  border: 1px solid var(--app-border-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.case-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px var(--app-shadow-md);
+}
+
+.case-card__image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.case-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.case-card:hover .case-card__image img {
+  transform: scale(1.05);
+}
+
+.case-card__content {
+  padding: 24px;
+  position: relative;
+}
+
+.case-card__content h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--app-text-color);
+  margin: 0 0 12px 0;
+}
+
+.case-card__content p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--app-text-secondary);
+  margin: 0 0 16px 0;
+}
+
+.case-card__arrow {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 32px;
+  height: 32px;
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.case-card:hover .case-card__arrow {
+  opacity: 0.9;
+  transform: scale(1.1);
+}
+
+.next-button {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border: none;
+  padding: 18px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 4px 16px var(--app-shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  width: calc(100% - 40px);
+  max-width: 400px;
+  z-index: 1000;
+  will-change: auto;
+}
+
+.next-button:hover {
+  opacity: 0.9;
+}
+
+.next-button:active {
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .cases {
+    padding: 20px 16px 120px;
+  }
+  
+  .cases__container {
+    gap: 40px;
+  }
+  
+  .cases__title h1 {
+    font-size: 32px;
+  }
+  
+  .cases__title > p {
+    font-size: 16px;
+  }
+  
+  .cases__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .case-card__content {
+    padding: 20px;
+  }
+  
+  .case-card__content h3 {
+    font-size: 18px;
+  }
+  
+  .next-button {
+    bottom: 20px;
+    padding: 16px 24px;
+    font-size: 16px;
+    gap: 8px;
+    min-height: 52px;
+    width: calc(100% - 32px);
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cases__title h1 {
+    font-size: 28px;
+  }
+  
+  .case-card__content {
+    padding: 16px;
+  }
+  
+  .case-card__content h3 {
+    font-size: 16px;
+  }
+  
+  .case-card__content p {
+    font-size: 13px;
+  }
+  
+  .next-button {
+    bottom: 20px;
+    padding: 14px 20px;
+    font-size: 14px;
+    gap: 8px;
+    min-height: 48px;
+    width: calc(100% - 24px);
+    max-width: 320px;
+  }
+}

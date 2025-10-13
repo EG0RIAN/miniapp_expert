@@ -1,0 +1,304 @@
+.contact-form {
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--tg-theme-bg-color);
+  animation: fadeIn 0.6s ease-in;
+}
+
+.contact-form__container {
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.contact-form__title {
+  text-align: center;
+  max-width: 400px;
+}
+
+.contact-form__title h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: var(--app-text-color);
+}
+
+.contact-form__title h1 p {
+  margin: 0;
+}
+
+.contact-form__title > p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--app-text-secondary);
+  margin: 0;
+}
+
+.contact-form__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phone-input-group {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.phone-input-group .form-input {
+  flex: 1;
+}
+
+.form-input.confirmed {
+  border-color: #28a745;
+  background: rgba(40, 167, 69, 0.05);
+}
+
+.confirm-phone-button {
+  flex-shrink: 0;
+  width: 56px;
+  height: 52px;
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-phone-button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.confirm-phone-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.confirm-phone-button.confirmed {
+  background: #28a745;
+  cursor: default;
+}
+
+.confirm-phone-button:disabled:not(.confirmed) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.check-icon {
+  font-size: 24px;
+  animation: checkPop 0.4s ease-out;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.form-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--app-text-color);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.required {
+  color: #e74c3c;
+  font-size: 14px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid var(--app-border-color);
+  border-radius: 12px;
+  font-size: 16px;
+  background: var(--app-input-bg);
+  color: var(--app-text-color);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--tg-theme-button-color);
+  box-shadow: 0 0 0 3px rgba(29, 92, 237, 0.1);
+}
+
+.form-input.error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--app-text-secondary);
+  opacity: 0.6;
+}
+
+.form-input:disabled {
+  background: var(--app-card-hover);
+  color: var(--app-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error-message {
+  font-size: 14px;
+  color: #e74c3c;
+  margin-top: 4px;
+}
+
+.success-hint {
+  font-size: 14px;
+  color: #28a745;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.submit-button {
+  width: 100%;
+  background: var(--tg-theme-button-color);
+  color: white;
+  border: none;
+  padding: 18px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(29, 92, 237, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  min-height: 56px;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #1548c7;
+}
+
+.submit-button:active:not(:disabled) {
+  background: #0f3aa3;
+}
+
+.submit-button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button.loading {
+  background: #95a5a6;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-form {
+    padding: 20px 16px;
+  }
+  
+  .contact-form__container {
+    gap: 30px;
+  }
+  
+  .contact-form__title h1 {
+    font-size: 32px;
+  }
+  
+  .contact-form__title > p {
+    font-size: 16px;
+  }
+  
+  .contact-form__form {
+    gap: 20px;
+  }
+  
+  .form-input {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+  
+  .submit-button {
+    padding: 16px 24px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-form__title h1 {
+    font-size: 28px;
+  }
+  
+  .form-label {
+    font-size: 14px;
+  }
+  
+  .form-input {
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+  
+  .submit-button {
+    padding: 14px 20px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+}

@@ -1,0 +1,12 @@
+.app {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--tg-theme-bg-color);
+}
+
+.layout {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+

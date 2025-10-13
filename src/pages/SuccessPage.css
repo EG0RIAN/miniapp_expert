@@ -1,0 +1,351 @@
+.success-page {
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--app-bg-color);
+  animation: fadeIn 0.6s ease-in;
+}
+
+.success-page__container {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  text-align: center;
+}
+
+.success-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.success-checkmark {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, rgba(79, 172, 254, 0.8) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: successPulse 2s ease-in-out infinite;
+}
+
+.checkmark-circle {
+  width: 60px;
+  height: 60px;
+  position: relative;
+}
+
+.checkmark-stem {
+  position: absolute;
+  width: 6px;
+  height: 30px;
+  background: white;
+  border-radius: 3px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  transform-origin: bottom center;
+  animation: checkmarkStem 0.8s ease-in-out 0.5s both;
+}
+
+.checkmark-kick {
+  position: absolute;
+  width: 6px;
+  height: 18px;
+  background: white;
+  border-radius: 3px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  transform-origin: bottom center;
+  animation: checkmarkKick 0.8s ease-in-out 0.8s both;
+}
+
+.success-content h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: var(--app-text-color);
+}
+
+.success-content h1 p {
+  margin: 0;
+}
+
+.success-message {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--app-text-secondary);
+  margin-bottom: 40px;
+  max-width: 500px;
+  text-align: center;
+}
+
+.success-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 40px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 20px;
+  background: var(--app-card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--app-shadow-sm);
+  border: 1px solid var(--app-border-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--tg-theme-button-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.detail-item:hover::before {
+  opacity: 1;
+}
+
+.detail-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--app-shadow-md);
+}
+
+.detail-icon {
+  font-size: 28px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tg-theme-button-color);
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--tg-theme-button-text-color);
+  box-shadow: 0 4px 12px var(--app-shadow-md);
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover .detail-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px var(--app-shadow-md);
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+  flex: 1;
+}
+
+.detail-text strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--app-text-color);
+  letter-spacing: -0.2px;
+}
+
+.detail-text span {
+  font-size: 15px;
+  color: var(--app-text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.success-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.back-button {
+  background: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px var(--app-shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 200px;
+  min-height: 56px;
+}
+
+.back-button:hover {
+  opacity: 0.9;
+}
+
+.back-button:active {
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes successPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(29, 92, 237, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 20px rgba(29, 92, 237, 0);
+  }
+}
+
+@keyframes checkmarkStem {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 30px;
+  }
+}
+
+@keyframes checkmarkKick {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .success-page {
+    padding: 20px 16px;
+  }
+  
+  .success-page__container {
+    gap: 30px;
+  }
+  
+  .success-checkmark {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .checkmark-circle {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .success-content h1 {
+    font-size: 32px;
+  }
+  
+  .success-message {
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+  
+  .success-details {
+    gap: 14px;
+    margin-bottom: 30px;
+    max-width: 450px;
+  }
+  
+  .detail-item {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+  
+  .detail-icon {
+    font-size: 24px;
+    width: 48px;
+    height: 48px;
+  }
+  
+  .detail-text strong {
+    font-size: 15px;
+  }
+  
+  .detail-text span {
+    font-size: 14px;
+  }
+  
+  .back-button {
+    padding: 14px 28px;
+    font-size: 14px;
+    min-width: 180px;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .success-content h1 {
+    font-size: 28px;
+  }
+  
+  .success-checkmark {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .checkmark-circle {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .success-message {
+    font-size: 15px;
+  }
+  
+  .detail-item {
+    padding: 16px 12px;
+    gap: 12px;
+  }
+  
+  .detail-icon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .detail-text strong {
+    font-size: 14px;
+  }
+  
+  .detail-text span {
+    font-size: 13px;
+  }
+}
