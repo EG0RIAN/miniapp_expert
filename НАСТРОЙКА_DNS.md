@@ -139,3 +139,6 @@ certbot certificates
 **Nginx:** ✅ Работает  
 **Осталось:** Настроить DNS → Получить SSL
 
+
+
+
