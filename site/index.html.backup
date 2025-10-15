@@ -4,48 +4,9 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-    <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64x64.png" />
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-    <link rel="icon" type="image/png" sizes="128x128" href="/favicon-128x128.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
-    <link rel="icon" type="image/png" sizes="256x256" href="/favicon-256x256.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    
-    <!-- Primary Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-lang-ru="MiniAppExpert - Разработка Telegram Mini Apps для вашего бизнеса" data-lang-en="MiniAppExpert - Telegram Mini Apps Development for Your Business">MiniAppExpert - Разработка Telegram Mini Apps для вашего бизнеса</title>
-    <meta name="title" content="MiniAppExpert - Разработка Telegram Mini Apps для бизнеса">
     <meta name="description" data-lang-ru="Создаём Telegram Mini Apps, которые увеличивают продажи. 50M+ пользователей, 40% рост конверсии. Быстрый запуск от 2 недель." data-lang-en="We create Telegram Mini Apps that increase sales. 50M+ users, 40% conversion growth. Quick launch from 2 weeks." content="Создаём Telegram Mini Apps, которые увеличивают продажи. 50M+ пользователей, 40% рост конверсии. Быстрый запуск от 2 недель.">
-    <meta name="keywords" content="telegram mini apps, разработка mini apps, телеграм приложения, мини приложения telegram, telegram web apps, twa разработка">
-    <meta name="author" content="MiniAppExpert">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://miniapp.expert/">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://miniapp.expert/">
-    <meta property="og:title" content="MiniAppExpert - Разработка Telegram Mini Apps">
-    <meta property="og:description" content="Создаём Telegram Mini Apps, которые увеличивают продажи. 50M+ пользователей, 40% рост конверсии.">
-    <meta property="og:image" content="https://miniapp.expert/images/og-image.jpg">
-    <meta property="og:locale" content="ru_RU">
-    <meta property="og:locale:alternate" content="en_US">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://miniapp.expert/">
-    <meta property="twitter:title" content="MiniAppExpert - Разработка Telegram Mini Apps">
-    <meta property="twitter:description" content="Создаём Telegram Mini Apps, которые увеличивают продажи.">
-    <meta property="twitter:image" content="https://miniapp.expert/images/og-image.jpg">
-    
-    <!-- Telegram -->
-    <meta name="telegram:channel" content="@miniappexpert">
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#10B981">
-    <meta name="msapplication-TileColor" content="#10B981">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -139,129 +100,6 @@
             filter: brightness(0) saturate(100%);
         }
         
-        /* Burger Menu Styles */
-        .burger-menu {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        
-        .burger-menu span {
-            width: 25px;
-            height: 3px;
-            background: #10B981;
-            margin: 3px 0;
-            transition: 0.3s;
-            border-radius: 3px;
-        }
-        
-        .burger-menu.active span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
-        }
-        
-        .burger-menu.active span:nth-child(2) {
-            opacity: 0;
-        }
-        
-        .burger-menu.active span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
-        }
-        
-        /* Mobile Menu */
-        .mobile-menu {
-            display: none;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            z-index: 999;
-            max-height: calc(100vh - 80px);
-            overflow-y: auto;
-        }
-        
-        .mobile-menu.active {
-            display: block;
-        }
-        
-        /* Mobile Fixes */
-        @media (max-width: 768px) {
-            .burger-menu {
-                display: flex;
-            }
-            
-            .desktop-nav {
-                display: none;
-            }
-            
-            /* Fix overlapping elements */
-            h1, h2, h3 {
-                line-height: 1.2;
-                margin-bottom: 1rem;
-            }
-            
-            .container {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-            
-            /* Fix card overlaps */
-            .card-hover {
-                margin-bottom: 1.5rem;
-            }
-            
-            .card-hover:hover {
-                transform: translateY(-5px) scale(1.01);
-            }
-            
-            /* Fix text overflow */
-            .text-4xl {
-                font-size: 2rem !important;
-            }
-            
-            .text-5xl {
-                font-size: 2.5rem !important;
-            }
-            
-            .text-6xl {
-                font-size: 3rem !important;
-            }
-            
-            /* Fix button sizes */
-            button, .btn {
-                padding: 0.75rem 1.5rem;
-                font-size: 1rem;
-            }
-            
-            /* Fix spacing */
-            section {
-                padding-top: 3rem;
-                padding-bottom: 3rem;
-            }
-            
-            /* Fix images */
-            img {
-                max-width: 100%;
-                height: auto;
-            }
-        }
-        
-        @media (max-width: 640px) {
-            .text-4xl {
-                font-size: 1.75rem !important;
-            }
-            
-            .text-5xl {
-                font-size: 2rem !important;
-            }
-            
-            .text-6xl {
-                font-size: 2.25rem !important;
-            }
-        }
-        
         /* Hero Carousel */
         .hero-slide {
             position: absolute;
@@ -282,7 +120,7 @@
     
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-50">
-        <nav class="max-w-7xl mx-auto px-4 md:px-6 py-4">
+        <nav class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -290,53 +128,24 @@
                             <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <div class="text-xl md:text-2xl font-bold gradient-text">MiniAppExpert</div>
+                    <div class="text-2xl font-bold gradient-text">MiniAppExpert</div>
                 </div>
-                
-                <!-- Desktop Navigation -->
-                <div class="desktop-nav hidden md:flex items-center space-x-6">
+                <div class="hidden md:flex items-center space-x-6">
                     <a href="#cases" class="text-gray-700 hover:text-primary transition" data-lang-ru="Кейсы" data-lang-en="Cases">Кейсы</a>
                     <a href="#advantages" class="text-gray-700 hover:text-primary transition" data-lang-ru="Преимущества" data-lang-en="Advantages">Преимущества</a>
                     <a href="#process" class="text-gray-700 hover:text-primary transition" data-lang-ru="Процесс" data-lang-en="Process">Процесс</a>
                     <a href="#contact" class="text-gray-700 hover:text-primary transition" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
-                    <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition text-sm" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
+                    <a href="https://t.me/aicopywriterTestbot/miniapp" target="_blank" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition text-sm" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
                     <button id="lang-switcher" class="flex items-center space-x-2 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
                         <span class="text-lg">🌐</span>
                         <span data-lang-ru="RU" data-lang-en="EN">RU</span>
                     </button>
                 </div>
-                
-                <!-- Desktop CTA Button -->
-                <a href="#contact" class="hidden md:block bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
+                <a href="#contact" class="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
                     Обсудить проект
                 </a>
-                
-                <!-- Burger Menu -->
-                <div class="burger-menu" id="burger-menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
             </div>
         </nav>
-        
-        <!-- Mobile Menu -->
-        <div class="mobile-menu" id="mobile-menu">
-            <div class="px-6 py-4 space-y-4">
-                <a href="#cases" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Кейсы" data-lang-en="Cases">Кейсы</a>
-                <a href="#advantages" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Преимущества" data-lang-en="Advantages">Преимущества</a>
-                <a href="#process" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Процесс" data-lang-en="Process">Процесс</a>
-                <a href="#contact" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
-                <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="block bg-secondary text-white px-4 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition text-center" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
-                <a href="#contact" class="block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition text-center" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
-                    Обсудить проект
-                </a>
-                <button id="lang-switcher-mobile" class="flex items-center justify-center space-x-2 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100 w-full">
-                    <span class="text-lg">🌐</span>
-                    <span data-lang-ru="RU" data-lang-en="EN">RU</span>
-                </button>
-            </div>
-        </div>
     </header>
 
     <!-- Hero Section -->
@@ -368,7 +177,7 @@
                                 <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                             </span>
                         </a>
-                        <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="group bg-gradient-to-r from-secondary to-tgblue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 text-center transform hover:-translate-y-1">
+                        <a href="https://t.me/aicopywriterTestbot/miniapp" target="_blank" class="group bg-gradient-to-r from-secondary to-tgblue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 text-center transform hover:-translate-y-1">
                             <span class="flex items-center justify-center">
                                 <span data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</span>
                                 <span class="ml-2 group-hover:scale-110 transition-transform">⚡</span>
@@ -1263,65 +1072,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             initLanguage();
             const langSwitcher = document.getElementById('lang-switcher');
-            const langSwitcherMobile = document.getElementById('lang-switcher-mobile');
             if (langSwitcher) {
                 langSwitcher.addEventListener('click', toggleLanguage);
             }
-            if (langSwitcherMobile) {
-                langSwitcherMobile.addEventListener('click', toggleLanguage);
-            }
-            
-            // Burger Menu
-            const burgerMenu = document.getElementById('burger-menu');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            if (burgerMenu && mobileMenu) {
-                burgerMenu.addEventListener('click', function() {
-                    burgerMenu.classList.toggle('active');
-                    mobileMenu.classList.toggle('active');
-                    document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-                });
-                
-                // Close mobile menu when clicking on a link
-                const mobileLinks = mobileMenu.querySelectorAll('a');
-                mobileLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        burgerMenu.classList.remove('active');
-                        mobileMenu.classList.remove('active');
-                        document.body.style.overflow = '';
-                    });
-                });
-                
-                // Close menu on window resize
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth > 768) {
-                        burgerMenu.classList.remove('active');
-                        mobileMenu.classList.remove('active');
-                        document.body.style.overflow = '';
-                    }
-                });
-            }
         });
-    </script>
-    
-    <!-- Structured Data for SEO -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "MiniAppExpert",
-      "url": "https://miniapp.expert",
-      "logo": "https://miniapp.expert/favicon.svg",
-      "description": "Разработка Telegram Mini Apps для вашего бизнеса",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "hello@miniapp.expert",
-        "contactType": "Customer Service"
-      },
-      "sameAs": [
-        "https://t.me/miniappexpert"
-      ]
-    }
     </script>
 </body>
 </html>
