@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Вход в личный кабинет | MiniAppExpert</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#0088CC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #10B981 0%, #0088CC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-mint-50 via-white to-blue-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-4">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center justify-center space-x-3 mb-4">
+                <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="text-3xl font-bold gradient-text">MiniAppExpert</div>
+            </a>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Личный кабинет</h1>
+            <p class="text-gray-600">Управляйте вашими приложениями</p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="bg-white rounded-2xl p-2 shadow-sm mb-6 flex">
+            <button onclick="switchTab('login')" id="loginTab" class="flex-1 py-3 rounded-xl font-semibold transition bg-primary text-white">
+                Вход
+            </button>
+            <button onclick="switchTab('register')" id="registerTab" class="flex-1 py-3 rounded-xl font-semibold transition text-gray-600 hover:bg-gray-50">
+                Регистрация
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="bg-white rounded-3xl shadow-2xl p-8">
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        required
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                        placeholder="your@email.com"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Пароль</label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            required
+                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                            placeholder="••••••••"
+                        >
+                        <button type="button" onclick="togglePassword('loginPassword')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                        <span class="ml-2 text-sm text-gray-600">Запомнить меня</span>
+                    </label>
+                    <a href="#" class="text-sm text-primary hover:text-primary/80 font-semibold">Забыли пароль?</a>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                >
+                    Войти
+                </button>
+            </form>
+
+            <!-- Demo credentials -->
+            <div class="mt-6 p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                <p class="text-sm font-semibold text-green-800 mb-2">🔑 Тестовый доступ:</p>
+                <p class="text-xs text-green-700">Email: <code class="bg-green-100 px-2 py-1 rounded">client@example.com</code></p>
+                <p class="text-xs text-green-700">Пароль: <code class="bg-green-100 px-2 py-1 rounded">demo123</code></p>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="bg-white rounded-3xl shadow-2xl p-8 hidden">
+            <form onsubmit="handleRegister(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Имя и фамилия</label>
+                    <input 
+                        type="text" 
+                        id="registerName" 
+                        required
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                        placeholder="Иван Петров"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input 
+                        type="email" 
+                        id="registerEmail" 
+                        required
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                        placeholder="your@email.com"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Телефон</label>
+                    <input 
+                        type="tel" 
+                        id="registerPhone" 
+                        required
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                        placeholder="+7 (___) ___-__-__"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Пароль</label>
+                    <input 
+                        type="password" 
+                        id="registerPassword" 
+                        required
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                        placeholder="Минимум 6 символов"
+                        minlength="6"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Подтвердите пароль</label>
+                    <input 
+                        type="password" 
+                        id="registerPasswordConfirm" 
+                        required
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
+                        placeholder="Повторите пароль"
+                    >
+                </div>
+
+                <label class="flex items-start">
+                    <input type="checkbox" required class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary mt-0.5">
+                    <span class="ml-3 text-sm text-gray-600">
+                        Я принимаю <a href="/privacy.html" class="text-primary hover:underline">политику конфиденциальности</a> и условия использования
+                    </span>
+                </label>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                >
+                    Зарегистрироваться
+                </button>
+            </form>
+        </div>
+
+        <!-- Back to site -->
+        <div class="text-center mt-6">
+            <a href="/" class="text-gray-600 hover:text-primary transition text-sm">
+                ← Вернуться на сайт
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginTab').classList.add('bg-primary', 'text-white');
+                document.getElementById('loginTab').classList.remove('text-gray-600');
+                document.getElementById('registerTab').classList.remove('bg-primary', 'text-white');
+                document.getElementById('registerTab').classList.add('text-gray-600');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('registerTab').classList.add('bg-primary', 'text-white');
+                document.getElementById('registerTab').classList.remove('text-gray-600');
+                document.getElementById('loginTab').classList.remove('bg-primary', 'text-white');
+                document.getElementById('loginTab').classList.add('text-gray-600');
+            }
+        }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Demo login
+            if (email === 'client@example.com' && password === 'demo123') {
+                localStorage.setItem('userAuth', 'true');
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('userName', 'Демо Клиент');
+                window.location.href = '/cabinet.html';
+            } else {
+                alert('❌ Неверный email или пароль\n\nИспользуйте тестовые данные:\nclient@example.com / demo123');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            
+            if (password !== passwordConfirm) {
+                alert('❌ Пароли не совпадают');
+                return;
+            }
+            
+            // Save user data
+            localStorage.setItem('userAuth', 'true');
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userRegistrationDate', new Date().toISOString());
+            
+            alert('✅ Регистрация успешна!\n\nДобро пожаловать в личный кабинет!');
+            window.location.href = '/cabinet.html';
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('userAuth') === 'true') {
+            window.location.href = '/cabinet.html';
+        }
+    </script>
+</body>
+</html>
+
