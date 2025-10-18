@@ -325,131 +325,161 @@
             
             <div class="grid md:grid-cols-2 gap-12 mb-16">
                 <!-- Admin Screenshot 1 - Dashboard -->
-                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden cursor-pointer screenshot-container" onclick="openLightbox('admin1')">
-                    <div class="p-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-2xl font-bold">Панель управления</h3>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm">A</div>
-                                <span class="font-semibold">Админ</span>
-                            </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-dashboard.png')">
+                        <img 
+                            src="/images/screenshots/real-estate/admin-dashboard.png" 
+                            alt="Дашборд админ-панели" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E📊 Дашборд%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот админ-панели%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-dashboard.png%3C/text%3E%3C/svg%3E'"
+                        >
+                        <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-3xl">🔍</div>
                         </div>
-                        
-                        <!-- Stats Cards -->
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4">
-                                <div class="text-sm text-gray-600 mb-1">Всего объектов</div>
-                                <div class="text-3xl font-bold text-primary">248</div>
-                            </div>
-                            <div class="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-2xl p-4">
-                                <div class="text-sm text-gray-600 mb-1">Активных</div>
-                                <div class="text-3xl font-bold text-secondary">186</div>
-                            </div>
-                            <div class="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl p-4">
-                                <div class="text-sm text-gray-600 mb-1">Заявки сегодня</div>
-                                <div class="text-3xl font-bold text-green-600">12</div>
-                            </div>
-                            <div class="bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl p-4">
-                                <div class="text-sm text-gray-600 mb-1">В обработке</div>
-                                <div class="text-3xl font-bold text-orange-600">8</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Recent Properties -->
-                        <div>
-                            <h4 class="font-bold mb-4">Последние объекты</h4>
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-200 to-purple-200 rounded-lg flex items-center justify-center">
-                                            🏢
-                                        </div>
-                                        <div>
-                                            <div class="font-semibold">ЖК "Новый квартал"</div>
-                                            <div class="text-sm text-gray-500">3 комн, 85 м²</div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="font-bold text-primary">8.5М₽</div>
-                                        <div class="text-xs text-green-600">● Активно</div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-12 h-12 bg-gradient-to-br from-green-200 to-blue-200 rounded-lg flex items-center justify-center">
-                                            🏡
-                                        </div>
-                                        <div>
-                                            <div class="font-semibold">ЖК "Зеленый берег"</div>
-                                            <div class="text-sm text-gray-500">2 комн, 62 м²</div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="font-bold text-primary">6.2М₽</div>
-                                        <div class="text-xs text-green-600">● Активно</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Панель управления</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Главный экран админ-панели со всей важной статистикой. Отслеживайте количество объектов, заявок и активность в режиме реального времени.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Статистика в реальном времени</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Счетчики объектов и заявок</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">График активности</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Быстрый доступ к функциям</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
                 <!-- Admin Screenshot 2 - Add Property -->
-                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden cursor-pointer screenshot-container" onclick="openLightbox('admin2')">
-                    <div class="p-8">
-                        <h3 class="text-2xl font-bold mb-6">Добавить объект</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-sm font-semibold text-gray-700 mb-2 block">Название</label>
-                                <input type="text" placeholder="ЖК 'Новый квартал'" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none" value="ЖК 'Новый квартал'">
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-sm font-semibold text-gray-700 mb-2 block">Цена, ₽</label>
-                                    <input type="text" placeholder="8 500 000" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none" value="8 500 000">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-gray-700 mb-2 block">Площадь, м²</label>
-                                    <input type="text" placeholder="85" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none" value="85">
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-3 gap-4">
-                                <div>
-                                    <label class="text-sm font-semibold text-gray-700 mb-2 block">Комнат</label>
-                                    <select class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none">
-                                        <option>3</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-gray-700 mb-2 block">Этаж</label>
-                                    <input type="text" placeholder="5" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none" value="5">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-gray-700 mb-2 block">Этажей</label>
-                                    <input type="text" placeholder="12" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none" value="12">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="text-sm font-semibold text-gray-700 mb-2 block">Фотографии</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary transition cursor-pointer">
-                                    <div class="text-4xl mb-2">📸</div>
-                                    <div class="text-sm text-gray-600">Загрузить фото</div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-3">
-                                <button class="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold hover:shadow-xl transition">
-                                    Опубликовать
-                                </button>
-                                <button class="px-6 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition">
-                                    Отмена
-                                </button>
-                            </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-add-property.png')">
+                        <img 
+                            src="/images/screenshots/real-estate/admin-add-property.png" 
+                            alt="Добавление объекта недвижимости" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%230088CC\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E➕ Добавление объекта%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот формы%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-add-property.png%3C/text%3E%3C/svg%3E'"
+                        >
+                        <div class="absolute inset-0 bg-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-3xl">🔍</div>
                         </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Добавление объекта</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Интуитивная форма для быстрого добавления новой недвижимости. Все поля, загрузка фото, предпросмотр перед публикацией.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Удобная форма со всеми полями</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Загрузка нескольких фото</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Автосохранение черновиков</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Предпросмотр перед публикацией</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Admin Screenshots -->
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Admin Screenshot 3 - Requests -->
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-requests.png')">
+                        <img 
+                            src="/images/screenshots/real-estate/admin-requests.png" 
+                            alt="Управление заявками" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E📬 Заявки%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот заявок%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-requests.png%3C/text%3E%3C/svg%3E'"
+                        >
+                        <div class="absolute inset-0 bg-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-3xl">🔍</div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Управление заявками</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Централизованная система обработки заявок на просмотр. Все запросы клиентов в одном месте с возможностью изменения статусов.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Таблица с фильтрацией и поиском</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Статусы: Новая/В работе/Завершена</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Контакты клиента в один клик</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Экспорт в Excel/CSV</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Admin Screenshot 4 - Analytics -->
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-analytics.png')">
+                        <img 
+                            src="/images/screenshots/real-estate/admin-analytics.png" 
+                            alt="Аналитика и статистика" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%23f59e0b\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E📈 Аналитика%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот аналитики%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-analytics.png%3C/text%3E%3C/svg%3E'"
+                        >
+                        <div class="absolute inset-0 bg-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-3xl">🔍</div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Аналитика и отчеты</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Детальная статистика по просмотрам, заявкам и популярным объектам. Графики, таблицы, экспорт данных для анализа эффективности.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-orange-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Графики просмотров и конверсий</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-orange-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">ТОП популярных объектов</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-orange-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Воронка продаж</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-orange-600 mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Экспорт отчетов</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
