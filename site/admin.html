@@ -308,13 +308,26 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm p-6">
-                        <h2 class="text-xl font-bold mb-4">Данные</h2>
-                        <div class="space-y-4">
-                            <button onclick="exportData()" class="bg-secondary text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition">
-                                📥 Экспортировать данные
+                        <h2 class="text-xl font-bold mb-4">Управление данными</h2>
+                        <div class="space-y-3">
+                            <button onclick="exportAllData()" class="w-full bg-gradient-to-r from-primary to-secondary text-white px-6 py-4 rounded-xl font-semibold hover:shadow-xl transition">
+                                📥 Экспортировать все данные
                             </button>
-                            <button onclick="clearData()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-700 transition">
-                                🗑️ Очистить все данные
+                            <button onclick="importData()" class="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-blue-700 transition">
+                                📤 Импортировать данные
+                            </button>
+                            <div class="border-t-2 pt-3 mt-3"></div>
+                            <button onclick="deleteAllCases()" class="w-full bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-700 transition text-sm">
+                                🗑️ Удалить все кейсы
+                            </button>
+                            <button onclick="deleteAllSolutions()" class="w-full bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-700 transition text-sm">
+                                🗑️ Удалить все решения
+                            </button>
+                            <button onclick="deleteAllUsers()" class="w-full bg-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-700 transition text-sm">
+                                ⚠️ Удалить всех пользователей
+                            </button>
+                            <button onclick="clearData()" class="w-full bg-red-800 text-white px-6 py-4 rounded-xl font-bold hover:bg-red-900 transition">
+                                🔥 ОЧИСТИТЬ ВСЁ
                             </button>
                         </div>
                     </div>
@@ -323,7 +336,20 @@
         </main>
     </div>
 
+    <!-- Include modals -->
+    <div id="modalsContainer"></div>
+
     <script src="admin.js"></script>
+    <script src="admin-crud.js"></script>
+    <script>
+        // Load modals
+        fetch('admin-modals.html')
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('modalsContainer').innerHTML = html;
+            })
+            .catch(e => console.log('Modals not loaded, using fallback'));
+    </script>
 </body>
 </html>
 

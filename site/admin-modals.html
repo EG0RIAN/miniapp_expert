@@ -1,0 +1,255 @@
+<!-- Модальные окна для админки -->
+
+<!-- Universal Modal -->
+<div id="universalModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 rounded-t-3xl">
+            <div class="flex items-center justify-between">
+                <h2 id="modalTitle" class="text-2xl font-bold">Модальное окно</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">
+                    ×
+                </button>
+            </div>
+        </div>
+        <div id="modalContent" class="p-8">
+            <!-- Content will be injected here -->
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Case Modal -->
+<template id="caseFormTemplate">
+    <form id="caseForm" class="space-y-6">
+        <input type="hidden" id="caseId">
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Название кейса *</label>
+            <input 
+                type="text" 
+                id="caseTitle" 
+                required
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                placeholder="Mosca Caffè"
+            >
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Описание *</label>
+            <textarea 
+                id="caseDescription" 
+                required
+                rows="4"
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none resize-none"
+                placeholder="Сеть кофеен с программой лояльности"
+            ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Иконка (emoji)</label>
+                <input 
+                    type="text" 
+                    id="caseIcon" 
+                    maxlength="2"
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none text-3xl text-center"
+                    placeholder="☕"
+                >
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Дата</label>
+                <input 
+                    type="date" 
+                    id="caseDate" 
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                >
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Ссылка на приложение (необязательно)</label>
+            <input 
+                type="url" 
+                id="caseLink" 
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                placeholder="https://t.me/bot/app"
+            >
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold hover:shadow-xl transition">
+                Сохранить
+            </button>
+            <button type="button" onclick="closeModal()" class="px-8 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition">
+                Отмена
+            </button>
+        </div>
+    </form>
+</template>
+
+<!-- Add/Edit Solution Modal -->
+<template id="solutionFormTemplate">
+    <form id="solutionForm" class="space-y-6">
+        <input type="hidden" id="solutionId">
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Название решения *</label>
+            <input 
+                type="text" 
+                id="solutionTitle" 
+                required
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                placeholder="Mini App для недвижимости"
+            >
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Описание *</label>
+            <textarea 
+                id="solutionDescription" 
+                required
+                rows="4"
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none resize-none"
+                placeholder="Каталог объектов, фильтры, запись на просмотр..."
+            ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Цена *</label>
+                <input 
+                    type="text" 
+                    id="solutionPrice" 
+                    required
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                    placeholder="от 150K₽"
+                >
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Иконка (emoji)</label>
+                <input 
+                    type="text" 
+                    id="solutionIcon" 
+                    maxlength="2"
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none text-3xl text-center"
+                    placeholder="🏢"
+                >
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Срок запуска</label>
+                <input 
+                    type="text" 
+                    id="solutionLaunchTime" 
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                    placeholder="2-3 дня"
+                >
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Статус</label>
+                <select 
+                    id="solutionAvailable" 
+                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                >
+                    <option value="true">✅ Доступен</option>
+                    <option value="false">⏳ Скоро</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold hover:shadow-xl transition">
+                Сохранить
+            </button>
+            <button type="button" onclick="closeModal()" class="px-8 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition">
+                Отмена
+            </button>
+        </div>
+    </form>
+</template>
+
+<!-- Add/Edit User Modal -->
+<template id="userFormTemplate">
+    <form id="userForm" class="space-y-6">
+        <input type="hidden" id="userId">
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Имя и фамилия *</label>
+            <input 
+                type="text" 
+                id="userName" 
+                required
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                placeholder="Иван Петров"
+            >
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+            <input 
+                type="email" 
+                id="userEmail" 
+                required
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                placeholder="ivan@example.com"
+            >
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Телефон</label>
+            <input 
+                type="tel" 
+                id="userPhone" 
+                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                placeholder="+7 (999) 123-45-67"
+            >
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold hover:shadow-xl transition">
+                Сохранить
+            </button>
+            <button type="button" onclick="closeModal()" class="px-8 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition">
+                Отмена
+            </button>
+        </div>
+    </form>
+</template>
+
+<!-- Manage Products Modal -->
+<template id="manageProductsTemplate">
+    <div id="manageProductsContent">
+        <p class="text-gray-600 mb-6">Выберите продукты для пользователя</p>
+        <div class="space-y-3" id="productCheckboxes">
+            <!-- Will be populated dynamically -->
+        </div>
+        <div class="mt-6 flex gap-3">
+            <button onclick="saveUserProducts()" class="flex-1 bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition">
+                Сохранить изменения
+            </button>
+            <button onclick="closeModal()" class="px-8 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition">
+                Отмена
+            </button>
+        </div>
+    </div>
+</template>
+
+<!-- Manage Subscriptions Modal -->
+<template id="manageSubscriptionsTemplate">
+    <div id="manageSubscriptionsContent">
+        <p class="text-gray-600 mb-6">Управление подписками пользователя</p>
+        <div class="space-y-3" id="subscriptionCheckboxes">
+            <!-- Will be populated dynamically -->
+        </div>
+        <div class="mt-6 flex gap-3">
+            <button onclick="saveUserSubscriptions()" class="flex-1 bg-secondary text-white py-4 rounded-xl font-bold hover:bg-secondary/90 transition">
+                Сохранить изменения
+            </button>
+            <button onclick="closeModal()" class="px-8 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition">
+                Отмена
+            </button>
+        </div>
+    </div>
+</template>
+
