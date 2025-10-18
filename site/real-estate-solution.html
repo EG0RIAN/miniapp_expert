@@ -736,14 +736,35 @@
                         </div>
 
                         <div class="border-t-2 border-gray-300 pt-4 mb-6">
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mb-4">
                                 <span class="text-xl font-bold">К оплате:</span>
                                 <span class="text-4xl font-black text-primary">150 000₽</span>
                             </div>
+                            
+                            <!-- T-Bank Installment -->
+                            <div class="bg-white rounded-xl p-4 border-2 border-yellow-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-yellow-400 text-black px-3 py-1 rounded-lg font-bold text-sm">
+                                        Т-Банк
+                                    </div>
+                                    <span class="font-semibold text-gray-900">Рассрочка 0%</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">
+                                    Оплата частями без переплат на 3, 6 или 12 месяцев
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-700">Платеж от:</span>
+                                    <span class="text-2xl font-bold text-yellow-600">12 500₽/мес</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary text-white px-10 py-5 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                        <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary text-white px-10 py-5 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 mb-3">
                             Перейти к оплате →
+                        </button>
+                        
+                        <button type="button" onclick="alert('Выберите рассрочку на странице оплаты')" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black px-10 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:-translate-y-1">
+                            💳 Оплатить в рассрочку
                         </button>
                         
                         <p class="text-center text-sm text-gray-600 mt-4">
