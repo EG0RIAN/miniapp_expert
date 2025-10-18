@@ -570,15 +570,58 @@
                                     placeholder="Например: Дом Мечты"
                                 >
                             </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Ваш телефон *</label>
+                                    <input 
+                                        type="tel" 
+                                        id="phone" 
+                                        required
+                                        class="w-full border-2 border-gray-200 rounded-xl px-6 py-4 focus:border-primary outline-none transition text-lg"
+                                        placeholder="+7 (___) ___-__-__"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        required
+                                        class="w-full border-2 border-gray-200 rounded-xl px-6 py-4 focus:border-primary outline-none transition text-lg"
+                                        placeholder="info@example.com"
+                                    >
+                                </div>
+                            </div>
+
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Ваш телефон *</label>
-                                <input 
-                                    type="tel" 
-                                    id="phone" 
-                                    required
-                                    class="w-full border-2 border-gray-200 rounded-xl px-6 py-4 focus:border-primary outline-none transition text-lg"
-                                    placeholder="+7 (___) ___-__-__"
-                                >
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Логотип агентства</label>
+                                <div class="relative">
+                                    <input 
+                                        type="file" 
+                                        id="logo" 
+                                        accept="image/*"
+                                        class="hidden"
+                                        onchange="previewLogo(event)"
+                                    >
+                                    <div 
+                                        onclick="document.getElementById('logo').click()" 
+                                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary transition cursor-pointer bg-gray-50"
+                                    >
+                                        <div id="logoPreview" class="hidden mb-4">
+                                            <img id="logoImage" src="" alt="Logo preview" class="max-h-32 mx-auto rounded-lg">
+                                        </div>
+                                        <div id="logoPlaceholder">
+                                            <div class="text-5xl mb-3">🏢</div>
+                                            <div class="text-gray-700 font-semibold mb-1">Загрузите логотип</div>
+                                            <div class="text-sm text-gray-500">PNG, JPG, SVG до 5MB</div>
+                                        </div>
+                                        <button type="button" class="mt-3 text-primary hover:text-primary/80 font-semibold text-sm">
+                                            Выбрать файл
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Логотип будет отображаться в вашем приложении</p>
                             </div>
                         </div>
                     </div>
@@ -828,6 +871,20 @@
             document.getElementById('lightbox').classList.remove('active');
         }
 
+        // Logo preview function
+        function previewLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoImage').src = e.target.result;
+                    document.getElementById('logoPreview').classList.remove('hidden');
+                    document.getElementById('logoPlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         // Color picker synchronization
         document.addEventListener('DOMContentLoaded', function() {
             const primaryColor = document.getElementById('primaryColor');
@@ -867,9 +924,12 @@
             document.getElementById('quickOrderForm').addEventListener('submit', function(e) {
                 e.preventDefault();
 
+                const logoFile = document.getElementById('logo').files[0];
                 const formData = {
                     companyName: document.getElementById('companyName').value,
                     phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    logo: logoFile ? logoFile.name : 'Не загружен',
                     primaryColor: primaryColor.value,
                     secondaryColor: secondaryColor.value,
                     features: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.nextElementSibling.querySelector('.font-semibold').textContent),
@@ -889,7 +949,9 @@
                 alert('🎉 Заказ принят!\n\n' + 
                       'Мы свяжемся с вами в течение 15 минут для завершения настройки.\n\n' +
                       'Агентство: ' + formData.companyName + '\n' +
-                      'Телефон: ' + formData.phone);
+                      'Email: ' + formData.email + '\n' +
+                      'Телефон: ' + formData.phone + '\n' +
+                      'Логотип: ' + formData.logo);
 
                 // Optional: redirect to payment
                 // window.location.href = '/payment.html';
