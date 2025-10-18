@@ -54,6 +54,9 @@ function loadSectionData(sectionId) {
         case 'requests':
             loadRequests();
             break;
+        case 'users':
+            loadUsers();
+            break;
     }
 }
 
@@ -63,12 +66,16 @@ function loadDashboard() {
     const cases = JSON.parse(localStorage.getItem('cases') || '[]');
     const solutions = JSON.parse(localStorage.getItem('solutions') || '[]');
     const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
     const newRequests = requests.filter(r => r.status === 'new').length;
     
     document.getElementById('statCases').textContent = cases.length;
     document.getElementById('statSolutions').textContent = solutions.length;
     document.getElementById('statRequests').textContent = requests.length;
     document.getElementById('statNewRequests').textContent = newRequests;
+    
+    // Update users count in sidebar
+    document.getElementById('usersCount').textContent = `${users.length} клиентов`;
     
     // Update login time
     const loginTime = localStorage.getItem('adminLoginTime');
@@ -369,6 +376,267 @@ function clearData() {
     }
 }
 
+// Load Users
+function loadUsers() {
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const container = document.getElementById('usersList');
+    
+    if (users.length === 0) {
+        container.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <div class="text-6xl mb-4">👥</div>
+                <h3 class="text-2xl font-bold mb-2">Пока нет пользователей</h3>
+                <p class="text-gray-600 mb-6">Пользователи появятся после регистрации или добавьте вручную</p>
+                <button onclick="openAddUserModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                    + Добавить пользователя
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = users.map(user => `
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <div class="flex items-start justify-between">
+                <div class="flex items-start space-x-4 flex-1">
+                    <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        ${user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold mb-1">${user.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3">${user.email}</p>
+                        <div class="flex gap-2 mb-3">
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                                ${user.products ? user.products.length : 0} продуктов
+                            </span>
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
+                                ${user.subscriptions ? user.subscriptions.length : 0} подписок
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500">Регистрация: ${formatDate(user.registrationDate)}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="manageUserProducts('${user.id}')" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">
+                        📱 Продукты
+                    </button>
+                    <button onclick="manageUserSubscriptions('${user.id}')" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition text-sm">
+                        🔄 Подписки
+                    </button>
+                    <button onclick="editUser('${user.id}')" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm">
+                        ✏️
+                    </button>
+                    <button onclick="deleteUser('${user.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Manage user products
+function manageUserProducts(userId) {
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) return;
+    
+    const availableProducts = [
+        { id: 'real-estate', name: 'Mini App для недвижимости', icon: '🏢' },
+        { id: 'crypto', name: 'Mini App для крипто-обменников', icon: '💱' },
+        { id: 'custom', name: 'Индивидуальный проект', icon: '⚡' }
+    ];
+    
+    const userProducts = user.products || [];
+    
+    let html = '<div style="max-width: 500px">';
+    html += `<h3 class="text-xl font-bold mb-4">Продукты пользователя: ${user.name}</h3>`;
+    
+    availableProducts.forEach(product => {
+        const hasProduct = userProducts.some(p => p.id === product.id);
+        html += `
+            <label class="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl mb-3 cursor-pointer hover:border-primary">
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl">${product.icon}</span>
+                    <span class="font-semibold">${product.name}</span>
+                </div>
+                <input type="checkbox" ${hasProduct ? 'checked' : ''} 
+                    onchange="toggleUserProduct('${userId}', '${product.id}', '${product.name}', '${product.icon}', this.checked)"
+                    class="w-5 h-5 text-primary">
+            </label>
+        `;
+    });
+    
+    html += '</div>';
+    
+    if (confirm('Управление продуктами через модальное окно. Используйте функции ниже:\n\n✅ - Выдать продукт\n❌ - Отобрать продукт')) {
+        // В реальной версии здесь будет модальное окно
+        const action = prompt(`Введите:\n+ ${availableProducts[0].id} - выдать\n- ${availableProducts[0].id} - отобрать\n\nПример: + real-estate`);
+        
+        if (action) {
+            const isAdd = action.startsWith('+');
+            const productId = action.slice(1).trim();
+            const product = availableProducts.find(p => p.id === productId);
+            
+            if (product) {
+                toggleUserProduct(userId, product.id, product.name, product.icon, isAdd);
+            }
+        }
+    }
+}
+
+// Toggle user product
+function toggleUserProduct(userId, productId, productName, productIcon, add) {
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const userIndex = users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) return;
+    
+    if (!users[userIndex].products) {
+        users[userIndex].products = [];
+    }
+    
+    if (add) {
+        // Add product
+        if (!users[userIndex].products.some(p => p.id === productId)) {
+            users[userIndex].products.push({
+                id: productId,
+                name: productName,
+                icon: productIcon,
+                dateAdded: new Date().toISOString(),
+                status: 'active'
+            });
+            alert(`✅ Продукт "${productName}" выдан пользователю!`);
+        }
+    } else {
+        // Remove product
+        users[userIndex].products = users[userIndex].products.filter(p => p.id !== productId);
+        alert(`❌ Продукт "${productName}" отозван!`);
+    }
+    
+    localStorage.setItem('adminUsers', JSON.stringify(users));
+    loadUsers();
+}
+
+// Manage user subscriptions
+function manageUserSubscriptions(userId) {
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) return;
+    
+    const availableSubscriptions = [
+        { id: 'basic', name: 'Базовая поддержка', price: 5000, icon: '🛠️' },
+        { id: 'premium', name: 'Премиум поддержка', price: 15000, icon: '⭐' },
+        { id: 'enterprise', name: 'Enterprise поддержка', price: 30000, icon: '🏆' }
+    ];
+    
+    const action = prompt(`Управление подписками: ${user.name}\n\nВведите:\n+ basic - выдать базовую\n- basic - отменить\n\nДоступные: basic, premium, enterprise`);
+    
+    if (action) {
+        const isAdd = action.startsWith('+');
+        const subId = action.slice(1).trim();
+        const subscription = availableSubscriptions.find(s => s.id === subId);
+        
+        if (subscription) {
+            toggleUserSubscription(userId, subscription.id, subscription.name, subscription.price, isAdd);
+        }
+    }
+}
+
+// Toggle user subscription
+function toggleUserSubscription(userId, subId, subName, price, add) {
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const userIndex = users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) return;
+    
+    if (!users[userIndex].subscriptions) {
+        users[userIndex].subscriptions = [];
+    }
+    
+    if (add) {
+        if (!users[userIndex].subscriptions.some(s => s.id === subId)) {
+            users[userIndex].subscriptions.push({
+                id: subId,
+                name: subName,
+                price: price,
+                dateAdded: new Date().toISOString(),
+                nextPayment: new Date(Date.now() + 30*24*60*60*1000).toISOString(),
+                status: 'active'
+            });
+            alert(`✅ Подписка "${subName}" активирована!`);
+        }
+    } else {
+        users[userIndex].subscriptions = users[userIndex].subscriptions.filter(s => s.id !== subId);
+        alert(`❌ Подписка "${subName}" отменена!`);
+    }
+    
+    localStorage.setItem('adminUsers', JSON.stringify(users));
+    loadUsers();
+}
+
+// Add user
+function openAddUserModal() {
+    const name = prompt('Имя и фамилия:');
+    if (!name) return;
+    
+    const email = prompt('Email:');
+    if (!email) return;
+    
+    const phone = prompt('Телефон:');
+    
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    users.push({
+        id: Date.now().toString(),
+        name: name,
+        email: email,
+        phone: phone || '',
+        registrationDate: new Date().toISOString(),
+        products: [],
+        subscriptions: []
+    });
+    
+    localStorage.setItem('adminUsers', JSON.stringify(users));
+    loadUsers();
+    loadDashboard();
+    alert('✅ Пользователь добавлен!');
+}
+
+// Edit user
+function editUser(userId) {
+    const users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) return;
+    
+    const name = prompt('Имя и фамилия:', user.name);
+    if (!name) return;
+    
+    const phone = prompt('Телефон:', user.phone);
+    
+    const userIndex = users.findIndex(u => u.id === userId);
+    users[userIndex].name = name;
+    users[userIndex].phone = phone;
+    
+    localStorage.setItem('adminUsers', JSON.stringify(users));
+    loadUsers();
+    alert('✅ Пользователь обновлен!');
+}
+
+// Delete user
+function deleteUser(userId) {
+    if (confirm('Удалить пользователя?\n\nВсе его продукты и подписки будут удалены!')) {
+        let users = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+        users = users.filter(u => u.id !== userId);
+        localStorage.setItem('adminUsers', JSON.stringify(users));
+        loadUsers();
+        loadDashboard();
+        alert('✅ Пользователь удален!');
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     // Check auth
@@ -434,6 +702,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: '💱',
                 available: false,
                 launchTime: 'в разработке'
+            }
+        ]));
+    }
+    
+    // Add demo users if empty
+    if (!localStorage.getItem('adminUsers')) {
+        localStorage.setItem('adminUsers', JSON.stringify([
+            {
+                id: '1',
+                name: 'Иван Петров',
+                email: 'ivan@example.com',
+                phone: '+7 (999) 123-45-67',
+                registrationDate: '2025-10-15T10:00:00.000Z',
+                products: [
+                    {
+                        id: 'real-estate',
+                        name: 'Mini App для недвижимости',
+                        icon: '🏢',
+                        dateAdded: '2025-10-15T10:30:00.000Z',
+                        status: 'active'
+                    }
+                ],
+                subscriptions: [
+                    {
+                        id: 'basic',
+                        name: 'Базовая поддержка',
+                        price: 5000,
+                        dateAdded: '2025-10-15T10:30:00.000Z',
+                        nextPayment: '2025-11-15T10:30:00.000Z',
+                        status: 'active'
+                    }
+                ]
+            },
+            {
+                id: '2',
+                name: 'Мария Сидорова',
+                email: 'maria@agency.com',
+                phone: '+7 (999) 987-65-43',
+                registrationDate: '2025-10-12T14:20:00.000Z',
+                products: [
+                    {
+                        id: 'real-estate',
+                        name: 'Mini App для недвижимости',
+                        icon: '🏢',
+                        dateAdded: '2025-10-12T14:45:00.000Z',
+                        status: 'active'
+                    }
+                ],
+                subscriptions: [
+                    {
+                        id: 'premium',
+                        name: 'Премиум поддержка',
+                        price: 15000,
+                        dateAdded: '2025-10-12T14:45:00.000Z',
+                        nextPayment: '2025-11-12T14:45:00.000Z',
+                        status: 'active'
+                    }
+                ]
             }
         ]));
     }

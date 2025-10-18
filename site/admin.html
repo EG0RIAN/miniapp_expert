@@ -100,6 +100,13 @@
                     <span class="text-xl">📝</span>
                     <span class="font-semibold">Контент</span>
                 </a>
+                <a href="#users" onclick="showSection('users')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="users">
+                    <span class="text-xl">👥</span>
+                    <div>
+                        <div class="font-semibold">Пользователи</div>
+                        <div class="text-xs text-gray-500" id="usersCount">0 клиентов</div>
+                    </div>
+                </a>
                 <a href="#settings" onclick="showSection('settings')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="settings">
                     <span class="text-xl">⚙️</span>
                     <span class="font-semibold">Настройки</span>
@@ -257,6 +264,20 @@
                             </button>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="section-users" class="admin-section hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold">Управление пользователями</h1>
+                    <button onclick="openAddUserModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                        + Добавить пользователя
+                    </button>
+                </div>
+
+                <div id="usersList" class="space-y-4">
+                    <!-- Users will be loaded here -->
                 </div>
             </section>
 
