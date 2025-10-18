@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Управление продуктом | MiniAppExpert</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#0088CC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center space-x-4">
+                <a href="/cabinet.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-gray-900">MiniAppExpert</div>
+                        <div class="text-xs text-gray-500">Управление продуктом</div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <a href="/cabinet.html" class="text-sm text-gray-600 hover:text-primary transition">
+                    ← Назад в ЛК
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Product Header -->
+            <div class="bg-gradient-to-br from-primary to-secondary text-white rounded-3xl shadow-2xl p-8 md:p-12 mb-8">
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 bg-white rounded-2xl flex items-center justify-center text-5xl">
+                            🏢
+                        </div>
+                        <div>
+                            <h1 class="text-3xl md:text-4xl font-bold mb-2">Mini App для недвижимости</h1>
+                            <p class="text-white/80">Ваше агентство "Дом Мечты"</p>
+                        </div>
+                    </div>
+                    <span class="bg-green-500 px-4 py-2 rounded-full text-sm font-bold">
+                        ✅ Активно
+                    </span>
+                </div>
+
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-white/80 text-sm mb-1">Дата запуска</div>
+                        <div class="text-xl font-bold">15.10.2025</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-white/80 text-sm mb-1">Просмотров</div>
+                        <div class="text-xl font-bold">1,234</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-white/80 text-sm mb-1">Заявок</div>
+                        <div class="text-xl font-bold">47</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                        <div class="text-white/80 text-sm mb-1">Конверсия</div>
+                        <div class="text-xl font-bold">3.8%</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-6">
+                    <a href="https://t.me/YourAgencyBot/app" target="_blank" class="bg-white text-primary px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition">
+                        Открыть приложение →
+                    </a>
+                    <a href="#" class="border-2 border-white text-white px-8 py-3 rounded-xl font-bold hover:bg-white/10 transition">
+                        Админ-панель
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Additional Modules -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🧩</span>
+                            Дополнительные модули
+                        </h2>
+                        <p class="text-gray-600 mb-6">Расширьте возможности вашего приложения новыми функциями</p>
+
+                        <div class="space-y-4">
+                            <!-- Module 1 -->
+                            <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-primary/50 transition">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="text-4xl">🏙️</div>
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-2">Виртуальные туры 3D</h3>
+                                            <p class="text-gray-600 mb-3">Интерактивные 3D-туры по объектам с панорамными видами и виртуальной прогулкой</p>
+                                            <div class="flex items-center gap-4">
+                                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+                                                    Доступен
+                                                </span>
+                                                <span class="text-sm text-gray-500">Срок подключения: 1-2 дня</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">20 000₽</div>
+                                        <div class="text-sm text-gray-500">единоразово</div>
+                                    </div>
+                                </div>
+                                <button onclick="orderModule('virtual-tours')" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                    Подключить модуль
+                                </button>
+                            </div>
+
+                            <!-- Module 2 -->
+                            <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-primary/50 transition">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="text-4xl">💰</div>
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-2">Ипотечный калькулятор</h3>
+                                            <p class="text-gray-600 mb-3">Рассчет ипотеки с учетом первоначального взноса, ставки и срока кредита</p>
+                                            <div class="flex items-center gap-4">
+                                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+                                                    Доступен
+                                                </span>
+                                                <span class="text-sm text-gray-500">Срок: 1 день</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">15 000₽</div>
+                                        <div class="text-sm text-gray-500">единоразово</div>
+                                    </div>
+                                </div>
+                                <button onclick="orderModule('mortgage-calculator')" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                    Подключить модуль
+                                </button>
+                            </div>
+
+                            <!-- Module 3 -->
+                            <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-primary/50 transition">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="text-4xl">🗺️</div>
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-2">Интерактивная карта</h3>
+                                            <p class="text-gray-600 mb-3">Отображение всех объектов на карте с фильтрами и кластеризацией</p>
+                                            <div class="flex items-center gap-4">
+                                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+                                                    Доступен
+                                                </span>
+                                                <span class="text-sm text-gray-500">Срок: 2 дня</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">25 000₽</div>
+                                        <div class="text-sm text-gray-500">единоразово</div>
+                                    </div>
+                                </div>
+                                <button onclick="orderModule('map')" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                    Подключить модуль
+                                </button>
+                            </div>
+
+                            <!-- Module 4 -->
+                            <div class="border-2 border-purple-200 rounded-xl p-6 bg-purple-50/30">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="text-4xl">🤖</div>
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-2">AI-помощник риэлтора</h3>
+                                            <p class="text-gray-600 mb-3">Умный бот для автоматических ответов на вопросы клиентов и подбора объектов</p>
+                                            <div class="flex items-center gap-4">
+                                                <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold">
+                                                    🔥 Новинка
+                                                </span>
+                                                <span class="text-sm text-gray-500">Срок: 3-5 дней</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-purple-600">50 000₽</div>
+                                        <div class="text-sm text-gray-500">единоразово</div>
+                                    </div>
+                                </div>
+                                <button onclick="orderModule('ai-assistant')" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-semibold hover:shadow-xl transition">
+                                    Подключить AI-помощник
+                                </button>
+                            </div>
+
+                            <!-- Module 5 -->
+                            <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-primary/50 transition">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="text-4xl">🔗</div>
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-2">Интеграция с CRM</h3>
+                                            <p class="text-gray-600 mb-3">Автоматическая синхронизация заявок с вашей CRM-системой (Битрикс24, amoCRM)</p>
+                                            <div class="flex items-center gap-4">
+                                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+                                                    Доступен
+                                                </span>
+                                                <span class="text-sm text-gray-500">Срок: 2-3 дня</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">30 000₽</div>
+                                        <div class="text-sm text-gray-500">единоразово</div>
+                                    </div>
+                                </div>
+                                <button onclick="orderModule('crm-integration')" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                    Подключить модуль
+                                </button>
+                            </div>
+
+                            <!-- Module 6 -->
+                            <div class="border-2 border-gray-200 rounded-xl p-6 hover:border-primary/50 transition">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="text-4xl">📊</div>
+                                        <div>
+                                            <h3 class="text-xl font-bold mb-2">Расширенная аналитика</h3>
+                                            <p class="text-gray-600 mb-3">Детальные отчеты по просмотрам, конверсиям, тепловые карты кликов</p>
+                                            <div class="flex items-center gap-4">
+                                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+                                                    Доступен
+                                                </span>
+                                                <span class="text-sm text-gray-500">Срок: 1 день</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-2xl font-bold text-primary">10 000₽</div>
+                                        <div class="text-sm text-gray-500">+ 2000₽/мес</div>
+                                    </div>
+                                </div>
+                                <button onclick="orderModule('analytics')" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                    Подключить модуль
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Support Ticket Form -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center">
+                            <span class="text-3xl mr-3">💬</span>
+                            Служба поддержки
+                        </h2>
+                        <p class="text-gray-600 mb-6">Возникли вопросы или нужна помощь? Мы ответим в течение 1 часа!</p>
+
+                        <form id="supportForm" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Тема обращения</label>
+                                <select class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none">
+                                    <option>Техническая проблема</option>
+                                    <option>Вопрос по функционалу</option>
+                                    <option>Доработка приложения</option>
+                                    <option>Проблема с оплатой</option>
+                                    <option>Другое</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Приоритет</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <label class="border-2 border-gray-200 rounded-xl p-3 cursor-pointer hover:border-primary transition text-center">
+                                        <input type="radio" name="priority" value="low" class="hidden" checked>
+                                        <div class="text-sm font-semibold text-gray-700">🟢 Низкий</div>
+                                    </label>
+                                    <label class="border-2 border-gray-200 rounded-xl p-3 cursor-pointer hover:border-primary transition text-center">
+                                        <input type="radio" name="priority" value="medium" class="hidden">
+                                        <div class="text-sm font-semibold text-gray-700">🟡 Средний</div>
+                                    </label>
+                                    <label class="border-2 border-gray-200 rounded-xl p-3 cursor-pointer hover:border-primary transition text-center">
+                                        <input type="radio" name="priority" value="high" class="hidden">
+                                        <div class="text-sm font-semibold text-gray-700">🔴 Высокий</div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Описание проблемы или вопроса</label>
+                                <textarea 
+                                    id="supportMessage"
+                                    required
+                                    rows="6"
+                                    class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none resize-none"
+                                    placeholder="Опишите вашу проблему или вопрос подробно..."
+                                ></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Прикрепить файлы (необязательно)</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary transition cursor-pointer bg-gray-50">
+                                    <input type="file" id="supportFiles" multiple class="hidden">
+                                    <div onclick="document.getElementById('supportFiles').click()">
+                                        <div class="text-4xl mb-2">📎</div>
+                                        <div class="text-sm text-gray-600">Загрузить скриншоты или документы</div>
+                                        <div class="text-xs text-gray-500 mt-1">PNG, JPG, PDF до 10MB</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button 
+                                type="submit"
+                                class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                Отправить обращение
+                            </button>
+
+                            <p class="text-sm text-gray-500 text-center">
+                                ⏰ Среднее время ответа: <strong>45 минут</strong> • 📱 Telegram или Email
+                            </p>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Active Modules -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg mb-4">Активные модули</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-xl">
+                                <span class="text-2xl">📋</span>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">Каталог объектов</div>
+                                    <div class="text-xs text-gray-500">Базовый модуль</div>
+                                </div>
+                                <span class="text-green-600">✓</span>
+                            </div>
+                            <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-xl">
+                                <span class="text-2xl">📅</span>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">Запись на просмотр</div>
+                                    <div class="text-xs text-gray-500">Базовый модуль</div>
+                                </div>
+                                <span class="text-green-600">✓</span>
+                            </div>
+                            <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-xl">
+                                <span class="text-2xl">💬</span>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">Чат с риэлтором</div>
+                                    <div class="text-xs text-gray-500">Базовый модуль</div>
+                                </div>
+                                <span class="text-green-600">✓</span>
+                            </div>
+                            <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-xl">
+                                <span class="text-2xl">⚙️</span>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">Админ-панель</div>
+                                    <div class="text-xs text-gray-500">Базовый модуль</div>
+                                </div>
+                                <span class="text-green-600">✓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Support -->
+                    <div class="bg-gradient-to-br from-secondary to-blue-600 text-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg mb-4">Быстрая помощь</h3>
+                        <div class="space-y-3">
+                            <a href="https://t.me/miniappexpert_support" target="_blank" class="flex items-center space-x-3 p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition">
+                                <span class="text-2xl">💬</span>
+                                <div>
+                                    <div class="font-semibold text-sm">Telegram</div>
+                                    <div class="text-xs text-white/80">Мгновенный ответ</div>
+                                </div>
+                            </a>
+                            <a href="mailto:support@miniapp.expert" class="flex items-center space-x-3 p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition">
+                                <span class="text-2xl">📧</span>
+                                <div>
+                                    <div class="font-semibold text-sm">Email</div>
+                                    <div class="text-xs text-white/80">support@miniapp.expert</div>
+                                </div>
+                            </a>
+                            <a href="tel:+78005553535" class="flex items-center space-x-3 p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition">
+                                <span class="text-2xl">📞</span>
+                                <div>
+                                    <div class="font-semibold text-sm">Телефон</div>
+                                    <div class="text-xs text-white/80">8 (800) 555-35-35</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Documentation -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="font-bold text-lg mb-4">📚 Документация</h3>
+                        <div class="space-y-2">
+                            <a href="#" class="block text-sm text-gray-700 hover:text-primary transition py-2">
+                                📖 Руководство пользователя
+                            </a>
+                            <a href="#" class="block text-sm text-gray-700 hover:text-primary transition py-2">
+                                🎥 Видео-инструкции
+                            </a>
+                            <a href="#" class="block text-sm text-gray-700 hover:text-primary transition py-2">
+                                ❓ FAQ - Частые вопросы
+                            </a>
+                            <a href="#" class="block text-sm text-gray-700 hover:text-primary transition py-2">
+                                🔧 API документация
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
+            <div class="text-center">
+                <div class="text-6xl mb-4">✅</div>
+                <h3 class="text-2xl font-bold mb-2">Заявка отправлена!</h3>
+                <p class="text-gray-600 mb-6" id="successMessage">Мы свяжемся с вами в течение 1 часа</p>
+                <button onclick="closeModal()" class="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                    Отлично
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check auth
+        if (localStorage.getItem('userAuth') !== 'true') {
+            window.location.href = '/login.html';
+        }
+
+        // Order module
+        function orderModule(moduleId) {
+            const modules = {
+                'virtual-tours': { name: 'Виртуальные туры 3D', price: 20000, icon: '🏙️' },
+                'mortgage-calculator': { name: 'Ипотечный калькулятор', price: 15000, icon: '💰' },
+                'map': { name: 'Интерактивная карта', price: 25000, icon: '🗺️' },
+                'ai-assistant': { name: 'AI-помощник риэлтора', price: 50000, icon: '🤖' },
+                'crm-integration': { name: 'Интеграция с CRM', price: 30000, icon: '🔗' },
+                'analytics': { name: 'Расширенная аналитика', price: 10000, icon: '📊' }
+            };
+
+            const module = modules[moduleId];
+            
+            if (confirm(`Подключить модуль "${module.name}"?\n\nСтоимость: ${module.price.toLocaleString()}₽\n\nМы пришлем вам ссылку на оплату в течение 15 минут.`)) {
+                // Save order to localStorage
+                try {
+                    const orders = JSON.parse(localStorage.getItem('moduleOrders') || '[]');
+                    orders.push({
+                        id: Date.now().toString(),
+                        moduleId: moduleId,
+                        moduleName: module.name,
+                        price: module.price,
+                        icon: module.icon,
+                        date: new Date().toISOString(),
+                        status: 'pending',
+                        userEmail: localStorage.getItem('userEmail')
+                    });
+                    localStorage.setItem('moduleOrders', JSON.stringify(orders));
+                } catch (e) {
+                    console.error('Error saving order:', e);
+                }
+
+                document.getElementById('successMessage').textContent = 
+                    `Заявка на подключение модуля "${module.name}" принята! Мы пришлем ссылку на оплату в течение 15 минут.`;
+                document.getElementById('successModal').classList.remove('hidden');
+            }
+        }
+
+        // Support form
+        document.getElementById('supportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                topic: this.querySelector('select').value,
+                priority: this.querySelector('input[name="priority"]:checked').value,
+                message: document.getElementById('supportMessage').value,
+                userEmail: localStorage.getItem('userEmail'),
+                userName: localStorage.getItem('userName'),
+                productName: 'Mini App для недвижимости',
+                date: new Date().toISOString()
+            };
+
+            // Save to localStorage
+            try {
+                const tickets = JSON.parse(localStorage.getItem('supportTickets') || '[]');
+                tickets.push({
+                    id: Date.now().toString(),
+                    ...formData,
+                    status: 'new'
+                });
+                localStorage.setItem('supportTickets', JSON.stringify(tickets));
+            } catch (e) {
+                console.error('Error saving ticket:', e);
+            }
+
+            // Show success
+            document.getElementById('successMessage').textContent = 
+                'Ваше обращение зарегистрировано!\n\nНомер заявки: #' + Date.now().toString().slice(-6) + '\n\nМы ответим в течение 1 часа.';
+            document.getElementById('successModal').classList.remove('hidden');
+
+            // Reset form
+            this.reset();
+        });
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        // Priority radio buttons styling
+        document.querySelectorAll('input[name="priority"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('label:has(input[name="priority"])').forEach(label => {
+                    label.classList.remove('border-primary', 'bg-primary/5');
+                    label.classList.add('border-gray-200');
+                });
+                this.closest('label').classList.add('border-primary', 'bg-primary/5');
+                this.closest('label').classList.remove('border-gray-200');
+            });
+        });
+    </script>
+</body>
+</html>
+
