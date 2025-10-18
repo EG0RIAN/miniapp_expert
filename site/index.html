@@ -1349,6 +1349,26 @@
             
             console.log('📤 Отправка данных:', payload);
             
+            // Сохраняем заявку в localStorage для админки
+            try {
+                const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+                requests.push({
+                    id: Date.now().toString(),
+                    date: new Date().toISOString(),
+                    name: name,
+                    contact: phone || email || telegram,
+                    email: email,
+                    phone: phone,
+                    telegram: telegram,
+                    message: description,
+                    status: 'new',
+                    language: currentLang
+                });
+                localStorage.setItem('requests', JSON.stringify(requests));
+            } catch (e) {
+                console.error('Ошибка сохранения в localStorage:', e);
+            }
+            
             try {
                 const response = await fetch('https://arkhiptsev.com/api/leads/create/', {
                     method: 'POST',
