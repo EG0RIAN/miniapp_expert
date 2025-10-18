@@ -183,174 +183,129 @@
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">
                     📱 <span class="gradient-text">Мобильное приложение</span>
                 </h2>
-                <p class="text-xl text-gray-600">Интуитивный интерфейс для клиентов в Telegram</p>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Интуитивный интерфейс для клиентов прямо в Telegram. Современный дизайн, быстрая навигация и удобный поиск недвижимости.
+                </p>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-12">
+            <div class="grid md:grid-cols-3 gap-12 mb-16">
                 <!-- Screenshot 1 - Catalog -->
-                <div class="text-center">
-                    <div class="phone-mockup mx-auto max-w-sm cursor-pointer" onclick="openLightbox('screenshot1')">
-                        <div class="phone-screen bg-gradient-to-br from-mint-50 to-white p-6">
-                            <div class="text-left">
-                                <div class="flex items-center justify-between mb-6">
-                                    <h3 class="text-2xl font-bold">Объекты</h3>
-                                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
-                                        🏠
-                                    </div>
-                                </div>
-                                
-                                <!-- Filter chips -->
-                                <div class="flex gap-2 mb-4 flex-wrap">
-                                    <span class="bg-primary text-white px-3 py-1 rounded-full text-xs">Купить</span>
-                                    <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">До 10М</span>
-                                    <span class="bg-gray-200 px-3 py-1 rounded-full text-xs">3 комн</span>
-                                </div>
-                                
-                                <!-- Property Card -->
-                                <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-4">
-                                    <div class="h-32 bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center">
-                                        <span class="text-4xl">🏢</span>
-                                    </div>
-                                    <div class="p-4">
-                                        <h4 class="font-bold text-lg mb-1">ЖК "Новый квартал"</h4>
-                                        <p class="text-gray-600 text-sm mb-2">3 комн, 85 м²</p>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-primary font-bold">8 500 000₽</span>
-                                            <button class="bg-primary text-white px-4 py-1 rounded-lg text-sm">→</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Property Card 2 -->
-                                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                                    <div class="h-32 bg-gradient-to-br from-green-200 to-blue-200 flex items-center justify-center">
-                                        <span class="text-4xl">🏡</span>
-                                    </div>
-                                    <div class="p-4">
-                                        <h4 class="font-bold text-lg mb-1">ЖК "Зеленый берег"</h4>
-                                        <p class="text-gray-600 text-sm mb-2">2 комн, 62 м²</p>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-primary font-bold">6 200 000₽</span>
-                                            <button class="bg-primary text-white px-4 py-1 rounded-lg text-sm">→</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/app-catalog.png')">
+                        <!-- Screenshot Image -->
+                        <img 
+                            src="/images/screenshots/real-estate/app-catalog.png" 
+                            alt="Каталог объектов недвижимости" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'800\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'24\' font-family=\'Arial\'%3E📱 Каталог%3C/text%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'14\' font-family=\'Arial\'%3EЗагрузите скриншот%3C/text%3E%3C/svg%3E'"
+                        >
+                        <!-- Overlay on hover -->
+                        <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-2xl">🔍</div>
                         </div>
                     </div>
-                    <h3 class="text-xl font-bold mt-6 mb-2">Каталог объектов</h3>
-                    <p class="text-gray-600">Красивые карточки с фото, ценой и характеристиками</p>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Каталог объектов</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Интерактивный каталог со всеми объектами недвижимости. Красивые карточки с фотографиями, основными характеристиками и ценой.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Карточки с фото высокого качества</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Цена, площадь, количество комнат</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Быстрое добавление в избранное</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Бесконечная прокрутка</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Screenshot 2 - Filters -->
-                <div class="text-center">
-                    <div class="phone-mockup mx-auto max-w-sm cursor-pointer" onclick="openLightbox('screenshot2')">
-                        <div class="phone-screen bg-gradient-to-br from-blue-50 to-white p-6">
-                            <div class="text-left">
-                                <div class="flex items-center justify-between mb-6">
-                                    <h3 class="text-2xl font-bold">Фильтры</h3>
-                                    <button class="text-primary font-semibold">Сброс</button>
-                                </div>
-                                
-                                <!-- Filter sections -->
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="text-sm font-semibold text-gray-700 mb-2 block">Тип сделки</label>
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <button class="bg-primary text-white py-3 rounded-xl font-semibold">Купить</button>
-                                            <button class="bg-gray-100 py-3 rounded-xl font-semibold">Арендовать</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="text-sm font-semibold text-gray-700 mb-2 block">Цена, млн ₽</label>
-                                        <div class="bg-gray-100 rounded-xl p-4">
-                                            <div class="flex justify-between mb-2">
-                                                <span class="text-sm">от 3</span>
-                                                <span class="text-sm">до 10</span>
-                                            </div>
-                                            <div class="bg-primary h-2 rounded-full"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="text-sm font-semibold text-gray-700 mb-2 block">Комнат</label>
-                                        <div class="grid grid-cols-4 gap-2">
-                                            <button class="bg-gray-100 py-2 rounded-lg">1</button>
-                                            <button class="bg-gray-100 py-2 rounded-lg">2</button>
-                                            <button class="bg-primary text-white py-2 rounded-lg">3</button>
-                                            <button class="bg-gray-100 py-2 rounded-lg">4+</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="text-sm font-semibold text-gray-700 mb-2 block">Район</label>
-                                        <select class="w-full bg-gray-100 py-3 px-4 rounded-xl">
-                                            <option>Центральный</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <button class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold">
-                                        Показать 156 объектов
-                                    </button>
-                                </div>
-                            </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/app-filters.png')">
+                        <img 
+                            src="/images/screenshots/real-estate/app-filters.png" 
+                            alt="Умные фильтры поиска недвижимости" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'800\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' fill=\'%230088CC\' font-size=\'24\' font-family=\'Arial\'%3E🔍 Фильтры%3C/text%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'14\' font-family=\'Arial\'%3EЗагрузите скриншот%3C/text%3E%3C/svg%3E'"
+                        >
+                        <div class="absolute inset-0 bg-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-2xl">🔍</div>
                         </div>
                     </div>
-                    <h3 class="text-xl font-bold mt-6 mb-2">Умные фильтры</h3>
-                    <p class="text-gray-600">Быстрый поиск по цене, комнатам, району</p>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Умные фильтры</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Мощная система фильтрации для точного поиска. Клиенты могут найти идеальную недвижимость за считанные секунды.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Фильтр по цене с двойным слайдером</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Выбор количества комнат</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Фильтрация по району и метро</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-secondary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Сохранение параметров поиска</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Screenshot 3 - Property Detail -->
-                <div class="text-center">
-                    <div class="phone-mockup mx-auto max-w-sm cursor-pointer" onclick="openLightbox('screenshot3')">
-                        <div class="phone-screen bg-white p-6">
-                            <div class="text-left">
-                                <div class="relative mb-4">
-                                    <div class="h-48 bg-gradient-to-br from-purple-200 to-pink-200 rounded-2xl flex items-center justify-center">
-                                        <span class="text-6xl">🏠</span>
-                                    </div>
-                                    <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
-                                        ❤️
-                                    </button>
-                                </div>
-                                
-                                <h3 class="text-2xl font-bold mb-2">ЖК "Новый квартал"</h3>
-                                <div class="flex items-center text-gray-600 mb-4 text-sm">
-                                    <span>📍 Центральный район</span>
-                                </div>
-                                
-                                <div class="bg-mint-50 rounded-2xl p-4 mb-4">
-                                    <div class="text-3xl font-black text-primary mb-1">8 500 000₽</div>
-                                    <div class="text-sm text-gray-600">100 000₽ за м²</div>
-                                </div>
-                                
-                                <div class="grid grid-cols-3 gap-4 mb-4">
-                                    <div class="text-center">
-                                        <div class="text-2xl mb-1">🛏️</div>
-                                        <div class="text-sm font-semibold">3 комн</div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-2xl mb-1">📐</div>
-                                        <div class="text-sm font-semibold">85 м²</div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-2xl mb-1">🏢</div>
-                                        <div class="text-sm font-semibold">5/12 эт</div>
-                                    </div>
-                                </div>
-                                
-                                <button class="w-full bg-primary text-white py-4 rounded-xl font-bold mb-2">
-                                    Записаться на просмотр
-                                </button>
-                                <button class="w-full border-2 border-primary text-primary py-4 rounded-xl font-bold">
-                                    Связаться с риэлтором
-                                </button>
-                            </div>
+                <div class="group">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/app-detail.png')">
+                        <img 
+                            src="/images/screenshots/real-estate/app-detail.png" 
+                            alt="Детальная страница объекта недвижимости" 
+                            class="w-full h-auto"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'800\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'24\' font-family=\'Arial\'%3E🏠 Детали%3C/text%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'14\' font-family=\'Arial\'%3EЗагрузите скриншот%3C/text%3E%3C/svg%3E'"
+                        >
+                        <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="text-white text-2xl">🔍</div>
                         </div>
                     </div>
-                    <h3 class="text-xl font-bold mt-6 mb-2">Карточка объекта</h3>
-                    <p class="text-gray-600">Полная информация и запись на просмотр</p>
+                    <div class="mt-6">
+                        <h3 class="text-2xl font-bold mb-3 text-gray-900">Карточка объекта</h3>
+                        <p class="text-gray-600 mb-4 leading-relaxed">
+                            Полная информация об объекте с галереей фото, характеристиками, описанием и возможностью записи на просмотр.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Галерея с профессиональными фото</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Полное описание и планировка</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Кнопка записи на просмотр</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-primary mr-2 text-lg">✓</span>
+                                <span class="text-gray-700">Быстрая связь с риэлтором</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -363,10 +318,12 @@
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">
                     ⚙️ <span class="gradient-text">Админ-панель</span>
                 </h2>
-                <p class="text-xl text-gray-600">Удобное управление объектами и заявками</p>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Полнофункциональная система управления. Добавляйте объекты, обрабатывайте заявки, отслеживайте статистику — всё в одном месте.
+                </p>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-12">
+            <div class="grid md:grid-cols-2 gap-12 mb-16">
                 <!-- Admin Screenshot 1 - Dashboard -->
                 <div class="bg-white rounded-3xl shadow-2xl overflow-hidden cursor-pointer screenshot-container" onclick="openLightbox('admin1')">
                     <div class="p-8">
@@ -578,42 +535,242 @@
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section id="contact" class="py-20 px-6 bg-gradient-to-br from-primary to-secondary text-white">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">
-                Готовы запустить свое приложение?
-            </h2>
-            <p class="text-xl mb-8 text-white/90">
-                Заполните форму и мы свяжемся с вами в течение часа
-            </p>
-            
-            <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 mb-8">
-                <div class="grid md:grid-cols-2 gap-8 text-left mb-8">
-                    <div>
-                        <div class="text-6xl font-black mb-2">от 150K₽</div>
-                        <div class="text-white/80">Стоимость готового решения</div>
-                    </div>
-                    <div>
-                        <div class="text-6xl font-black mb-2">2-3 дня</div>
-                        <div class="text-white/80">Запуск под ваш бренд</div>
-                    </div>
+    <!-- Quick Order Section -->
+    <section id="contact" class="py-20 px-6 bg-gradient-to-br from-mint-50 via-white to-blue-50">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-full text-sm font-bold mb-6">
+                    ⚡ Быстрый запуск
                 </div>
-                
-                <div class="space-y-4">
-                    <input type="text" placeholder="Ваше имя" class="w-full bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/60 focus:border-white outline-none">
-                    <input type="tel" placeholder="Телефон" class="w-full bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/60 focus:border-white outline-none">
-                    <input type="email" placeholder="Email (необязательно)" class="w-full bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/60 focus:border-white outline-none">
-                    <textarea placeholder="Расскажите о вашем проекте" rows="4" class="w-full bg-white/20 backdrop-blur-sm border-2 border-white/30 rounded-xl px-6 py-4 text-white placeholder-white/60 focus:border-white outline-none resize-none"></textarea>
-                    <button class="w-full bg-white text-primary px-10 py-5 rounded-xl font-bold text-lg hover:bg-gray-50 transition shadow-2xl">
-                        Заказать решение →
-                    </button>
+                <h2 class="text-4xl md:text-6xl font-black mb-4">
+                    Запустите ваше приложение <br/><span class="gradient-text">через 15 минут</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Настройте под свой бренд прямо сейчас. Без программирования. Без ожидания.
+                </p>
+            </div>
+
+            <!-- Order Form -->
+            <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+                <form id="quickOrderForm">
+                    <!-- Step 1: Company Info -->
+                    <div class="mb-10">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <span class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white mr-3">1</span>
+                            Информация об агентстве
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Название агентства *</label>
+                                <input 
+                                    type="text" 
+                                    id="companyName" 
+                                    required
+                                    class="w-full border-2 border-gray-200 rounded-xl px-6 py-4 focus:border-primary outline-none transition text-lg"
+                                    placeholder="Например: Дом Мечты"
+                                >
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Ваш телефон *</label>
+                                <input 
+                                    type="tel" 
+                                    id="phone" 
+                                    required
+                                    class="w-full border-2 border-gray-200 rounded-xl px-6 py-4 focus:border-primary outline-none transition text-lg"
+                                    placeholder="+7 (___) ___-__-__"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Brand Colors -->
+                    <div class="mb-10">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <span class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white mr-3">2</span>
+                            Цвета вашего бренда
+                        </h3>
+                        <p class="text-gray-600 mb-6">Выберите два основных цвета для вашего приложения</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Основной цвет</label>
+                                <div class="flex items-center gap-4">
+                                    <input 
+                                        type="color" 
+                                        id="primaryColor" 
+                                        value="#10B981"
+                                        class="w-20 h-20 rounded-xl border-2 border-gray-200 cursor-pointer"
+                                    >
+                                    <div class="flex-1">
+                                        <div class="text-sm text-gray-500 mb-1">HEX код</div>
+                                        <input 
+                                            type="text" 
+                                            id="primaryColorHex" 
+                                            value="#10B981"
+                                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 font-mono"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-sm text-gray-500">Используется для кнопок, акцентов</div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Дополнительный цвет</label>
+                                <div class="flex items-center gap-4">
+                                    <input 
+                                        type="color" 
+                                        id="secondaryColor" 
+                                        value="#0088CC"
+                                        class="w-20 h-20 rounded-xl border-2 border-gray-200 cursor-pointer"
+                                    >
+                                    <div class="flex-1">
+                                        <div class="text-sm text-gray-500 mb-1">HEX код</div>
+                                        <input 
+                                            type="text" 
+                                            id="secondaryColorHex" 
+                                            value="#0088CC"
+                                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 font-mono"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-sm text-gray-500">Для вторичных элементов</div>
+                            </div>
+                        </div>
+
+                        <!-- Color Preview -->
+                        <div class="mt-6 p-6 rounded-2xl border-2 border-gray-200 bg-gray-50">
+                            <div class="text-sm font-semibold text-gray-700 mb-4">Предпросмотр:</div>
+                            <div class="flex gap-4">
+                                <button type="button" id="previewBtn1" class="px-8 py-3 rounded-xl font-bold text-white" style="background-color: #10B981;">
+                                    Кнопка действия
+                                </button>
+                                <button type="button" id="previewBtn2" class="px-8 py-3 rounded-xl font-bold text-white" style="background-color: #0088CC;">
+                                    Вторичная кнопка
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Features -->
+                    <div class="mb-10">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <span class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white mr-3">3</span>
+                            Выберите функции
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
+                                <input type="checkbox" checked class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Каталог объектов</div>
+                                    <div class="text-sm text-gray-600">С фото, фильтрами и поиском</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
+                                <input type="checkbox" checked class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Запись на просмотр</div>
+                                    <div class="text-sm text-gray-600">Онлайн-бронирование времени</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
+                                <input type="checkbox" checked class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Чат с риэлтором</div>
+                                    <div class="text-sm text-gray-600">Быстрая связь через Telegram</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
+                                <input type="checkbox" class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Виртуальные туры</div>
+                                    <div class="text-sm text-gray-600">3D просмотр объектов <span class="text-primary">+20K₽</span></div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
+                                <input type="checkbox" checked class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Админ-панель</div>
+                                    <div class="text-sm text-gray-600">Управление объектами</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
+                                <input type="checkbox" class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <div>
+                                    <div class="font-semibold text-gray-900">Ипотечный калькулятор</div>
+                                    <div class="text-sm text-gray-600">Расчет платежей <span class="text-primary">+15K₽</span></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Summary & Submit -->
+                    <div class="bg-gradient-to-br from-mint-50 to-blue-50 rounded-2xl p-8">
+                        <h3 class="text-2xl font-bold mb-6">Итого</h3>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700">Базовый пакет:</span>
+                                <span class="text-2xl font-bold text-gray-900">150 000₽</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-600">
+                                <span>• Каталог объектов</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-600">
+                                <span>• Запись на просмотр</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-600">
+                                <span>• Чат с риэлтором</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-600">
+                                <span>• Админ-панель</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-600">
+                                <span>• Настройка под ваш бренд</span>
+                            </div>
+                        </div>
+
+                        <div class="border-t-2 border-gray-300 pt-4 mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xl font-bold">К оплате:</span>
+                                <span class="text-4xl font-black text-primary">150 000₽</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary text-white px-10 py-5 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                            Перейти к оплате →
+                        </button>
+                        
+                        <p class="text-center text-sm text-gray-600 mt-4">
+                            ✅ Запуск за 15 минут • 🔒 Безопасная оплата • 💬 Поддержка 24/7
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Benefits -->
+            <div class="mt-12 grid md:grid-cols-3 gap-6 text-center">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-3">⚡</div>
+                    <h4 class="font-bold text-lg mb-2">Мгновенный запуск</h4>
+                    <p class="text-sm text-gray-600">Приложение готово сразу после оплаты</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-3">🎨</div>
+                    <h4 class="font-bold text-lg mb-2">Ваш брендинг</h4>
+                    <p class="text-sm text-gray-600">Цвета и название вашего агентства</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-3">🔧</div>
+                    <h4 class="font-bold text-lg mb-2">Полный контроль</h4>
+                    <p class="text-sm text-gray-600">Админ-панель для управления</p>
                 </div>
             </div>
-            
-            <p class="text-sm text-white/70">
-                ⏰ Ответим в течение часа • 💬 Telegram или телефон • 📋 Бесплатный расчёт
-            </p>
         </div>
     </section>
 
@@ -649,6 +806,74 @@
         function closeLightbox() {
             document.getElementById('lightbox').classList.remove('active');
         }
+
+        // Color picker synchronization
+        document.addEventListener('DOMContentLoaded', function() {
+            const primaryColor = document.getElementById('primaryColor');
+            const primaryColorHex = document.getElementById('primaryColorHex');
+            const secondaryColor = document.getElementById('secondaryColor');
+            const secondaryColorHex = document.getElementById('secondaryColorHex');
+            const previewBtn1 = document.getElementById('previewBtn1');
+            const previewBtn2 = document.getElementById('previewBtn2');
+
+            // Sync primary color
+            primaryColor.addEventListener('input', function() {
+                primaryColorHex.value = this.value.toUpperCase();
+                previewBtn1.style.backgroundColor = this.value;
+            });
+
+            primaryColorHex.addEventListener('input', function() {
+                if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                    primaryColor.value = this.value;
+                    previewBtn1.style.backgroundColor = this.value;
+                }
+            });
+
+            // Sync secondary color
+            secondaryColor.addEventListener('input', function() {
+                secondaryColorHex.value = this.value.toUpperCase();
+                previewBtn2.style.backgroundColor = this.value;
+            });
+
+            secondaryColorHex.addEventListener('input', function() {
+                if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                    secondaryColor.value = this.value;
+                    previewBtn2.style.backgroundColor = this.value;
+                }
+            });
+
+            // Form submission
+            document.getElementById('quickOrderForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    companyName: document.getElementById('companyName').value,
+                    phone: document.getElementById('phone').value,
+                    primaryColor: primaryColor.value,
+                    secondaryColor: secondaryColor.value,
+                    features: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.nextElementSibling.querySelector('.font-semibold').textContent),
+                    timestamp: new Date().toISOString()
+                };
+
+                // Save to localStorage for admin
+                try {
+                    const orders = JSON.parse(localStorage.getItem('quickOrders') || '[]');
+                    orders.push(formData);
+                    localStorage.setItem('quickOrders', JSON.stringify(orders));
+                } catch (e) {
+                    console.error('Error saving order:', e);
+                }
+
+                // Show success message
+                alert('🎉 Заказ принят!\n\n' + 
+                      'Мы свяжемся с вами в течение 15 минут для завершения настройки.\n\n' +
+                      'Агентство: ' + formData.companyName + '\n' +
+                      'Телефон: ' + formData.phone);
+
+                // Optional: redirect to payment
+                // window.location.href = '/payment.html';
+            });
+        });
     </script>
 </body>
 </html>
