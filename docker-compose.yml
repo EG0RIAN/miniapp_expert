@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: miniapp_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./site:/var/www/miniapp.expert:ro
+      - ./api/miniapp.expert.nginx:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - api
+      - pocketbase
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: miniapp_api
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://miniapp.expert}
+      - API_BASE_URL=${API_BASE_URL:-https://miniapp.expert}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-https://miniapp.expert}
+      - TBANK_TERMINAL_KEY=${TBANK_TERMINAL_KEY}
+      - TBANK_PASSWORD=${TBANK_PASSWORD}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-supersecretwebhookkey}
+      - PB_URL=http://pocketbase:8090
+      - PB_ADMIN_EMAIL=${PB_ADMIN_EMAIL}
+      - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    expose:
+      - "3001"
+    restart: unless-stopped
+
+  pocketbase:
+    image: ghcr.io/pocketbase/pocketbase:0.21.3
+    container_name: miniapp_pocketbase
+    command: ["serve", "--http=0.0.0.0:8090", "--dir", "/pb_data"]
+    volumes:
+      - ./pb_data:/pb_data
+    expose:
+      - "8090"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: miniapp_net
+
+
