@@ -28,6 +28,18 @@
     
     
     <style>
+/* GPU acceleration for animations */
+.card-hover, .hero-slide, [class*="hover:scale"], [class*="animate-"] {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* GPU acceleration for animations */
+.card-hover, .hero-slide, [class*="hover:scale"], [class*="animate-"] {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
         
         
         body {
@@ -886,17 +898,17 @@
 
             <!-- Benefits -->
             <div class="mt-12 grid md:grid-cols-3 gap-6 text-center">
-                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <div class="bg-white rounded-2xl p-6 shadow-lg" style="contain: layout" style="contain: layout">
                     <div class="text-4xl mb-3">⚡</div>
                     <h4 class="font-bold text-lg mb-2">Мгновенный запуск</h4>
                     <p class="text-sm text-gray-600">Приложение готово сразу после оплаты</p>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <div class="bg-white rounded-2xl p-6 shadow-lg" style="contain: layout" style="contain: layout">
                     <div class="text-4xl mb-3">🎨</div>
                     <h4 class="font-bold text-lg mb-2">Ваш брендинг</h4>
                     <p class="text-sm text-gray-600">Цвета и название вашего агентства</p>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <div class="bg-white rounded-2xl p-6 shadow-lg" style="contain: layout" style="contain: layout">
                     <div class="text-4xl mb-3">🔧</div>
                     <h4 class="font-bold text-lg mb-2">Полный контроль</h4>
                     <p class="text-sm text-gray-600">Админ-панель для управления</p>

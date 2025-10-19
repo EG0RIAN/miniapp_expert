@@ -46,8 +46,34 @@
     
     
 
+    <!-- Critical Hero Styles -->
+    <style>
+/* GPU acceleration for animations */
+.card-hover, .hero-slide, [class*="hover:scale"], [class*="animate-"] {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Critical Hero Styles for instant LCP */
+.hero-container { min-height: 600px; background: #f9fafb; }
+@media (max-width: 768px) { .hero-container { min-height: 400px; } }
+</style>
+    
+    <!-- Critical Hero Styles -->
+    <style>
+/* Critical Hero Styles for instant LCP */
+.hero-container { min-height: 600px; background: #f9fafb; }
+@media (max-width: 768px) { .hero-container { min-height: 400px; } }
+</style>
+    
     <!-- Critical Inline CSS (Above-the-fold) -->
-    <style>/* Critical CSS for above-the-fold content */
+    <style>
+/* GPU acceleration for animations */
+.card-hover, .hero-slide, [class*="hover:scale"], [class*="animate-"] {
+    will-change: transform;
+    transform: translateZ(0);
+}
+/* Critical CSS for above-the-fold content */
 *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::before,::after{--tw-content:''}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}h1,h2,h3{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}button{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button{text-transform:none}button{-webkit-appearance:button;background-color:transparent;background-image:none}img,svg{display:block;vertical-align:middle}img{max-width:100%;height:auto}*,::before,::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate:;--tw-backdrop-sepia:;--tw-contain-size:;--tw-contain-layout:;--tw-contain-paint:;--tw-contain-style:}::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate</style>
     
     <!-- Preload critical font -->
@@ -56,6 +82,9 @@
     <!-- Load fonts asynchronously with font-display: swap -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
+    
+        <!-- Preload LCP image for faster rendering -->
+    <link rel="preload" as="image" href="images/cases/mosca/1.webp" imagesrcset="images/cases/mosca/1.webp 1x" fetchpriority="high">
     
     <!-- Preload compiled stylesheet -->
     <link rel="preload" href="/dist/styles.min.css" as="style">
@@ -201,28 +230,28 @@
                             <div id="heroCarousel" class="relative rounded-2xl h-[600px] flex items-center justify-center">
                                 <!-- Slides -->
                                 <div class="hero-slide active">
-                                    <img fetchpriority="high" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" fetchpriority="high" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/mosca/2.webp" alt="MoscaEx Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/mosca/2.webp" alt="MoscaEx Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/alfin/2.webp" alt="Alfin Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/alfin/2.webp" alt="Alfin Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/kukushka/2.webp" alt="Kukushka Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/kukushka/2.webp" alt="Kukushka Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/ulybka/2.webp" alt="Улыбка Радуги Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/ulybka/2.webp" alt="Улыбка Радуги Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                                 </div>
                             </div>
                         </div>
@@ -238,16 +267,16 @@
             <p class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-8" data-lang-ru="Нам доверяют" data-lang-en="Trusted by">Нам доверяют</p>
             <div class="flex flex-wrap justify-center items-center gap-12">
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="h-full object-contain logo-black">
+                    <img height="40" width="120" loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="h-full object-contain logo-black">
                 </div>
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="h-full object-contain logo-black">
+                    <img height="40" width="120" loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="h-full object-contain logo-black">
                 </div>
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="h-full object-contain">
+                    <img height="40" width="120" loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="h-full object-contain">
                 </div>
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="h-full object-contain">
+                    <img height="40" width="120" loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="h-full object-contain">
                 </div>
                 <div class="text-2xl font-bold text-gray-400" data-lang-ru="+ ваш бренд" data-lang-en="+ your brand">+ ваш бренд</div>
             </div>
@@ -271,12 +300,12 @@
             
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Case 1: MoscaEx -->
-                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
+                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-purple-50 to-blue-50">
-                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="w-full h-full object-contain logo-black">
+                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
+                            <img height="40" width="120" loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="w-full h-full object-contain logo-black" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                         </div>
-                        <img loading="lazy" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img height="812" width="375" loading="lazy" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -293,12 +322,12 @@
                 </div>
                 
                 <!-- Case 2: Alfin -->
-                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
+                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50">
-                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="w-full h-full object-contain logo-black">
+                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
+                            <img height="40" width="120" loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="w-full h-full object-contain logo-black" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                         </div>
-                        <img loading="lazy" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img height="812" width="375" loading="lazy" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -315,12 +344,12 @@
                 </div>
                 
                 <!-- Case 3: Kukushka -->
-                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
+                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-amber-50 to-orange-50">
-                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="w-full h-full object-contain">
+                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
+                            <img height="40" width="120" loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="w-full h-full object-contain" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                         </div>
-                        <img loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img height="812" width="375" loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -337,12 +366,12 @@
                 </div>
                 
                 <!-- Case 4: Улыбка Радуги -->
-                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
+                <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-pink-50 to-rose-50">
-                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="w-full h-full object-contain">
+                        <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
+                            <img height="40" width="120" loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="w-full h-full object-contain" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
                         </div>
-                        <img loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img height="812" width="375" loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -375,28 +404,28 @@
             
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Advantage 1 -->
-                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft">
+                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft" style="will-change: transform" style="will-change: transform">
                     <div class="text-5xl mb-4">⚡</div>
                     <h3 class="text-xl font-bold mb-3" data-lang-ru="Быстрый запуск" data-lang-en="Quick Launch">Быстрый запуск</h3>
                     <p class="text-gray-600" data-lang-ru="От идеи до запуска всего 2 недели. Никаких долгих согласований." data-lang-en="From idea to launch in just 2 weeks. No long approvals.">От идеи до запуска всего 2 недели. Никаких долгих согласований.</p>
                 </div>
                 
                 <!-- Advantage 2 -->
-                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft">
+                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft" style="will-change: transform" style="will-change: transform">
                     <div class="text-5xl mb-4">💰</div>
                     <h3 class="text-xl font-bold mb-3" data-lang-ru="Окупается сразу" data-lang-en="Pays Off Immediately">Окупается сразу</h3>
                     <p class="text-gray-600" data-lang-ru="В 3 раза дешевле обычного приложения. Рост продаж с первого дня." data-lang-en="3x cheaper than regular apps. Sales growth from day one.">В 3 раза дешевле обычного приложения. Рост продаж с первого дня.</p>
                 </div>
                 
                 <!-- Advantage 3 -->
-                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft">
+                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft" style="will-change: transform" style="will-change: transform">
                     <div class="text-5xl mb-4">📱</div>
                     <h3 class="text-xl font-bold mb-3" data-lang-ru="Без установки" data-lang-en="No Installation">Без установки</h3>
                     <p class="text-gray-600" data-lang-ru="Пользователи уже в Telegram. Не нужно качать из App Store." data-lang-en="Users are already on Telegram. No need to download from App Store.">Пользователи уже в Telegram. Не нужно качать из App Store.</p>
                 </div>
                 
                 <!-- Advantage 4 -->
-                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft">
+                <div class="bg-white/70 backdrop-blur-sm p-8 rounded-2xl card-hover border border-gray-100 shadow-soft" style="will-change: transform" style="will-change: transform">
                     <div class="text-5xl mb-4">🔧</div>
                     <h3 class="text-xl font-bold mb-3" data-lang-ru="Полный цикл" data-lang-en="Full Cycle">Полный цикл</h3>
                     <p class="text-gray-600" data-lang-ru="От дизайна до поддержки. Вы получаете готовое решение." data-lang-en="From design to support. You get a complete solution.">От дизайна до поддержки. Вы получаете готовое решение.</p>
@@ -563,7 +592,7 @@
 
             <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
                 <!-- Real Estate Solution -->
-                <div class="bg-white rounded-3xl shadow-xl overflow-hidden card-hover border-2 border-primary/20 relative group">
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden card-hover border-2 border-primary/20 relative group" style="will-change: transform" style="will-change: transform">
                     <div class="absolute top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-10">
                         <span data-lang-ru="Доступно" data-lang-en="Available">Доступно</span>
                     </div>
@@ -638,7 +667,7 @@
                 </div>
 
                 <!-- Crypto Exchange Solution -->
-                <div class="bg-white rounded-3xl shadow-xl overflow-hidden card-hover border-2 border-secondary/20 relative group opacity-95">
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden card-hover border-2 border-secondary/20 relative group opacity-95" style="will-change: transform" style="will-change: transform">
                     <div class="absolute top-6 right-6 bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-10">
                         <span data-lang-ru="Скоро" data-lang-en="Coming Soon">Скоро</span>
                     </div>
