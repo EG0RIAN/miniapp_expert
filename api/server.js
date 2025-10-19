@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const axios = require('axios');
 const PocketBase = require('pocketbase/cjs');
+const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
@@ -51,6 +52,91 @@ const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8090';
 const PB_ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || '';
 const PB_ADMIN_PASSWORD = process.env.PB_ADMIN_PASSWORD || '';
 const pb = new PocketBase(PB_URL);
+
+// Postgres client
+const PG_CONFIG = {
+    host: process.env.PG_HOST || 'postgres',
+    port: Number(process.env.PG_PORT || 5432),
+    database: process.env.PG_DATABASE || 'miniapp',
+    user: process.env.PG_USER || 'miniuser',
+    password: process.env.PG_PASSWORD || 'minipass',
+};
+let pgPool = null;
+try {
+    pgPool = new Pool(PG_CONFIG);
+} catch (_) {}
+
+async function pgInitSchema() {
+    if (!pgPool) return;
+    await pgPool.query(`
+    create table if not exists profiles (
+      email text primary key,
+      name text,
+      phone text,
+      data jsonb default '{}'::jsonb
+    );
+    create table if not exists user_products (
+      email text primary key,
+      items jsonb default '[]'::jsonb
+    );
+    create table if not exists user_subscriptions (
+      email text primary key,
+      items jsonb default '[]'::jsonb
+    );
+    create table if not exists user_referrals (
+      email text primary key,
+      items jsonb default '[]'::jsonb
+    );
+    create table if not exists events (
+      id bigserial primary key,
+      payload jsonb,
+      created timestamptz default now()
+    );
+    create table if not exists abandoned_carts (
+      cart_id text primary key,
+      payload jsonb,
+      created timestamptz default now(),
+      updated timestamptz default now()
+    );
+  `);
+}
+
+pgInitSchema().catch(e => console.error('PG init error:', e.message));
+
+async function pgUpsertProfile({ email, name, phone, data }) {
+    if (!pgPool) return null;
+    const res = await pgPool.query(
+      `insert into profiles(email, name, phone, data)
+       values($1,$2,$3,$4)
+       on conflict(email) do update set name=excluded.name, phone=excluded.phone, data=excluded.data
+       returning email, name, phone, data`,
+      [email, name || null, phone || null, data || {}]
+    );
+    return res.rows[0];
+}
+
+async function pgGetProfile(email) {
+    if (!pgPool) return null;
+    const res = await pgPool.query(`select email, name, phone, data from profiles where email=$1`, [email]);
+    return res.rows[0] || null;
+}
+
+async function pgGetArray(collection, email) {
+    if (!pgPool) return [];
+    const res = await pgPool.query(`select items from ${collection} where email=$1`, [email]);
+    return res.rows[0]?.items || [];
+}
+
+async function pgSetArray(collection, email, items) {
+    if (!pgPool) return [];
+    const res = await pgPool.query(
+      `insert into ${collection}(email, items) values($1,$2)
+       on conflict(email) do update set items=excluded.items
+       returning items`,
+      [email, Array.isArray(items) ? items : []]
+    );
+    return res.rows[0]?.items || [];
+}
 
 // Mailer
 const SMTP_HOST = process.env.SMTP_HOST || '';
@@ -185,15 +271,18 @@ app.get('/api/user/profile', async (req, res) => {
     try {
         const email = String(req.query.email || '').toLowerCase();
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const authed = await ensurePbAuth();
-        if (authed) {
-            try {
+        // Prefer Postgres
+        const pgProfile = await pgGetProfile(email);
+        if (pgProfile) return res.json({ success: true, profile: pgProfile });
+        // PocketBase fallback
+        try {
+            const authed = await ensurePbAuth();
+            if (authed) {
                 const list = await pb.collection('profiles').getList(1, 1, { filter: `email = "${email}"` });
                 const rec = list.items?.[0] || null;
-                return res.json({ success: true, profile: rec ? { email: rec.email, name: rec.name, phone: rec.phone, data: rec.data || {} } : null });
-            } catch (e) { console.error('PB profile get error:', e.message); }
-        }
-        // Fallback: return null (frontend uses localStorage)
+                if (rec) return res.json({ success: true, profile: { email: rec.email, name: rec.name, phone: rec.phone, data: rec.data || {} } });
+            }
+        } catch (e) { console.error('PB profile get error:', e.message); }
         res.json({ success: true, profile: null });
     } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -202,13 +291,14 @@ app.post('/api/user/profile', async (req, res) => {
     try {
         const { email, name, phone, data } = req.body || {};
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        try {
-            const rec = await pbUpsertSingle('profiles', String(email).toLowerCase(), { name, phone, data: data || {} });
-            return res.json({ success: true, profile: { email: rec.email, name: rec.name, phone: rec.phone, data: rec.data || {} } });
-        } catch (e) {
-            console.error('PB profile upsert error:', e.message);
-            return res.status(503).json({ success: false, message: 'storage unavailable' });
-        }
+        const em = String(email).toLowerCase();
+        // Write to Postgres first
+        let profile = null;
+        try { profile = await pgUpsertProfile({ email: em, name, phone, data: data || {} }); } catch (e) { console.error('PG profile upsert error:', e.message); }
+        // Best-effort sync to PB
+        try { await pbUpsertSingle('profiles', em, { name, phone, data: data || {} }); } catch (_) {}
+        if (!profile) return res.status(503).json({ success: false, message: 'storage unavailable' });
+        return res.json({ success: true, profile });
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
@@ -232,7 +322,10 @@ app.get('/api/user/products', async (req, res) => {
     try {
         const email = String(req.query.email || '').toLowerCase();
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const items = await getArrayByEmail('user_products', email);
+        let items = await pgGetArray('user_products', email);
+        if (!items || !items.length) {
+            try { items = await getArrayByEmail('user_products', email); } catch (_) {}
+        }
         res.json({ success: true, items });
     } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -242,7 +335,8 @@ app.post('/api/user/products', async (req, res) => {
         const email = String(req.body?.email || '').toLowerCase();
         const items = req.body?.items || [];
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const saved = await setArrayByEmail('user_products', email, items);
+        let saved = await pgSetArray('user_products', email, items);
+        try { await setArrayByEmail('user_products', email, items); } catch (_) {}
         res.json({ success: true, items: saved });
     } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -252,7 +346,10 @@ app.get('/api/user/subscriptions', async (req, res) => {
     try {
         const email = String(req.query.email || '').toLowerCase();
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const items = await getArrayByEmail('user_subscriptions', email);
+        let items = await pgGetArray('user_subscriptions', email);
+        if (!items || !items.length) {
+            try { items = await getArrayByEmail('user_subscriptions', email); } catch (_) {}
+        }
         res.json({ success: true, items });
     } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -262,7 +359,8 @@ app.post('/api/user/subscriptions', async (req, res) => {
         const email = String(req.body?.email || '').toLowerCase();
         const items = req.body?.items || [];
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const saved = await setArrayByEmail('user_subscriptions', email, items);
+        let saved = await pgSetArray('user_subscriptions', email, items);
+        try { await setArrayByEmail('user_subscriptions', email, items); } catch (_) {}
         res.json({ success: true, items: saved });
     } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -272,7 +370,10 @@ app.get('/api/user/referrals', async (req, res) => {
     try {
         const email = String(req.query.email || '').toLowerCase();
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const items = await getArrayByEmail('user_referrals', email);
+        let items = await pgGetArray('user_referrals', email);
+        if (!items || !items.length) {
+            try { items = await getArrayByEmail('user_referrals', email); } catch (_) {}
+        }
         res.json({ success: true, items });
     } catch (e) { res.status(500).json({ success: false }); }
 });
@@ -282,7 +383,8 @@ app.post('/api/user/referrals', async (req, res) => {
         const email = String(req.body?.email || '').toLowerCase();
         const items = req.body?.items || [];
         if (!email) return res.status(400).json({ success: false, message: 'email required' });
-        const saved = await setArrayByEmail('user_referrals', email, items);
+        let saved = await pgSetArray('user_referrals', email, items);
+        try { await setArrayByEmail('user_referrals', email, items); } catch (_) {}
         res.json({ success: true, items: saved });
     } catch (e) { res.status(500).json({ success: false }); }
 });
