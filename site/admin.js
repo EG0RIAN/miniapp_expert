@@ -57,6 +57,9 @@ function loadSectionData(sectionId) {
         case 'users':
             loadUsers();
             break;
+        case 'partners':
+            loadPartners();
+            break;
     }
 }
 
@@ -763,5 +766,165 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         ]));
     }
+    
+    // Initialize partners demo data
+    if (!localStorage.getItem('partners')) {
+        localStorage.setItem('partners', JSON.stringify([
+            {
+                id: 'partner1',
+                name: 'Алексей Смирнов',
+                email: 'alexey@example.com',
+                referralCode: 'ALEXEY',
+                referralsCount: 5,
+                conversions: 3,
+                earned: 15000,
+                paid: 10000,
+                balance: 5000,
+                status: 'active',
+                registrationDate: '2025-10-01'
+            },
+            {
+                id: 'partner2',
+                name: 'Мария Иванова',
+                email: 'maria@example.com',
+                referralCode: 'MARIA',
+                referralsCount: 3,
+                conversions: 1,
+                earned: 5000,
+                paid: 0,
+                balance: 5000,
+                status: 'active',
+                registrationDate: '2025-10-10'
+            }
+        ]));
+    }
 });
+
+// Load Partners
+function loadPartners() {
+    const partners = JSON.parse(localStorage.getItem('partners') || '[]');
+    
+    // Update stats
+    const totalPartners = partners.length;
+    const activePartners = partners.filter(p => p.status === 'active').length;
+    const totalPaid = partners.reduce((sum, p) => sum + (p.paid || 0), 0);
+    const pendingPayouts = partners.reduce((sum, p) => sum + (p.balance || 0), 0);
+    
+    document.getElementById('totalPartners').textContent = totalPartners;
+    document.getElementById('activePartners').textContent = activePartners;
+    document.getElementById('totalPaid').textContent = `${totalPaid.toLocaleString('ru-RU')} ₽`;
+    document.getElementById('pendingPayouts').textContent = `${pendingPayouts.toLocaleString('ru-RU')} ₽`;
+    document.getElementById('partnersCount').textContent = `${totalPartners} партнеров`;
+    
+    // Load partners table
+    const tbody = document.getElementById('partnersTableBody');
+    if (partners.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-gray-500">Нет партнеров</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = partners.map(partner => {
+        const conversionRate = partner.referralsCount > 0 ? 
+            ((partner.conversions / partner.referralsCount) * 100).toFixed(0) : 0;
+        
+        return `
+            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                <td class="p-4">
+                    <div class="font-semibold">${partner.name}</div>
+                    <div class="text-xs text-gray-500">${partner.email}</div>
+                    <div class="text-xs text-gray-400 mt-1">Код: ${partner.referralCode}</div>
+                </td>
+                <td class="p-4">
+                    <div class="text-lg font-bold">${partner.referralsCount}</div>
+                    <div class="text-xs text-gray-500">${partner.conversions} купили</div>
+                </td>
+                <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${conversionRate > 30 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                        ${conversionRate}%
+                    </span>
+                </td>
+                <td class="p-4">
+                    <div class="font-bold text-primary">${partner.earned.toLocaleString('ru-RU')} ₽</div>
+                    <div class="text-xs text-gray-500">Баланс: ${partner.balance.toLocaleString('ru-RU')} ₽</div>
+                </td>
+                <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${partner.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                        ${partner.status === 'active' ? '✅ Активен' : '⏸️ Неактивен'}
+                    </span>
+                </td>
+                <td class="p-4">
+                    <div class="flex gap-2">
+                        <button onclick="viewPartnerDetails('${partner.id}')" class="text-primary hover:text-primary/80 transition text-sm">
+                            👁️ Детали
+                        </button>
+                        <button onclick="processPayoutModal('${partner.id}')" class="text-green-600 hover:text-green-700 transition text-sm">
+                            💸 Выплата
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// View partner details
+function viewPartnerDetails(partnerId) {
+    const partners = JSON.parse(localStorage.getItem('partners') || '[]');
+    const partner = partners.find(p => p.id === partnerId);
+    
+    if (!partner) return;
+    
+    alert(`🤝 Партнер: ${partner.name}\n\n` +
+          `📧 Email: ${partner.email}\n` +
+          `🔗 Реферальный код: ${partner.referralCode}\n` +
+          `👥 Рефералов: ${partner.referralsCount}\n` +
+          `✅ Конверсий: ${partner.conversions}\n` +
+          `💰 Заработано: ${partner.earned.toLocaleString('ru-RU')} ₽\n` +
+          `💳 Выплачено: ${partner.paid.toLocaleString('ru-RU')} ₽\n` +
+          `💵 Баланс: ${partner.balance.toLocaleString('ru-RU')} ₽\n` +
+          `📅 Дата регистрации: ${new Date(partner.registrationDate).toLocaleDateString('ru-RU')}`);
+}
+
+// Process payout modal
+function processPayoutModal(partnerId) {
+    const partners = JSON.parse(localStorage.getItem('partners') || '[]');
+    const partner = partners.find(p => p.id === partnerId);
+    
+    if (!partner || partner.balance === 0) {
+        alert('⚠️ У партнера нет средств для вывода');
+        return;
+    }
+    
+    const confirm = window.confirm(`💸 Подтвердите выплату:\n\n` +
+                                   `Партнер: ${partner.name}\n` +
+                                   `Сумма: ${partner.balance.toLocaleString('ru-RU')} ₽\n\n` +
+                                   `Выплатить?`);
+    
+    if (confirm) {
+        // Update partner balance
+        partner.paid += partner.balance;
+        partner.balance = 0;
+        
+        // Save
+        const updatedPartners = partners.map(p => p.id === partnerId ? partner : p);
+        localStorage.setItem('partners', JSON.stringify(updatedPartners));
+        
+        alert(`✅ Выплата ${partner.balance} ₽ для ${partner.name} обработана!`);
+        loadPartners();
+    }
+}
+
+// Open partner settings modal
+function openPartnerSettingsModal() {
+    const commission = prompt('Введите процент комиссии для партнеров:', '20');
+    const minPayout = prompt('Введите минимальную сумму для вывода (₽):', '0');
+    
+    if (commission && minPayout) {
+        localStorage.setItem('partnerCommission', commission);
+        localStorage.setItem('partnerMinPayout', minPayout);
+        alert(`✅ Настройки сохранены:\n\n` +
+              `Комиссия: ${commission}%\n` +
+              `Минимум для вывода: ${minPayout} ₽`);
+    }
+}
 

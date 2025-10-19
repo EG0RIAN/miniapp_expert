@@ -93,6 +93,10 @@
                     <span class="text-xl">👤</span>
                     <span class="font-semibold">Профиль</span>
                 </a>
+                <a href="#partners" onclick="showSection('partners')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
+                    <span class="text-xl">🤝</span>
+                    <span class="font-semibold">Партнерская программа</span>
+                </a>
             </nav>
         </aside>
 
@@ -352,6 +356,192 @@
                                     <span class="text-gray-600">Платежей:</span>
                                     <span class="font-bold">2</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Partners Section -->
+            <section id="section-partners" class="cabinet-section hidden">
+                <h1 class="text-3xl font-bold mb-8">🤝 Партнерская программа</h1>
+
+                <!-- Partners Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-primary to-secondary text-white rounded-2xl shadow-sm p-6">
+                        <div class="text-sm opacity-90 mb-2">Рефералы</div>
+                        <div class="text-3xl font-bold" id="totalReferrals">0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6 border-2 border-primary">
+                        <div class="text-sm text-gray-600 mb-2">Заработано</div>
+                        <div class="text-3xl font-bold text-primary" id="totalEarned">0 ₽</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <div class="text-sm text-gray-600 mb-2">Доступно к выводу</div>
+                        <div class="text-3xl font-bold text-secondary" id="availableBalance">0 ₽</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <div class="text-sm text-gray-600 mb-2">Конверсия</div>
+                        <div class="text-3xl font-bold text-gray-900" id="conversionRate">0%</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Referral Link -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary rounded-2xl p-8">
+                            <h2 class="text-2xl font-bold mb-2">💰 Зарабатывайте с MiniAppExpert!</h2>
+                            <p class="text-gray-700 mb-6">Приглашайте клиентов и получайте <span class="font-bold text-primary">20% от каждой покупки</span> навсегда!</p>
+                            
+                            <div class="bg-white rounded-xl p-6 mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Ваша реферальная ссылка</label>
+                                <div class="flex gap-3">
+                                    <input 
+                                        type="text" 
+                                        id="referralLink" 
+                                        value="https://miniapp.expert/?ref=USER123"
+                                        readonly
+                                        class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 bg-gray-50 font-mono text-sm"
+                                    >
+                                    <button onclick="copyReferralLink()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                        📋 Копировать
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Отправьте эту ссылку друзьям и партнерам</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button onclick="shareToTelegram()" class="bg-secondary text-white px-4 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition">
+                                    📱 Telegram
+                                </button>
+                                <button onclick="shareToWhatsApp()" class="bg-green-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+                                    💬 WhatsApp
+                                </button>
+                                <button onclick="shareByEmail()" class="bg-gray-700 text-white px-4 py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
+                                    ✉️ Email
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Referrals Table -->
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold mb-6">Мои рефералы</h2>
+                            <div class="overflow-x-auto">
+                                <table class="w-full" id="referralsTable">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="text-left p-4 text-sm font-semibold text-gray-600">Реферал</th>
+                                            <th class="text-left p-4 text-sm font-semibold text-gray-600">Дата регистрации</th>
+                                            <th class="text-left p-4 text-sm font-semibold text-gray-600">Покупки</th>
+                                            <th class="text-left p-4 text-sm font-semibold text-gray-600">Ваша выгода</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="referralsTableBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center p-8 text-gray-500">
+                                                Пока нет рефералов. Поделитесь ссылкой!
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Withdrawal History -->
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 class="text-xl font-bold mb-6">История выплат</h2>
+                            <div class="space-y-4" id="withdrawalHistory">
+                                <div class="text-center p-8 text-gray-500">
+                                    История выплат пуста
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Commission Info -->
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold mb-4 flex items-center">
+                                <span class="text-2xl mr-2">💎</span>
+                                Условия программы
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="border-l-4 border-primary pl-4">
+                                    <div class="text-2xl font-bold text-primary mb-1">20%</div>
+                                    <div class="text-sm text-gray-600">Комиссия с каждой покупки</div>
+                                </div>
+                                <div class="border-l-4 border-secondary pl-4">
+                                    <div class="text-2xl font-bold text-secondary mb-1">∞</div>
+                                    <div class="text-sm text-gray-600">Навсегда, пока клиент с вами</div>
+                                </div>
+                                <div class="border-l-4 border-green-500 pl-4">
+                                    <div class="text-2xl font-bold text-green-500 mb-1">0 ₽</div>
+                                    <div class="text-sm text-gray-600">Минимум для вывода</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Withdrawal Button -->
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold mb-4">Вывод средств</h3>
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-600 mb-1">Доступно:</div>
+                                <div class="text-2xl font-bold text-primary" id="withdrawBalance">0 ₽</div>
+                            </div>
+                            <button onclick="openWithdrawModal()" class="w-full bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                💸 Вывести средства
+                            </button>
+                        </div>
+
+                        <!-- How it Works -->
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold mb-4">Как это работает?</h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">1️⃣</span>
+                                    <div>
+                                        <div class="font-semibold mb-1">Поделитесь ссылкой</div>
+                                        <div class="text-gray-600">Отправьте вашу реферальную ссылку друзьям и коллегам</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">2️⃣</span>
+                                    <div>
+                                        <div class="font-semibold mb-1">Они покупают</div>
+                                        <div class="text-gray-600">Когда клиент делает заказ по вашей ссылке</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">3️⃣</span>
+                                    <div>
+                                        <div class="font-semibold mb-1">Вы получаете 20%</div>
+                                        <div class="text-gray-600">От каждой покупки реферала на ваш счет</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">4️⃣</span>
+                                    <div>
+                                        <div class="font-semibold mb-1">Выводите деньги</div>
+                                        <div class="text-gray-600">На карту или кошелек без комиссии</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Marketing Materials -->
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <h3 class="font-bold mb-4">📦 Материалы для продвижения</h3>
+                            <div class="space-y-3">
+                                <button class="w-full bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-xl text-sm font-semibold transition">
+                                    📄 Презентация (PDF)
+                                </button>
+                                <button class="w-full bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-xl text-sm font-semibold transition">
+                                    🎨 Баннеры для соцсетей
+                                </button>
+                                <button class="w-full bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-xl text-sm font-semibold transition">
+                                    ✍️ Готовые тексты
+                                </button>
                             </div>
                         </div>
                     </div>

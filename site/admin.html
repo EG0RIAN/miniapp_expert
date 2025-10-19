@@ -107,6 +107,13 @@
                         <div class="text-xs text-gray-500" id="usersCount">0 клиентов</div>
                     </div>
                 </a>
+                <a href="#partners" onclick="showSection('partners')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
+                    <span class="text-xl">🤝</span>
+                    <div>
+                        <div class="font-semibold">Партнеры</div>
+                        <div class="text-xs text-gray-500" id="partnersCount">0 партнеров</div>
+                    </div>
+                </a>
                 <a href="#settings" onclick="showSection('settings')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="settings">
                     <span class="text-xl">⚙️</span>
                     <span class="font-semibold">Настройки</span>
@@ -278,6 +285,84 @@
 
                 <div id="usersList" class="space-y-4">
                     <!-- Users will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Partners Section -->
+            <section id="section-partners" class="admin-section hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold">🤝 Партнерская программа</h1>
+                    <button onclick="openPartnerSettingsModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                        ⚙️ Настройки программы
+                    </button>
+                </div>
+
+                <!-- Partner Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-primary to-secondary text-white rounded-2xl shadow-sm p-6">
+                        <div class="text-sm opacity-90 mb-2">Всего партнеров</div>
+                        <div class="text-3xl font-bold" id="totalPartners">0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6 border-2 border-primary">
+                        <div class="text-sm text-gray-600 mb-2">Активных</div>
+                        <div class="text-3xl font-bold text-primary" id="activePartners">0</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <div class="text-sm text-gray-600 mb-2">Всего выплачено</div>
+                        <div class="text-3xl font-bold text-green-600" id="totalPaid">0 ₽</div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <div class="text-sm text-gray-600 mb-2">К выплате</div>
+                        <div class="text-3xl font-bold text-orange-500" id="pendingPayouts">0 ₽</div>
+                    </div>
+                </div>
+
+                <!-- Partners Table -->
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <h2 class="text-xl font-bold mb-6">Список партнеров</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Партнер</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Рефералы</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Конверсия</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Заработано</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Статус</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partnersTableBody">
+                                <!-- Partners will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pending Payouts -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+                    <h2 class="text-xl font-bold mb-6">Заявки на вывод</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Партнер</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Сумма</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Метод</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Дата заявки</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Статус</th>
+                                    <th class="text-left p-4 text-sm font-semibold text-gray-600">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payoutsTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center p-8 text-gray-500">
+                                        Нет заявок на вывод
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
