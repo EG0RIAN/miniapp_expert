@@ -794,26 +794,26 @@
                             </label>
                             
                             <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
-                                <input type="checkbox" class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <input type="checkbox" class="feature-checkbox w-6 h-6 text-primary rounded mt-1 mr-4" data-price="20000" onchange="calculateTotal()">
                                 <div>
                                     <div class="font-semibold text-gray-900">Виртуальные туры</div>
-                                    <div class="text-sm text-gray-600">3D просмотр объектов <span class="text-primary">+20K₽</span></div>
+                                    <div class="text-sm text-gray-600">3D просмотр объектов <span class="text-primary font-bold">+20 000₽</span></div>
                                 </div>
                             </label>
                             
-                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
-                                <input type="checkbox" checked class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                            <label class="flex items-start p-4 border-2 border-green-100 rounded-xl bg-green-50">
+                                <input type="checkbox" checked disabled class="w-6 h-6 text-primary rounded mt-1 mr-4">
                                 <div>
                                     <div class="font-semibold text-gray-900">Админ-панель</div>
-                                    <div class="text-sm text-gray-600">Управление объектами</div>
+                                    <div class="text-sm text-gray-600">Управление объектами <span class="text-green-600 font-bold">✅ Включено</span></div>
                                 </div>
                             </label>
                             
                             <label class="flex items-start p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition">
-                                <input type="checkbox" class="w-6 h-6 text-primary rounded mt-1 mr-4">
+                                <input type="checkbox" class="feature-checkbox w-6 h-6 text-primary rounded mt-1 mr-4" data-price="15000" onchange="calculateTotal()">
                                 <div>
                                     <div class="font-semibold text-gray-900">Ипотечный калькулятор</div>
-                                    <div class="text-sm text-gray-600">Расчет платежей <span class="text-primary">+15K₽</span></div>
+                                    <div class="text-sm text-gray-600">Расчет платежей <span class="text-primary font-bold">+15 000₽</span></div>
                                 </div>
                             </label>
                         </div>
@@ -826,7 +826,10 @@
                         <div class="space-y-4 mb-6">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-700">Базовый пакет:</span>
-                                <span class="text-2xl font-bold text-gray-900">150 000₽</span>
+                                <span class="text-2xl font-bold text-gray-900" id="basePrice">150 000₽</span>
+                            </div>
+                            <div id="extraFeatures" class="space-y-2">
+                                <!-- Extra features will be shown here -->
                             </div>
                             <div class="flex justify-between items-center text-sm text-gray-600">
                                 <span>• Каталог объектов</span>
@@ -848,7 +851,7 @@
                         <div class="border-t-2 border-gray-300 pt-4 mb-6">
                             <div class="flex justify-between items-center mb-4">
                                 <span class="text-xl font-bold">К оплате:</span>
-                                <span class="text-4xl font-black text-primary">150 000₽</span>
+                                <span class="text-4xl font-black text-primary" id="totalPrice">150 000₽</span>
                             </div>
                             
                             <!-- T-Bank Installment -->
@@ -864,7 +867,7 @@
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-gray-700">Платеж от:</span>
-                                    <span class="text-2xl font-bold text-yellow-600">12 500₽/мес</span>
+                                    <span class="text-2xl font-bold text-yellow-600" id="installmentPrice">12 500₽/мес</span>
                                 </div>
                             </div>
                         </div>
@@ -1023,6 +1026,64 @@
                 // Optional: redirect to payment
                 // window.location.href = '/payment.html';
             });
+        });
+
+        // Calculate total price based on selected features
+        function calculateTotal() {
+            const basePrice = 150000; // Base price
+            let extraPrice = 0;
+            let extraFeatures = [];
+            
+            // Get all checked feature checkboxes
+            const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
+            
+            checkboxes.forEach(checkbox => {
+                const price = parseInt(checkbox.dataset.price) || 0;
+                const featureName = checkbox.parentElement.querySelector('.font-semibold').textContent;
+                extraPrice += price;
+                extraFeatures.push({
+                    name: featureName,
+                    price: price
+                });
+            });
+            
+            // Calculate total
+            const totalPrice = basePrice + extraPrice;
+            
+            // Update base price display
+            document.getElementById('basePrice').textContent = basePrice.toLocaleString('ru-RU') + '₽';
+            
+            // Update extra features list
+            const extraFeaturesDiv = document.getElementById('extraFeatures');
+            if (extraFeatures.length > 0) {
+                extraFeaturesDiv.innerHTML = extraFeatures.map(feature => `
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">+ ${feature.name}:</span>
+                        <span class="font-bold text-primary">+${feature.price.toLocaleString('ru-RU')}₽</span>
+                    </div>
+                `).join('');
+            } else {
+                extraFeaturesDiv.innerHTML = '';
+            }
+            
+            // Update total price
+            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString('ru-RU') + '₽';
+            
+            // Update installment price (for 12 months)
+            const installmentMonthly = Math.round(totalPrice / 12);
+            document.getElementById('installmentPrice').textContent = installmentMonthly.toLocaleString('ru-RU') + '₽/мес';
+            
+            // Update payment button link
+            const paymentButton = document.querySelector('a[href*="/payment.html"]');
+            if (paymentButton) {
+                paymentButton.href = `/payment.html?product=Mini App для недвижимости&price=${totalPrice}`;
+                paymentButton.innerHTML = `💳 Оплатить сейчас - ${totalPrice.toLocaleString('ru-RU')} ₽`;
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotal();
         });
     </script>
 </body>
