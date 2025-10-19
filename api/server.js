@@ -22,17 +22,26 @@ const TBANK_CONFIG = {
 
 // Generate Token for T-Bank API
 function generateToken(params, password) {
-    // Add password to params
-    const tokenParams = { ...params, Password: password };
+    // Remove fields that should not be included in token calculation
+    const tokenParams = { ...params };
+    delete tokenParams.Token;
+    delete tokenParams.Receipt;
+    delete tokenParams.DATA;
+    delete tokenParams.Shops;
+    
+    // Add password
+    tokenParams.Password = password;
     
     // Sort keys alphabetically
     const sortedKeys = Object.keys(tokenParams).sort();
     
-    // Create concatenated string
-    const values = sortedKeys.map(key => tokenParams[key]).join('');
+    // Create concatenated string from values
+    const tokenString = sortedKeys.map(key => tokenParams[key]).join('');
+    
+    console.log('Token calculation:', { keys: sortedKeys, string: tokenString });
     
     // Generate SHA-256 hash
-    return crypto.createHash('sha256').update(values).digest('hex');
+    return crypto.createHash('sha256').update(tokenString).digest('hex');
 }
 
 // Create payment endpoint
@@ -70,12 +79,8 @@ app.post('/api/payment/create', async (req, res) => {
             NotificationURL: `https://miniapp.expert/api/payment/webhook`
         };
         
-        // Generate Token
-        paymentData.Token = generateToken({
-            TerminalKey: paymentData.TerminalKey,
-            Amount: paymentData.Amount,
-            OrderId: paymentData.OrderId
-        }, TBANK_CONFIG.password);
+        // Generate Token (include all simple fields)
+        paymentData.Token = generateToken(paymentData, TBANK_CONFIG.password);
         
         // Call T-Bank API
         const response = await axios.post(`${TBANK_CONFIG.apiUrl}/Init`, paymentData);
