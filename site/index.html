@@ -57,6 +57,25 @@
 /* Critical Hero Styles for instant LCP */
 .hero-container { min-height: 600px; background: #f9fafb; }
 @media (max-width: 768px) { .hero-container { min-height: 400px; } }
+
+/* Performance: CSS Containment */
+.card-hover, section, .bg-white.rounded-2xl {
+    contain: layout style;
+}
+
+/* Reduce CLS */
+img {
+    content-visibility: auto;
+}
+
+/* Remove expensive animations on mobile */
+@media (max-width: 768px) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
 </style>
     
     <!-- Critical Hero Styles -->
@@ -170,13 +189,13 @@
     <section class="relative pt-32 pb-20 px-6 overflow-hidden">
         <!-- Background Effects -->
         <div class="absolute inset-0 bg-gradient-to-br from-mint-50 via-white to-blue-50"></div>
-        <div class="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute bottom-20 left-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-2xl animate-float" style="animation-delay: 4s;"></div>
+        <div class="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl "></div>
+        <div class="absolute bottom-20 left-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl " style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-2xl " style="animation-delay: 4s;"></div>
         
         <div class="relative max-w-7xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="animate-fade-in">
+                <div class="">
                     <div class="inline-flex items-center bg-gradient-to-r from-mint-100 to-blue-100 text-primary px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-soft border border-white/50" data-lang-ru="🚀 Более 50M пользователей доверяют нам" data-lang-en="🚀 Over 50M users trust us">
                         <span class="mr-2 text-lg">🚀</span>
                         <span data-lang-ru="Более 50M пользователей доверяют нам" data-lang-en="Over 50M users trust us">Более 50M пользователей доверяют нам</span>
@@ -223,35 +242,35 @@
                     </div>
                 </div>
                 
-                <div class="animate-slide-up hidden md:block">
+                <div class=" hidden md:block">
                     <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur-3xl opacity-15 animate-float"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur-3xl opacity-15 "></div>
                         <div class="relative bg-white/80 backdrop-blur-sm p-3 rounded-3xl shadow-large">
                             <div id="heroCarousel" class="relative rounded-2xl h-[600px] flex items-center justify-center">
                                 <!-- Slides -->
                                 <div class="hero-slide active">
-                                    <img height="812" width="375" fetchpriority="high" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" fetchpriority="high" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" loading="lazy" src="images/cases/mosca/2.webp" alt="MoscaEx Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/mosca/2.webp" alt="MoscaEx Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" loading="lazy" src="images/cases/alfin/2.webp" alt="Alfin Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/alfin/2.webp" alt="Alfin Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" loading="lazy" src="images/cases/kukushka/2.webp" alt="Kukushka Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/kukushka/2.webp" alt="Kukushka Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                                 <div class="hero-slide">
-                                    <img height="812" width="375" loading="lazy" src="images/cases/ulybka/2.webp" alt="Улыбка Радуги Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                                    <img height="812" width="375" loading="lazy" src="images/cases/ulybka/2.webp" alt="Улыбка Радуги Screen 2" class="w-full h-full object-contain rounded-2xl" style="aspect-ratio: 375/812">
                                 </div>
                             </div>
                         </div>
@@ -284,7 +303,7 @@
     </section>
 
     <!-- Cases Section -->
-    <section id="cases" class="py-20 px-6 bg-gray-50">
+    <section id="cases" style="content-visibility: auto; contain-intrinsic-size: 0 1000px" class="py-20 px-6 bg-gray-50">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-20">
                 <div class="inline-block bg-gradient-to-r from-mint-100 to-blue-100 text-primary px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-soft border border-white/50">
@@ -303,7 +322,7 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-purple-50 to-blue-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
-                            <img height="40" width="120" loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="w-full h-full object-contain logo-black" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                            <img height="40" width="120" loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="w-full h-full object-contain logo-black" style="aspect-ratio: 375/812">
                         </div>
                         <img height="812" width="375" loading="lazy" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
@@ -325,7 +344,7 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
-                            <img height="40" width="120" loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="w-full h-full object-contain logo-black" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                            <img height="40" width="120" loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="w-full h-full object-contain logo-black" style="aspect-ratio: 375/812">
                         </div>
                         <img height="812" width="375" loading="lazy" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
@@ -347,7 +366,7 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-amber-50 to-orange-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
-                            <img height="40" width="120" loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="w-full h-full object-contain" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                            <img height="40" width="120" loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="w-full h-full object-contain" style="aspect-ratio: 375/812">
                         </div>
                         <img height="812" width="375" loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
@@ -369,7 +388,7 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover" style="will-change: transform" style="will-change: transform">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-pink-50 to-rose-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2" style="contain: layout" style="contain: layout">
-                            <img height="40" width="120" loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="w-full h-full object-contain" style="aspect-ratio: 375/812" style="aspect-ratio: 375/812">
+                            <img height="40" width="120" loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="w-full h-full object-contain" style="aspect-ratio: 375/812">
                         </div>
                         <img height="812" width="375" loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" style="will-change: transform" style="aspect-ratio: 375/812" style="will-change: transform" style="aspect-ratio: 375/812">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
@@ -391,7 +410,7 @@
     </section>
 
     <!-- Advantages Section -->
-    <section id="advantages" class="py-20 px-6 bg-white">
+    <section id="advantages" style="content-visibility: auto; contain-intrinsic-size: 0 800px" class="py-20 px-6 bg-white">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">
@@ -435,7 +454,7 @@
     </section>
 
     <!-- Process Section -->
-    <section id="process" class="py-20 px-6 bg-gradient-to-br from-gray-50 to-mint-50/30">
+    <section id="process" style="content-visibility: auto; contain-intrinsic-size: 0 800px" class="py-20 px-6 bg-gradient-to-br from-gray-50 to-mint-50/30">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4">
