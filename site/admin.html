@@ -193,14 +193,149 @@
             <!-- Solutions Section -->
             <section id="section-solutions" class="admin-section hidden">
                 <div class="flex items-center justify-between mb-8">
-                    <h1 class="text-3xl font-bold">Коробочные решения</h1>
+                    <h1 class="text-3xl font-bold">📦 Коробочные решения</h1>
                     <button onclick="openAddSolutionModal()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
                         + Добавить решение
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="solutionsList">
+                <!-- Solutions Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8" id="solutionsList">
                     <!-- Solutions will be loaded here -->
+                </div>
+
+                <!-- Selected Solution Management -->
+                <div id="solutionManager" class="hidden">
+                    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold" id="selectedSolutionTitle">Управление решением</h2>
+                            <button onclick="closeSolutionManager()" class="text-gray-500 hover:text-gray-700">
+                                ✕ Закрыть
+                            </button>
+                        </div>
+
+                        <!-- Tabs -->
+                        <div class="flex space-x-4 border-b mb-6">
+                            <button onclick="switchSolutionTab('pricing')" class="solution-tab px-4 py-2 font-semibold border-b-2 border-primary text-primary" data-tab="pricing">
+                                💰 Цены
+                            </button>
+                            <button onclick="switchSolutionTab('features')" class="solution-tab px-4 py-2 font-semibold text-gray-500 hover:text-primary" data-tab="features">
+                                ⚙️ Функции
+                            </button>
+                            <button onclick="switchSolutionTab('content')" class="solution-tab px-4 py-2 font-semibold text-gray-500 hover:text-primary" data-tab="content">
+                                📝 Контент
+                            </button>
+                            <button onclick="switchSolutionTab('extras')" class="solution-tab px-4 py-2 font-semibold text-gray-500 hover:text-primary" data-tab="extras">
+                                ➕ Доп. услуги
+                            </button>
+                        </div>
+
+                        <!-- Pricing Tab -->
+                        <div id="tab-pricing" class="solution-tab-content">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Базовая цена</label>
+                                    <input type="number" id="solutionBasePrice" 
+                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                           placeholder="150000">
+                                    <p class="text-xs text-gray-500 mt-1">Стоимость базового пакета</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Валюта</label>
+                                    <select id="solutionCurrency" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none">
+                                        <option value="RUB">₽ Рубли</option>
+                                        <option value="USD">$ Доллары</option>
+                                        <option value="EUR">€ Евро</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Скидка (%)</label>
+                                    <input type="number" id="solutionDiscount" 
+                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                           placeholder="0" min="0" max="100">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Срок запуска</label>
+                                    <input type="text" id="solutionLaunchTime" 
+                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                           placeholder="15 минут">
+                                </div>
+                            </div>
+                            <button onclick="saveSolutionPricing()" class="mt-6 bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                💾 Сохранить цены
+                            </button>
+                        </div>
+
+                        <!-- Features Tab -->
+                        <div id="tab-features" class="solution-tab-content hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Базовые функции (включены в цену)</label>
+                                    <div id="baseFeaturesListEditor" class="space-y-3">
+                                        <!-- Features list -->
+                                    </div>
+                                    <button onclick="addBaseFeature()" class="mt-3 text-primary hover:text-primary/80 text-sm font-semibold">
+                                        + Добавить функцию
+                                    </button>
+                                </div>
+                            </div>
+                            <button onclick="saveSolutionFeatures()" class="mt-6 bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                💾 Сохранить функции
+                            </button>
+                        </div>
+
+                        <!-- Content Tab -->
+                        <div id="tab-content" class="solution-tab-content hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Заголовок страницы</label>
+                                    <input type="text" id="solutionPageTitle" 
+                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                           placeholder="Mini App для недвижимости">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Описание</label>
+                                    <textarea id="solutionPageDescription" rows="3"
+                                              class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                              placeholder="Полнофункциональное приложение..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">URL slug</label>
+                                    <input type="text" id="solutionSlug" 
+                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                           placeholder="real-estate-solution">
+                                    <p class="text-xs text-gray-500 mt-1">URL: /{{slug}}.html</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Иконка (emoji)</label>
+                                    <input type="text" id="solutionIcon" 
+                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none text-4xl text-center"
+                                           placeholder="🏢" maxlength="2">
+                                </div>
+                            </div>
+                            <button onclick="saveSolutionContent()" class="mt-6 bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                💾 Сохранить контент
+                            </button>
+                        </div>
+
+                        <!-- Extra Services Tab -->
+                        <div id="tab-extras" class="solution-tab-content hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-bold">Дополнительные услуги</h3>
+                                <button onclick="addExtraService()" class="bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition text-sm">
+                                    + Добавить услугу
+                                </button>
+                            </div>
+                            
+                            <div id="extraServicesList" class="space-y-4">
+                                <!-- Extra services will be loaded here -->
+                            </div>
+                            
+                            <button onclick="saveSolutionExtras()" class="mt-6 bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                                💾 Сохранить доп. услуги
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
