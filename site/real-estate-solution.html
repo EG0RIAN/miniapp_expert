@@ -999,8 +999,17 @@
                     e.preventDefault();
                     console.log('Form submitted!'); // Debug
 
+                    // Calculate total price FIRST
+                    let totalPrice = 150000; // Base price
+                    const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
+                    checkboxes.forEach(cb => {
+                        totalPrice += parseInt(cb.dataset.price) || 0;
+                    });
+
                     const logoFile = document.getElementById('logo').files[0];
                     const formData = {
+                        product: 'Mini App для недвижимости',
+                        price: totalPrice,
                         companyName: document.getElementById('companyName').value,
                         phone: document.getElementById('phone').value,
                         email: document.getElementById('email').value,
@@ -1020,13 +1029,6 @@
                     } catch (e) {
                         console.error('Error saving order:', e);
                     }
-
-                    // Calculate total price
-                    let totalPrice = 150000; // Base price
-                    const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
-                    checkboxes.forEach(cb => {
-                        totalPrice += parseInt(cb.dataset.price) || 0;
-                    });
 
                     console.log('Total price:', totalPrice); // Debug
                     console.log('Checkboxes checked:', checkboxes.length); // Debug

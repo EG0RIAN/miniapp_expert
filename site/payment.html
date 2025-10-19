@@ -239,17 +239,35 @@
             const params = new URLSearchParams(window.location.search);
             const savedOrder = localStorage.getItem('pendingOrder');
             
-            if (savedOrder) {
-                return JSON.parse(savedOrder);
-            }
-            
-            return {
+            // Get data from URL params (always present)
+            const urlData = {
                 product: params.get('product') || 'Mini App для недвижимости',
                 price: parseInt(params.get('price')) || 150000,
                 companyName: params.get('company') || '',
                 email: params.get('email') || '',
                 phone: params.get('phone') || ''
             };
+            
+            // If we have saved order data, merge it with URL params
+            // URL params take priority for price, product
+            if (savedOrder) {
+                try {
+                    const parsedOrder = JSON.parse(savedOrder);
+                    return {
+                        ...parsedOrder,
+                        product: urlData.product,
+                        price: urlData.price,
+                        companyName: parsedOrder.companyName || urlData.companyName,
+                        email: parsedOrder.email || urlData.email,
+                        phone: parsedOrder.phone || urlData.phone
+                    };
+                } catch (e) {
+                    console.error('Error parsing saved order:', e);
+                    return urlData;
+                }
+            }
+            
+            return urlData;
         }
 
         // Initialize page
