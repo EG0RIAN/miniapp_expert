@@ -1,0 +1,355 @@
+# Cursor AI Instructions - miniapp.expert Performance Optimization
+
+## Role
+Senior Web Performance Engineer specializing in static HTML/Tailwind optimization.
+
+## Context
+- **Project:** miniapp.expert (Static HTML + Tailwind CSS)
+- **Stack:** Static HTML, Vanilla JS, Tailwind CSS (compiled)
+- **Goal:** Mobile PageSpeed ≥ 90
+- **Last PSI:** 19 Oct 2025, 20:07 (mobile, No CrUX data)
+- **Current Status:** Optimized (see PAGESPEED_OPTIMIZATION.md)
+
+## Acceptance Criteria (Mobile)
+- ✅ Performance Score ≥ 90
+- ✅ LCP ≤ 2.5s
+- ✅ CLS ≤ 0.1
+- ✅ INP ≤ 200ms
+- ✅ FCP ≤ 1.5s
+- ✅ TBT ≤ 200ms
+- ✅ No render-blocking resources
+- ✅ Images optimized (WebP/AVIF)
+- ✅ Critical CSS inline
+
+## Architecture Rules
+
+### 1. HTML Structure
+- Keep critical CSS inline in `<head>` (<5KB)
+- Load non-critical CSS asynchronously via `media="print" onload="this.media='all'"`
+- Scripts with `defer` or inline at end of `<body>`
+- Use semantic HTML5 tags
+- Add proper ARIA labels for accessibility
+
+### 2. CSS Management
+```bash
+# Always use compiled Tailwind, NEVER CDN
+cd site && npm run build:css
+
+# Source: site/src/input.css
+# Output: site/dist/styles.min.css
+# Critical: site/dist/critical.css (inline)
+```
+
+**DO:**
+- ✅ Edit `site/src/input.css` for new styles
+- ✅ Rebuild CSS after changes
+- ✅ Keep critical CSS < 5KB
+- ✅ Use utility classes over custom CSS
+
+**DON'T:**
+- ❌ Never add Tailwind CDN
+- ❌ Never use `@import` in CSS
+- ❌ Never add unused Tailwind classes
+- ❌ Never remove critical inline CSS
+
+### 3. Images Optimization
+```html
+<!-- LCP image (hero) - NO lazy loading -->
+<img src="/hero.webp" 
+     alt="Hero" 
+     fetchpriority="high"
+     width="1200" 
+     height="600">
+
+<!-- Below-the-fold images - lazy load -->
+<img src="/image.webp" 
+     alt="Description" 
+     loading="lazy"
+     width="800" 
+     height="400">
+```
+
+**Rules:**
+- First 1-2 images: NO `loading="lazy"`, add `fetchpriority="high"` to LCP
+- All other images: `loading="lazy"`
+- Always specify `width` and `height` (prevent CLS)
+- Prefer WebP/AVIF over JPG/PNG
+- Optimize quality: 70-80 for photos, 90+ for UI elements
+
+**Conversion:**
+```bash
+# WebP
+convert image.jpg -quality 80 image.webp
+
+# AVIF (better compression)
+convert image.jpg -quality 60 image.avif
+```
+
+### 4. Fonts Optimization
+```html
+<!-- DO: Preconnect + async load with font-display: swap -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" 
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" 
+      media="print" 
+      onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+</noscript>
+
+<!-- DON'T: @import or blocking stylesheet -->
+<style>
+  @import url('https://fonts.googleapis.com/...'); /* ❌ NEVER */
+</style>
+```
+
+### 5. JavaScript Optimization
+```html
+<!-- Critical JS - inline at end of body -->
+<script>
+  // Burger menu, critical interactions
+  document.addEventListener('DOMContentLoaded', function() {
+    // ...
+  });
+</script>
+
+<!-- Non-critical JS - defer -->
+<script defer src="/js/analytics.js"></script>
+<script defer src="/js/carousel.js"></script>
+
+<!-- Third-party - async/defer, load on interaction -->
+<script async src="https://external.com/widget.js"></script>
+```
+
+**Rules:**
+- Critical JS (burger menu, FCP): inline
+- Non-critical JS: `defer` attribute
+- Third-party: `async` or load on user interaction
+- Minimize inline JS size
+- Use event delegation over multiple listeners
+
+### 6. Resource Hints
+```html
+<head>
+  <!-- Preconnect for external domains -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- DNS prefetch for less critical domains -->
+  <link rel="dns-prefetch" href="https://t.me">
+  
+  <!-- Preload critical assets -->
+  <link rel="preload" href="/dist/styles.min.css" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style">
+  
+  <!-- LCP image preload (if not above-the-fold img tag) -->
+  <link rel="preload" as="image" href="/hero.webp">
+</head>
+```
+
+### 7. Accessibility & SEO
+```html
+<!-- Always add ARIA labels -->
+<button class="burger-menu" 
+        id="burger-menu" 
+        aria-label="Открыть меню" 
+        aria-expanded="false">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<!-- External links - rel="noopener" -->
+<a href="https://external.com" 
+   target="_blank" 
+   rel="noopener">Link</a>
+
+<!-- Hide decorative icons from screen readers -->
+<span aria-hidden="true">🚀</span>
+
+<!-- Semantic HTML -->
+<header role="banner">
+<nav role="navigation" aria-label="Main navigation">
+<main role="main">
+<footer role="contentinfo">
+```
+
+## Workflow
+
+### Adding New Styles
+```bash
+1. Edit: site/src/input.css
+2. Build: cd site && npm run build:css
+3. Optimize: node optimize-html.js
+4. Test: python3 -m http.server 1234
+5. Lighthouse: Check Performance ≥ 90
+6. Deploy: ../deploy-optimized.sh
+```
+
+### Adding New Page
+```bash
+1. Create HTML file in site/
+2. Add to tailwind.config.js content array
+3. Run: npm run build:css
+4. Optimize: node optimize-html.js
+5. Test & deploy
+```
+
+### Optimization Script
+```bash
+# Full optimization pipeline
+cd /Users/arkhiptsev/dev/rello/site
+npm run build:css          # Compile Tailwind
+node optimize-html.js      # Optimize HTML
+python3 -m http.server 1234 # Test locally
+# Then deploy via deploy-optimized.sh
+```
+
+## Performance Checklist
+
+### Before Every Commit
+- [ ] Run `npm run build:css` if CSS changed
+- [ ] Run `node optimize-html.js` if HTML changed
+- [ ] Verify no console errors
+- [ ] Check Network tab for blocking resources
+- [ ] Lighthouse score ≥ 90 (mobile)
+- [ ] Test burger menu on mobile
+- [ ] Verify all images load
+- [ ] Check font loading (no FOUT)
+
+### Lighthouse Audit
+```bash
+# Local testing
+cd site && python3 -m http.server 1234
+
+# Chrome DevTools
+1. F12 → Lighthouse
+2. Mode: Mobile
+3. Category: Performance
+4. Click "Analyze page load"
+5. Verify: Score ≥ 90, LCP < 2.5s, CLS < 0.1
+
+# CLI (optional)
+npx lighthouse http://localhost:1234 --view --preset=mobile
+```
+
+### CI/CD (Future)
+```yaml
+# .github/workflows/lighthouse.yml
+- name: Lighthouse CI
+  run: |
+    npm run build:css
+    npx lighthouse-ci autorun
+  env:
+    LHCI_MIN_SCORE: 90
+```
+
+## Common Issues & Solutions
+
+### Issue: Performance drop after adding content
+**Solution:**
+```bash
+# Re-optimize
+cd site
+npm run build:css
+node optimize-html.js
+# Deploy
+```
+
+### Issue: New images slow down LCP
+**Solution:**
+```bash
+# Convert to WebP
+convert image.jpg -quality 80 image.webp
+
+# Add to HTML with proper attributes
+<img src="image.webp" 
+     loading="lazy" 
+     width="800" 
+     height="600" 
+     alt="Description">
+```
+
+### Issue: Custom styles not applying
+**Solution:**
+```bash
+# 1. Add to site/src/input.css under @layer utilities
+@layer utilities {
+  .custom-style {
+    /* your CSS */
+  }
+}
+
+# 2. Rebuild
+npm run build:css
+
+# 3. Re-optimize
+node optimize-html.js
+```
+
+### Issue: Fonts loading slowly
+**Solution:**
+```html
+<!-- Verify preconnect is present -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Verify async loading -->
+<link rel="stylesheet" href="..." media="print" onload="this.media='all'">
+```
+
+## File Structure
+
+```
+site/
+├── package.json              # Tailwind deps
+├── tailwind.config.js        # Tailwind config
+├── optimize-html.js          # HTML optimizer
+├── src/
+│   └── input.css            # Source CSS
+├── dist/
+│   ├── styles.min.css       # Compiled CSS (~50KB)
+│   └── critical.css         # Critical inline CSS (~3KB)
+├── images/                   # Optimized images (WebP/AVIF)
+├── *.html                    # HTML pages
+├── robots.txt               # SEO
+└── sitemap.xml              # SEO
+
+docs/
+├── PAGESPEED_OPTIMIZATION.md  # Detailed guide
+├── OPTIMIZATION_REPORT.md     # Results report
+└── deploy-optimized.sh        # Deployment script
+```
+
+## Monitoring
+
+### Google Search Console
+- Submit sitemap.xml
+- Monitor Core Web Vitals
+- Check indexing status
+
+### Real User Monitoring
+- Add to Google Analytics 4
+- Monitor page load times
+- Track Core Web Vitals
+
+### Regular Audits
+- Run Lighthouse monthly
+- Check PageSpeed Insights
+- Test on real mobile devices
+- Monitor bundle sizes
+
+## References
+
+- [Web.dev Performance](https://web.dev/performance/)
+- [Lighthouse Scoring](https://developer.chrome.com/docs/lighthouse/performance/performance-scoring/)
+- [Core Web Vitals](https://web.dev/vitals/)
+- [Tailwind CSS Optimization](https://tailwindcss.com/docs/optimizing-for-production)
+
+---
+
+**Last Updated:** 19 October 2025
+**Performance Target:** 90+ (Mobile)
+**Status:** ✅ Optimized & Deployed
+
