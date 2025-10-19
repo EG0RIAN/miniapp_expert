@@ -1006,25 +1006,22 @@
                     timestamp: new Date().toISOString()
                 };
 
-                // Save to localStorage for admin
+                // Save to localStorage for payment
                 try {
-                    const orders = JSON.parse(localStorage.getItem('quickOrders') || '[]');
-                    orders.push(formData);
-                    localStorage.setItem('quickOrders', JSON.stringify(orders));
+                    localStorage.setItem('pendingOrder', JSON.stringify(formData));
                 } catch (e) {
                     console.error('Error saving order:', e);
                 }
 
-                // Show success message
-                alert('🎉 Заказ принят!\n\n' + 
-                      'Мы свяжемся с вами в течение 15 минут для завершения настройки.\n\n' +
-                      'Агентство: ' + formData.companyName + '\n' +
-                      'Email: ' + formData.email + '\n' +
-                      'Телефон: ' + formData.phone + '\n' +
-                      'Логотип: ' + formData.logo);
+                // Calculate total price
+                let totalPrice = 150000; // Base price
+                const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
+                checkboxes.forEach(cb => {
+                    totalPrice += parseInt(cb.dataset.price) || 0;
+                });
 
-                // Optional: redirect to payment
-                // window.location.href = '/payment.html';
+                // Redirect to payment immediately
+                window.location.href = `/payment.html?product=Mini App для недвижимости&price=${totalPrice}&company=${encodeURIComponent(formData.companyName)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`;
             });
         });
 
