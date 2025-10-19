@@ -136,19 +136,20 @@
             flex-direction: column;
             cursor: pointer;
             z-index: 1000;
+            padding: 5px;
         }
         
         .burger-menu span {
-            width: 25px;
+            width: 28px;
             height: 3px;
             background: #10B981;
-            margin: 3px 0;
-            transition: 0.3s;
+            margin: 4px 0;
+            transition: all 0.3s ease;
             border-radius: 3px;
         }
         
         .burger-menu.active span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
+            transform: rotate(-45deg) translate(-6px, 7px);
         }
         
         .burger-menu.active span:nth-child(2) {
@@ -156,35 +157,66 @@
         }
         
         .burger-menu.active span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
+            transform: rotate(45deg) translate(-6px, -7px);
         }
         
         /* Mobile Menu */
         .mobile-menu {
             display: none;
             position: fixed;
-            top: 80px;
+            top: 72px;
             left: 0;
             right: 0;
             background: white;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             z-index: 999;
-            max-height: calc(100vh - 80px);
+            max-height: calc(100vh - 72px);
             overflow-y: auto;
+            animation: slideDown 0.3s ease-out;
         }
         
         .mobile-menu.active {
             display: block;
         }
         
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Desktop Navigation */
+        .desktop-nav {
+            gap: 0.75rem;
+        }
+        
+        .desktop-nav a {
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .desktop-nav a:hover {
+            transform: translateY(-1px);
+        }
+        
         /* Mobile Fixes */
         @media (max-width: 768px) {
             .burger-menu {
-                display: flex;
+                display: flex !important;
             }
             
             .desktop-nav {
-                display: none;
+                display: none !important;
+            }
+            
+            header {
+                padding: 0.75rem 0;
             }
             
             /* Fix overlapping elements */
@@ -272,42 +304,41 @@
 <body class="bg-gray-50">
     
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-50">
-        <nav class="max-w-7xl mx-auto px-4 md:px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <header class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-sm z-50">
+        <nav class="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4">
+            <div class="flex items-center justify-between gap-4">
+                <!-- Logo -->
+                <a href="/" class="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+                    <div class="w-7 h-7 md:w-8 md:h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="md:w-5 md:h-5">
                             <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <div class="text-xl md:text-2xl font-bold gradient-text">MiniAppExpert</div>
-                </div>
+                    <div class="text-lg md:text-2xl font-bold gradient-text whitespace-nowrap">MiniAppExpert</div>
+                </a>
                 
                 <!-- Desktop Navigation -->
-                <div class="desktop-nav hidden md:flex items-center space-x-6">
+                <div class="desktop-nav hidden md:flex items-center flex-1 justify-end">
                     <a href="#cases" class="text-gray-700 hover:text-primary transition" data-lang-ru="Кейсы" data-lang-en="Cases">Кейсы</a>
                     <a href="#advantages" class="text-gray-700 hover:text-primary transition" data-lang-ru="Преимущества" data-lang-en="Advantages">Преимущества</a>
                     <a href="#process" class="text-gray-700 hover:text-primary transition" data-lang-ru="Процесс" data-lang-en="Process">Процесс</a>
                     <a href="#contact" class="text-gray-700 hover:text-primary transition" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
-                    <a href="https://t.me/aicopywriterTestbot/miniapp" target="_blank" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition text-sm" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
-                    <a href="/login.html" class="flex items-center space-x-2 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
+                    <a href="https://t.me/aicopywriterTestbot/miniapp" target="_blank" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition text-sm whitespace-nowrap" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
+                    <a href="/login.html" class="flex items-center space-x-1.5 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
                         <span class="text-lg">👤</span>
-                        <span data-lang-ru="Личный кабинет" data-lang-en="My Account">ЛК</span>
+                        <span class="text-sm whitespace-nowrap" data-lang-ru="ЛК" data-lang-en="Account">ЛК</span>
                     </a>
-                    <button id="lang-switcher" class="flex items-center space-x-2 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
+                    <button id="lang-switcher" class="flex items-center space-x-1.5 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
                         <span class="text-lg">🌐</span>
-                        <span data-lang-ru="RU" data-lang-en="EN">RU</span>
+                        <span class="text-sm font-medium" data-lang-ru="RU" data-lang-en="EN">RU</span>
                     </button>
+                    <a href="#contact" class="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition whitespace-nowrap ml-2" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
+                        Обсудить проект
+                    </a>
                 </div>
                 
-                <!-- Desktop CTA Button -->
-                <a href="#contact" class="hidden md:block bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary/90 transition" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
-                    Обсудить проект
-                </a>
-                
-                <!-- Burger Menu -->
-                <div class="burger-menu" id="burger-menu">
+                <!-- Burger Menu Button -->
+                <div class="burger-menu md:hidden" id="burger-menu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -317,22 +348,28 @@
         
         <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobile-menu">
-            <div class="px-6 py-4 space-y-4">
-                <a href="#cases" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Кейсы" data-lang-en="Cases">Кейсы</a>
-                <a href="#advantages" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Преимущества" data-lang-en="Advantages">Преимущества</a>
-                <a href="#process" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Процесс" data-lang-en="Process">Процесс</a>
-                <a href="#contact" class="block text-gray-700 hover:text-primary transition py-2" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
-                <a href="https://t.me/aicopywriterTestbot/miniapp" target="_blank" class="block bg-secondary text-white px-4 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition text-center" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
-                <a href="/login.html" class="block border-2 border-primary text-primary px-4 py-3 rounded-lg font-semibold hover:bg-primary/10 transition text-center">
-                    👤 Личный кабинет
-                </a>
-                <a href="#contact" class="block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition text-center" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
-                    Обсудить проект
-                </a>
-                <button id="lang-switcher-mobile" class="flex items-center justify-center space-x-2 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100 w-full">
-                    <span class="text-lg">🌐</span>
-                    <span data-lang-ru="RU" data-lang-en="EN">RU</span>
-                </button>
+            <div class="px-5 py-5 space-y-3">
+                <a href="#cases" class="block text-gray-700 hover:text-primary transition py-2.5 text-base font-medium" data-lang-ru="Кейсы" data-lang-en="Cases">Кейсы</a>
+                <a href="#advantages" class="block text-gray-700 hover:text-primary transition py-2.5 text-base font-medium" data-lang-ru="Преимущества" data-lang-en="Advantages">Преимущества</a>
+                <a href="#process" class="block text-gray-700 hover:text-primary transition py-2.5 text-base font-medium" data-lang-ru="Процесс" data-lang-en="Process">Процесс</a>
+                <a href="#contact" class="block text-gray-700 hover:text-primary transition py-2.5 text-base font-medium" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
+                
+                <div class="border-t pt-3 mt-3 space-y-3">
+                    <a href="https://t.me/aicopywriterTestbot/miniapp" target="_blank" class="block bg-secondary text-white px-5 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition text-center shadow-sm" data-lang-ru="Демо-приложение" data-lang-en="Demo App">
+                        Демо-приложение
+                    </a>
+                    <a href="/login.html" class="flex items-center justify-center space-x-2 border-2 border-primary text-primary px-5 py-3 rounded-xl font-semibold hover:bg-primary/10 transition">
+                        <span class="text-lg">👤</span>
+                        <span data-lang-ru="Личный кабинет" data-lang-en="My Account">Личный кабинет</span>
+                    </a>
+                    <a href="#contact" class="block bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-center shadow-sm" data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">
+                        Обсудить проект
+                    </a>
+                    <button id="lang-switcher-mobile" class="flex items-center justify-center space-x-2 text-gray-700 hover:text-primary transition px-4 py-2.5 rounded-lg hover:bg-gray-100 w-full border border-gray-200">
+                        <span class="text-lg">🌐</span>
+                        <span class="font-medium" data-lang-ru="RU" data-lang-en="EN">RU</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
