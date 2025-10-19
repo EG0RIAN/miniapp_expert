@@ -226,6 +226,65 @@ app.post('/api/events', async (req, res) => {
     }
 });
 
+// Track/update cart (abandoned carts)
+app.post('/api/cart/track', async (req, res) => {
+    try {
+        const { cartId, userId, sessionId, status, product, totalPrice, userData, stepsCompleted, stepsRemaining, dropOffPoint } = req.body;
+        const authed = await ensurePbAuth();
+        if (authed && cartId) {
+            // Upsert by cartId
+            try {
+                const list = await pb.collection('abandoned_carts').getList(1, 1, { filter: `cartId = "${cartId}"` });
+                const now = new Date().toISOString();
+                if (list.items?.[0]) {
+                    await pb.collection('abandoned_carts').update(list.items[0].id, {
+                        userId, sessionId, status, product, totalPrice, userData, stepsCompleted, stepsRemaining, dropOffPoint,
+                        lastActivity: now
+                    });
+                } else {
+                    await pb.collection('abandoned_carts').create({
+                        cartId, userId, sessionId, status: status || 'active', product, totalPrice, userData,
+                        stepsCompleted, stepsRemaining, dropOffPoint,
+                        created: now, lastActivity: now
+                    });
+                }
+            } catch (e) {
+                console.error('PB cart track error:', e.message);
+            }
+        }
+        res.json({ success: true });
+    } catch (e) {
+        console.error('Cart track error:', e.message);
+        res.status(500).json({ success: false });
+    }
+});
+
+// Admin: list events (last 200)
+app.get('/api/admin/events', async (req, res) => {
+    try {
+        const authed = await ensurePbAuth();
+        if (!authed) return res.json({ success: true, items: [] });
+        const result = await pb.collection('events').getList(1, 200, { sort: '-created' });
+        res.json({ success: true, items: result.items });
+    } catch (e) {
+        console.error('Admin events error:', e.message);
+        res.status(500).json({ success: false, items: [] });
+    }
+});
+
+// Admin: list abandoned carts (last 200)
+app.get('/api/admin/abandoned', async (req, res) => {
+    try {
+        const authed = await ensurePbAuth();
+        if (!authed) return res.json({ success: true, items: [] });
+        const result = await pb.collection('abandoned_carts').getList(1, 200, { sort: '-updated' });
+        res.json({ success: true, items: result.items });
+    } catch (e) {
+        console.error('Admin abandoned error:', e.message);
+        res.status(500).json({ success: false, items: [] });
+    }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({
