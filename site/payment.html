@@ -355,39 +355,10 @@
                     });
                 }
                 
-                // Save order first
+                // Generate order ID
                 const orderId = 'ORDER_' + Date.now();
-                const orderData = {
-                    orderId: orderId,
-                    product: order.product,
-                    amount: order.price,
-                    email: email,
-                    phone: phone,
-                    method: paymentMethod,
-                    status: 'created',
-                    createdAt: new Date().toISOString()
-                };
                 
-                // Save to localStorage
-                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-                orders.push(orderData);
-                localStorage.setItem('orders', JSON.stringify(orders));
-                
-                if (DEBUG) console.log('Order saved:', orderData);
-                
-                // FOR NOW: Direct to success (bypass T-Bank for testing)
-                alert('✅ Заказ создан!\n\n' +
-                      'Номер заказа: ' + orderId + '\n' +
-                      'Сумма: ' + order.price.toLocaleString('ru-RU') + ' ₽\n\n' +
-                      'Переходим на страницу успеха...');
-                
-                setTimeout(() => {
-                    window.location.href = '/payment-success.html?orderId=' + orderId;
-                }, 1000);
-                
-                /* UNCOMMENT FOR REAL T-BANK INTEGRATION:
-                
-                // Prepare payment data for T-Bank
+                // Prepare payment data for T-Bank API
                 const paymentData = {
                     amount: order.price,
                     orderId: orderId,
@@ -397,16 +368,52 @@
                     name: order.companyName || 'Клиент'
                 };
                 
-                // Create payment through T-Bank
-                const payment = await tbank.quickPayment(paymentData);
+                if (DEBUG) console.log('Creating payment via API:', paymentData);
                 
-                if (payment.Success) {
-                    // T-Bank window will open
-                    console.log('Payment created:', payment);
-                } else {
-                    throw new Error(payment.Message || 'Payment failed');
+                // Call our backend API to create T-Bank payment
+                const response = await fetch('https://miniapp.expert/api/payment/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+                
+                const result = await response.json();
+                
+                if (DEBUG) console.log('API response:', result);
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Ошибка создания платежа');
                 }
-                */
+                
+                // Save order to localStorage with pending status
+                const orderData = {
+                    orderId: orderId,
+                    product: order.product,
+                    amount: order.price,
+                    email: email,
+                    phone: phone,
+                    method: paymentMethod,
+                    status: 'pending',
+                    paymentId: result.paymentId,
+                    paymentUrl: result.paymentUrl,
+                    createdAt: new Date().toISOString()
+                };
+                
+                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                orders.push(orderData);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                
+                if (DEBUG) console.log('Order saved with pending status:', orderData);
+                
+                // Open T-Bank payment page
+                alert('💳 Переходим к оплате...\n\n' +
+                      'Номер заказа: ' + orderId + '\n' +
+                      'Сумма: ' + order.price.toLocaleString('ru-RU') + ' ₽');
+                
+                // Redirect to T-Bank payment page
+                window.location.href = result.paymentUrl;
                 
             } catch (error) {
                 console.error('Payment error:', error);
