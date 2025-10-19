@@ -228,8 +228,12 @@
         </div>
     </div>
 
+    
     <script src="tbank-payment.js"></script>
     <script>
+        // Debug mode
+        const DEBUG = true;
+        
         // Get order data from URL or localStorage
         function getOrderData() {
             const params = new URLSearchParams(window.location.search);
@@ -250,102 +254,145 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            const order = getOrderData();
-            
-            // Fill order info
-            document.getElementById('productName').textContent = order.product;
-            document.getElementById('fullPrice').textContent = `${order.price.toLocaleString('ru-RU')} ₽`;
-            document.getElementById('totalAmount').textContent = `${order.price.toLocaleString('ru-RU')} ₽`;
-            
-            if (order.companyName) {
-                document.getElementById('companyName').textContent = order.companyName;
-            }
-            if (order.email) {
-                document.getElementById('companyEmail').textContent = order.email;
-                document.getElementById('paymentEmail').value = order.email;
-            }
-            if (order.phone) {
-                document.getElementById('paymentPhone').value = order.phone;
-            }
-            
-            // Calculate installments
-            const installment12 = Math.round(order.price / 12);
-            document.getElementById('installmentMonthly').textContent = `${installment12.toLocaleString('ru-RU')} ₽`;
-            
-            // Payment method change
-            const paymentMethodInputs = document.querySelectorAll('input[name="paymentMethod"]');
-            paymentMethodInputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    const installmentOptions = document.getElementById('installmentOptions');
-                    const installmentInfo = document.getElementById('installmentInfo');
-                    
-                    if (this.value === 'installment') {
-                        installmentOptions.classList.remove('hidden');
-                        const months = document.querySelector('input[name="installmentPeriod"]:checked').value;
+            try {
+                const order = getOrderData();
+                
+                if (DEBUG) console.log('Order data:', order);
+                
+                // Fill order info
+                document.getElementById('productName').textContent = order.product;
+                document.getElementById('fullPrice').textContent = order.price.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('totalAmount').textContent = order.price.toLocaleString('ru-RU') + ' ₽';
+                
+                if (order.companyName) {
+                    document.getElementById('companyName').textContent = order.companyName;
+                }
+                if (order.email) {
+                    document.getElementById('companyEmail').textContent = order.email;
+                    document.getElementById('paymentEmail').value = order.email;
+                }
+                if (order.phone) {
+                    document.getElementById('paymentPhone').value = order.phone;
+                }
+                
+                // Calculate installments
+                const installment12 = Math.round(order.price / 12);
+                document.getElementById('installmentMonthly').textContent = installment12.toLocaleString('ru-RU') + ' ₽';
+                
+                // Payment method change
+                const paymentMethodInputs = document.querySelectorAll('input[name="paymentMethod"]');
+                paymentMethodInputs.forEach(input => {
+                    input.addEventListener('change', function() {
+                        const installmentOptions = document.getElementById('installmentOptions');
+                        const installmentInfo = document.getElementById('installmentInfo');
+                        
+                        if (this.value === 'installment') {
+                            installmentOptions.classList.remove('hidden');
+                            const months = document.querySelector('input[name="installmentPeriod"]:checked').value;
+                            const monthly = Math.round(order.price / months);
+                            installmentInfo.textContent = monthly.toLocaleString('ru-RU') + ' ₽ × ' + months + ' мес.';
+                        } else {
+                            installmentOptions.classList.add('hidden');
+                            installmentInfo.textContent = '';
+                        }
+                    });
+                });
+                
+                // Installment period change
+                const installmentPeriodInputs = document.querySelectorAll('input[name="installmentPeriod"]');
+                installmentPeriodInputs.forEach(input => {
+                    input.addEventListener('change', function() {
+                        const months = this.value;
                         const monthly = Math.round(order.price / months);
-                        installmentInfo.textContent = `${monthly.toLocaleString('ru-RU')} ₽ × ${months} мес.`;
-                    } else {
-                        installmentOptions.classList.add('hidden');
-                        installmentInfo.textContent = '';
-                    }
+                        document.getElementById('installmentInfo').textContent = 
+                            monthly.toLocaleString('ru-RU') + ' ₽ × ' + months + ' мес.';
+                    });
                 });
-            });
-            
-            // Installment period change
-            const installmentPeriodInputs = document.querySelectorAll('input[name="installmentPeriod"]');
-            installmentPeriodInputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    const months = this.value;
-                    const monthly = Math.round(order.price / months);
-                    document.getElementById('installmentInfo').textContent = `${monthly.toLocaleString('ru-RU')} ₽ × ${months} мес.`;
-                });
-            });
+            } catch (error) {
+                console.error('Init error:', error);
+                alert('Ошибка инициализации страницы. Попробуйте обновить страницу.');
+            }
         });
 
-        // Process payment
+        // Process payment - SIMPLIFIED VERSION
         async function processPayment() {
-            const email = document.getElementById('paymentEmail').value;
-            const phone = document.getElementById('paymentPhone').value;
-            
-            if (!email || !phone) {
-                alert('⚠️ Заполните все поля');
-                return;
-            }
-            
-            const order = getOrderData();
-            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-            
-            // Prepare payment data
-            const paymentData = {
-                amount: order.price,
-                orderId: 'ORDER_' + Date.now(),
-                description: order.product,
-                email: email,
-                phone: phone,
-                name: order.companyName || 'Клиент'
-            };
-            
             try {
+                const email = document.getElementById('paymentEmail').value;
+                const phone = document.getElementById('paymentPhone').value;
+                
+                if (!email || !phone) {
+                    alert('⚠️ Заполните все поля');
+                    return;
+                }
+                
+                const order = getOrderData();
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+                
+                if (DEBUG) {
+                    console.log('Processing payment...', {
+                        email,
+                        phone,
+                        amount: order.price,
+                        method: paymentMethod
+                    });
+                }
+                
+                // Save order first
+                const orderId = 'ORDER_' + Date.now();
+                const orderData = {
+                    orderId: orderId,
+                    product: order.product,
+                    amount: order.price,
+                    email: email,
+                    phone: phone,
+                    method: paymentMethod,
+                    status: 'created',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                orders.push(orderData);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                
+                if (DEBUG) console.log('Order saved:', orderData);
+                
+                // FOR NOW: Direct to success (bypass T-Bank for testing)
+                alert('✅ Заказ создан!\n\n' +
+                      'Номер заказа: ' + orderId + '\n' +
+                      'Сумма: ' + order.price.toLocaleString('ru-RU') + ' ₽\n\n' +
+                      'Переходим на страницу успеха...');
+                
+                setTimeout(() => {
+                    window.location.href = '/payment-success.html?orderId=' + orderId;
+                }, 1000);
+                
+                /* UNCOMMENT FOR REAL T-BANK INTEGRATION:
+                
+                // Prepare payment data for T-Bank
+                const paymentData = {
+                    amount: order.price,
+                    orderId: orderId,
+                    description: order.product,
+                    email: email,
+                    phone: phone,
+                    name: order.companyName || 'Клиент'
+                };
+                
                 // Create payment through T-Bank
                 const payment = await tbank.quickPayment(paymentData);
                 
                 if (payment.Success) {
-                    // Save order
-                    saveOrder(paymentData, payment);
-                    
-                    // Show success message
-                    alert('✅ Перенаправляем на страницу оплаты T-Bank...\n\n' +
-                          'После успешной оплаты данные для входа будут отправлены на ваш email.');
-                    
-                    // In production, payment window will open automatically
-                    // For demo, redirect to success page
-                    setTimeout(() => {
-                        window.location.href = '/payment-success.html?orderId=' + paymentData.orderId;
-                    }, 2000);
+                    // T-Bank window will open
+                    console.log('Payment created:', payment);
+                } else {
+                    throw new Error(payment.Message || 'Payment failed');
                 }
+                */
+                
             } catch (error) {
                 console.error('Payment error:', error);
-                alert('❌ Ошибка создания платежа. Попробуйте позже или свяжитесь с поддержкой.');
+                alert('❌ Ошибка: ' + error.message + '\n\nПопробуйте позже или свяжитесь с поддержкой.');
             }
         }
 
