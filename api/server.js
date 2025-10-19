@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const axios = require('axios');
+const PocketBase = require('pocketbase/cjs');
 require('dotenv').config();
 
 const app = express();
@@ -19,6 +20,24 @@ const TBANK_CONFIG = {
     password: process.env.TBANK_PASSWORD || 'm$4Hgg1ASpPUVfhj',
     apiUrl: 'https://securepay.tinkoff.ru/v2'
 };
+
+// PocketBase client
+const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8090';
+const PB_ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || '';
+const PB_ADMIN_PASSWORD = process.env.PB_ADMIN_PASSWORD || '';
+const pb = new PocketBase(PB_URL);
+
+async function ensurePbAuth() {
+    try {
+        if (!pb.authStore.isValid && PB_ADMIN_EMAIL && PB_ADMIN_PASSWORD) {
+            await pb.admins.authWithPassword(PB_ADMIN_EMAIL, PB_ADMIN_PASSWORD);
+        }
+        return pb.authStore.isValid;
+    } catch (e) {
+        console.error('PocketBase auth error:', e.message);
+        return false;
+    }
+}
 
 // Generate Token for T-Bank API
 function generateToken(params, password) {
@@ -88,6 +107,22 @@ app.post('/api/payment/create', async (req, res) => {
         console.log('T-Bank response:', response.data);
         
         if (response.data.Success) {
+            // Best-effort: create order record in PocketBase
+            const authed = await ensurePbAuth();
+            if (authed) {
+                try {
+                    await pb.collection('orders').create({
+                        orderId,
+                        amount,
+                        status: 'NEW',
+                        product: { description },
+                        customer: { email, phone, name },
+                        payment: { paymentId: response.data.PaymentId, paymentUrl: response.data.PaymentURL }
+                    });
+                } catch (e) {
+                    console.error('PB create order error:', e.message);
+                }
+            }
             res.json({
                 success: true,
                 paymentId: response.data.PaymentId,
@@ -147,9 +182,22 @@ app.post('/api/payment/webhook', async (req, res) => {
         
         const { Status, PaymentId, OrderId, Success, Amount } = req.body;
         
-        // TODO: Save to database
-        // TODO: Send email notification
-        // TODO: Update order status in admin panel
+        // Update order in PocketBase (best-effort)
+        const authed = await ensurePbAuth();
+        if (authed && OrderId) {
+            try {
+                const list = await pb.collection('orders').getList(1, 1, { filter: `orderId = "${OrderId}"` });
+                const rec = list.items?.[0];
+                if (rec) {
+                    await pb.collection('orders').update(rec.id, {
+                        status: Status,
+                        payment: { ...(rec.payment || {}), paymentId: PaymentId, status: Status }
+                    });
+                }
+            } catch (e) {
+                console.error('PB update order error:', e.message);
+            }
+        }
         
         if (Status === 'CONFIRMED') {
             console.log(`Payment confirmed: ${OrderId}, Amount: ${Amount / 100}₽`);
@@ -161,6 +209,20 @@ app.post('/api/payment/webhook', async (req, res) => {
     } catch (error) {
         console.error('Webhook error:', error);
         res.send('OK'); // Still send OK to prevent retries
+    }
+});
+
+// Events logging endpoint
+app.post('/api/events', async (req, res) => {
+    try {
+        const authed = await ensurePbAuth();
+        if (authed) {
+            await pb.collection('events').create(req.body);
+        }
+        res.json({ success: true });
+    } catch (e) {
+        console.error('Event log error:', e.message);
+        res.status(500).json({ success: false });
     }
 });
 

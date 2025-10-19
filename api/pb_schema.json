@@ -1,0 +1,85 @@
+{
+  "collections": [
+    {
+      "name": "products",
+      "type": "base",
+      "schema": [
+        { "name": "name", "type": "text", "required": true },
+        { "name": "slug", "type": "text", "required": true, "unique": true },
+        { "name": "type", "type": "text", "options": { "max": 50 } },
+        { "name": "description", "type": "text" },
+        { "name": "basePrice", "type": "number" },
+        { "name": "currency", "type": "text", "options": { "max": 8 } },
+        { "name": "features", "type": "json" },
+        { "name": "extras", "type": "json" },
+        { "name": "status", "type": "text", "options": { "max": 20 } }
+      ],
+      "listRule": "",
+      "viewRule": "",
+      "createRule": "",
+      "updateRule": "",
+      "deleteRule": ""
+    },
+    {
+      "name": "orders",
+      "type": "base",
+      "schema": [
+        { "name": "orderId", "type": "text", "required": true, "unique": true },
+        { "name": "product", "type": "json", "required": true },
+        { "name": "customer", "type": "json" },
+        { "name": "amount", "type": "number", "required": true },
+        { "name": "status", "type": "text", "options": { "max": 20 } },
+        { "name": "payment", "type": "json" },
+        { "name": "fulfillment", "type": "json" },
+        { "name": "configuration", "type": "json" },
+        { "name": "timeline", "type": "json" },
+        { "name": "source", "type": "json" }
+      ],
+      "listRule": "",
+      "viewRule": "",
+      "createRule": "",
+      "updateRule": "",
+      "deleteRule": ""
+    },
+    {
+      "name": "events",
+      "type": "base",
+      "schema": [
+        { "name": "userId", "type": "text" },
+        { "name": "sessionId", "type": "text" },
+        { "name": "event", "type": "text", "required": true },
+        { "name": "data", "type": "json" },
+        { "name": "page", "type": "text" },
+        { "name": "referrer", "type": "text" }
+      ],
+      "listRule": "",
+      "viewRule": "",
+      "createRule": "",
+      "updateRule": "",
+      "deleteRule": ""
+    },
+    {
+      "name": "abandoned_carts",
+      "type": "base",
+      "schema": [
+        { "name": "cartId", "type": "text", "required": true, "unique": true },
+        { "name": "userId", "type": "text" },
+        { "name": "sessionId", "type": "text" },
+        { "name": "status", "type": "text" },
+        { "name": "product", "type": "json" },
+        { "name": "totalPrice", "type": "number" },
+        { "name": "userData", "type": "json" },
+        { "name": "recoveryAttempts", "type": "json" },
+        { "name": "stepsCompleted", "type": "json" },
+        { "name": "stepsRemaining", "type": "json" },
+        { "name": "dropOffPoint", "type": "text" }
+      ],
+      "listRule": "",
+      "viewRule": "",
+      "createRule": "",
+      "updateRule": "",
+      "deleteRule": ""
+    }
+  ]
+}
+
