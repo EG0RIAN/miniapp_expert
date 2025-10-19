@@ -1,9 +1,9 @@
 #!/bin/bash
 
-echo "🔗 Обновление ссылки на демо-приложение..."
+echo "🔄 Обновление сайта - удаление лишних favicon..."
 
 expect << 'EOF'
-set timeout 180
+set timeout 300
 spawn ssh root@85.198.110.66
 
 expect "password:"
@@ -26,11 +26,12 @@ send "systemctl reload nginx\r"
 
 expect "# "
 send "echo ''\r"
-send "echo '✅ Ссылка обновлена!'\r"
+send "echo '✅ Сайт обновлён!'\r"
 send "echo ''\r"
-send "echo '🤖 Новая ссылка: https://t.me/MiniAppExpertDemoBot'\r"
+send "echo '🗑️ Лишние favicon удалены'\r"
+send "echo '📱 Оставлены только SVG и ICO'\r"
 send "echo ''\r"
-send "echo 'Проверьте на сайте:'\r"
+send "echo 'Откройте сайт:'\r"
 send "echo 'http://miniapp.expert'\r"
 
 expect "# "
@@ -40,10 +41,8 @@ expect eof
 EOF
 
 echo ""
-echo "✅ Ссылка на демо обновлена!"
-echo ""
-echo "🤖 Новый бот: @MiniAppExpertDemoBot"
-echo "🔗 Ссылка: https://t.me/MiniAppExpertDemoBot"
+echo "✅ Готово! Лишние favicon удалены."
+
 
 
 

@@ -1,4 +1,4 @@
-# 📱 Настройка Mini App для @aicopywriterTestbot
+# 📱 Настройка Mini App для @MiniAppExpertDemoBot
 
 ## Проблема
 Бот работает, но Mini App не открывается через кнопку меню.
@@ -21,7 +21,7 @@
 
 Выберите из списка:
 ```
-@aicopywriterTestbot
+@MiniAppExpertDemoBot
 ```
 
 ### Шаг 3: Откройте настройки
@@ -71,7 +71,7 @@ Configure Menu Button
 ## 🧪 Тестирование:
 
 ### 1. Откройте бота
-Найдите **@aicopywriterTestbot** в Telegram
+Найдите **@MiniAppExpertDemoBot** в Telegram
 
 ### 2. Найдите кнопку меню
 Внизу экрана должна появиться кнопка **☰** (три полоски)
@@ -148,7 +148,7 @@ curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"https://[^"]*
 ```
 
 **Обновить в @BotFather:**
-1. @BotFather → /mybots → @aicopywriterTestbot
+1. @BotFather → /mybots → @MiniAppExpertDemoBot
 2. Bot Settings → Menu Button → Edit Menu Button URL
 3. Вставьте новый URL
 

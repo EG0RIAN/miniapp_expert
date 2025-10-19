@@ -223,3 +223,5 @@ scp site/images/screenshots/real-estate/* root@85.198.110.66:/var/www/miniapp.ex
 **Дата создания:** 18 октября 2025  
 **Версия:** 1.0.0
 
+
+
