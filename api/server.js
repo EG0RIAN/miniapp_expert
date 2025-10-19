@@ -62,80 +62,157 @@ const PG_CONFIG = {
     password: process.env.PG_PASSWORD || 'minipass',
 };
 let pgPool = null;
-try {
-    pgPool = new Pool(PG_CONFIG);
-} catch (_) {}
-
-async function pgInitSchema() {
-    if (!pgPool) return;
-    await pgPool.query(`
-    create table if not exists profiles (
-      email text primary key,
-      name text,
-      phone text,
-      data jsonb default '{}'::jsonb
-    );
-    create table if not exists user_products (
-      email text primary key,
-      items jsonb default '[]'::jsonb
-    );
-    create table if not exists user_subscriptions (
-      email text primary key,
-      items jsonb default '[]'::jsonb
-    );
-    create table if not exists user_referrals (
-      email text primary key,
-      items jsonb default '[]'::jsonb
-    );
-    create table if not exists events (
-      id bigserial primary key,
-      payload jsonb,
-      created timestamptz default now()
-    );
-    create table if not exists abandoned_carts (
-      cart_id text primary key,
-      payload jsonb,
-      created timestamptz default now(),
-      updated timestamptz default now()
-    );
-  `);
+function getPgPool() {
+    if (!pgPool) {
+        try { pgPool = new Pool(PG_CONFIG); }
+        catch (e) { console.error('PG pool init error:', e.message); }
+    }
+    return pgPool;
 }
 
-pgInitSchema().catch(e => console.error('PG init error:', e.message));
+async function pgInitSchemaWithRetry(maxAttempts = 10, delayMs = 1000) {
+    const pool = getPgPool();
+    if (!pool) return false;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            await pool.query(`
+                create table if not exists profiles (
+                  email text primary key,
+                  name text,
+                  phone text,
+                  data jsonb default '{}'::jsonb
+                );
+                create table if not exists user_products (
+                  email text primary key,
+                  items jsonb default '[]'::jsonb
+                );
+                create table if not exists user_subscriptions (
+                  email text primary key,
+                  items jsonb default '[]'::jsonb
+                );
+                create table if not exists user_referrals (
+                  email text primary key,
+                  items jsonb default '[]'::jsonb
+                );
+                create table if not exists events (
+                  id bigserial primary key,
+                  payload jsonb,
+                  created timestamptz default now()
+                );
+                create table if not exists abandoned_carts (
+                  cart_id text primary key,
+                  payload jsonb,
+                  created timestamptz default now(),
+                  updated timestamptz default now()
+                );
+            `);
+            return true;
+        } catch (e) {
+            const wait = Math.min(delayMs * attempt, 5000);
+            console.warn(`PG init attempt ${attempt} failed: ${e.message}. Retrying in ${wait}ms`);
+            await new Promise(r => setTimeout(r, wait));
+        }
+    }
+    return false;
+}
+
+// Kick off schema init asynchronously, but API handlers will ensure readiness too
+pgInitSchemaWithRetry().catch(e => console.error('PG init error:', e.message));
+
+async function ensurePgReady() {
+    const ok = await pgInitSchemaWithRetry();
+    if (!ok) throw new Error('pg not ready');
+}
 
 async function pgUpsertProfile({ email, name, phone, data }) {
-    if (!pgPool) return null;
-    const res = await pgPool.query(
-      `insert into profiles(email, name, phone, data)
-       values($1,$2,$3,$4)
-       on conflict(email) do update set name=excluded.name, phone=excluded.phone, data=excluded.data
-       returning email, name, phone, data`,
-      [email, name || null, phone || null, data || {}]
-    );
-    return res.rows[0];
+    const pool = getPgPool();
+    if (!pool) return null;
+    await ensurePgReady();
+    try {
+        const res = await pool.query(
+          `insert into profiles(email, name, phone, data)
+           values($1,$2,$3,$4)
+           on conflict(email) do update set name=excluded.name, phone=excluded.phone, data=excluded.data
+           returning email, name, phone, data`,
+          [email, name || null, phone || null, data || {}]
+        );
+        return res.rows[0];
+    } catch (e) {
+        // If relation missing due to race, re-init and retry once
+        if (/relation \"profiles\" does not exist/i.test(e.message)) {
+            await pgInitSchemaWithRetry();
+            const res = await pool.query(
+              `insert into profiles(email, name, phone, data)
+               values($1,$2,$3,$4)
+               on conflict(email) do update set name=excluded.name, phone=excluded.phone, data=excluded.data
+               returning email, name, phone, data`,
+              [email, name || null, phone || null, data || {}]
+            );
+            return res.rows[0];
+        }
+        throw e;
+    }
 }
 
 async function pgGetProfile(email) {
-    if (!pgPool) return null;
-    const res = await pgPool.query(`select email, name, phone, data from profiles where email=$1`, [email]);
-    return res.rows[0] || null;
+    const pool = getPgPool();
+    if (!pool) return null;
+    await ensurePgReady();
+    try {
+        const res = await pool.query(`select email, name, phone, data from profiles where email=$1`, [email]);
+        return res.rows[0] || null;
+    } catch (e) {
+        if (/relation \"profiles\" does not exist/i.test(e.message)) {
+            await pgInitSchemaWithRetry();
+            const res = await pool.query(`select email, name, phone, data from profiles where email=$1`, [email]);
+            return res.rows[0] || null;
+        }
+        throw e;
+    }
 }
 
 async function pgGetArray(collection, email) {
-    if (!pgPool) return [];
-    const res = await pgPool.query(`select items from ${collection} where email=$1`, [email]);
-    return res.rows[0]?.items || [];
+    const pool = getPgPool();
+    if (!pool) return [];
+    await ensurePgReady();
+    try {
+        const res = await pool.query(`select items from ${collection} where email=$1`, [email]);
+        return res.rows[0]?.items || [];
+    } catch (e) {
+        if (/relation /.test(e.message)) {
+            await pgInitSchemaWithRetry();
+            const res = await pool.query(`select items from ${collection} where email=$1`, [email]);
+            return res.rows[0]?.items || [];
+        }
+        throw e;
+    }
 }
 
 async function pgSetArray(collection, email, items) {
-    if (!pgPool) return [];
-    const res = await pgPool.query(
-      `insert into ${collection}(email, items) values($1,$2)
-       on conflict(email) do update set items=excluded.items
-       returning items`,
-      [email, Array.isArray(items) ? items : []]
-    );
-    return res.rows[0]?.items || [];
+    const pool = getPgPool();
+    if (!pool) return [];
+    await ensurePgReady();
+    try {
+        const res = await pool.query(
+          `insert into ${collection}(email, items) values($1,$2)
+           on conflict(email) do update set items=excluded.items
+           returning items`,
+          [email, Array.isArray(items) ? items : []]
+        );
+        return res.rows[0]?.items || [];
+    } catch (e) {
+        if (/relation /.test(e.message)) {
+            await pgInitSchemaWithRetry();
+            const res = await pool.query(
+              `insert into ${collection}(email, items) values($1,$2)
+               on conflict(email) do update set items=excluded.items
+               returning items`,
+              [email, Array.isArray(items) ? items : []]
+            );
+            return res.rows[0]?.items || [];
+        }
+        throw e;
+    }
 }
 
 // Mailer
