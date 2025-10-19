@@ -321,43 +321,52 @@ function loadPartnersData() {
     // Generate referral link
     document.getElementById('referralLink').value = `https://miniapp.expert/?ref=${userId}`;
     
-    // Load referrals from localStorage
-    const referrals = getUserData('referrals', []);
+    // Load from backend with fallback to localStorage
+    let referrals = getUserData('referrals', []);
+    if (userEmail) {
+        fetch(`/api/user/referrals?email=${encodeURIComponent(userEmail)}`)
+            .then(r=>r.json()).then(d=>{
+                if (Array.isArray(d.items)) {
+                    setUserData('referrals', d.items);
+                    referrals = d.items;
+                }
+                renderReferrals(referrals);
+            }).catch(()=>renderReferrals(referrals));
+    } else {
+        renderReferrals(referrals);
+    }
     
-    // Calculate stats
-    const totalReferrals = referrals.length;
-    const totalEarned = referrals.reduce((sum, ref) => sum + (ref.earned || 0), 0);
-    const availableBalance = totalEarned;
-    const conversionRate = referrals.length > 0 ? 
-        (referrals.filter(r => r.purchased).length / referrals.length * 100).toFixed(0) : 0;
-    
-    // Update stats
-    document.getElementById('totalReferrals').textContent = totalReferrals;
-    document.getElementById('totalEarned').textContent = `${totalEarned.toLocaleString('ru-RU')} ₽`;
-    document.getElementById('availableBalance').textContent = `${availableBalance.toLocaleString('ru-RU')} ₽`;
-    document.getElementById('withdrawBalance').textContent = `${availableBalance.toLocaleString('ru-RU')} ₽`;
-    document.getElementById('conversionRate').textContent = `${conversionRate}%`;
-    
-    // Load referrals table
-    if (referrals.length > 0) {
-        const tbody = document.getElementById('referralsTableBody');
-        tbody.innerHTML = referrals.map(ref => `
-            <tr class="border-b border-gray-100 hover:bg-gray-50">
-                <td class="p-4">
-                    <div class="font-semibold">${ref.name}</div>
-                    <div class="text-xs text-gray-500">${ref.email}</div>
-                </td>
-                <td class="p-4 text-sm text-gray-600">${ref.registrationDate}</td>
-                <td class="p-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${ref.purchased ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
-                        ${ref.purchased ? '✅ Купил' : '⏳ Не купил'}
-                    </span>
-                </td>
-                <td class="p-4">
-                    <span class="font-bold text-primary">+${(ref.earned || 0).toLocaleString('ru-RU')} ₽</span>
-                </td>
-            </tr>
-        `).join('');
+    function renderReferrals(refs) {
+        const totalReferrals = refs.length;
+        const totalEarned = refs.reduce((sum, ref) => sum + (ref.earned || 0), 0);
+        const availableBalance = totalEarned;
+        const conversionRate = refs.length > 0 ? 
+            (refs.filter(r => r.purchased).length / refs.length * 100).toFixed(0) : 0;
+        document.getElementById('totalReferrals').textContent = totalReferrals;
+        document.getElementById('totalEarned').textContent = `${totalEarned.toLocaleString('ru-RU')} ₽`;
+        document.getElementById('availableBalance').textContent = `${availableBalance.toLocaleString('ru-RU')} ₽`;
+        document.getElementById('withdrawBalance').textContent = `${availableBalance.toLocaleString('ru-RU')} ₽`;
+        document.getElementById('conversionRate').textContent = `${conversionRate}%`;
+        if (refs.length > 0) {
+            const tbody = document.getElementById('referralsTableBody');
+            tbody.innerHTML = refs.map(ref => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="p-4">
+                        <div class="font-semibold">${ref.name || ''}</div>
+                        <div class="text-xs text-gray-500">${ref.email || ''}</div>
+                    </td>
+                    <td class="p-4 text-sm text-gray-600">${ref.registrationDate || ''}</td>
+                    <td class="p-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${ref.purchased ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                            ${ref.purchased ? '✅ Купил' : '⏳ Не купил'}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <span class="font-bold text-primary">+${(ref.earned || 0).toLocaleString('ru-RU')} ₽</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 }
 

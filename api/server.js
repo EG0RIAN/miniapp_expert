@@ -169,6 +169,124 @@ function readJsonLines(file, limit = 200) {
     }
 }
 
+// ===== User Data API (profiles, products, subscriptions, referrals) =====
+async function pbUpsertSingle(collection, email, payload) {
+    const authed = await ensurePbAuth();
+    if (!authed) return null;
+    const list = await pb.collection(collection).getList(1, 1, { filter: `email = "${email}"` });
+    if (list.items?.[0]) {
+        return await pb.collection(collection).update(list.items[0].id, payload);
+    }
+    return await pb.collection(collection).create({ email, ...payload });
+}
+
+// Profile
+app.get('/api/user/profile', async (req, res) => {
+    try {
+        const email = String(req.query.email || '').toLowerCase();
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const authed = await ensurePbAuth();
+        if (authed) {
+            try {
+                const list = await pb.collection('profiles').getList(1, 1, { filter: `email = "${email}"` });
+                const rec = list.items?.[0] || null;
+                return res.json({ success: true, profile: rec ? { email: rec.email, name: rec.name, phone: rec.phone, data: rec.data || {} } : null });
+            } catch (e) { console.error('PB profile get error:', e.message); }
+        }
+        // Fallback: return null (frontend uses localStorage)
+        res.json({ success: true, profile: null });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/user/profile', async (req, res) => {
+    try {
+        const { email, name, phone, data } = req.body || {};
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        try {
+            const rec = await pbUpsertSingle('profiles', String(email).toLowerCase(), { name, phone, data: data || {} });
+            return res.json({ success: true, profile: { email: rec.email, name: rec.name, phone: rec.phone, data: rec.data || {} } });
+        } catch (e) {
+            console.error('PB profile upsert error:', e.message);
+            return res.status(503).json({ success: false, message: 'storage unavailable' });
+        }
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+// Generic helpers for array-collections
+async function getArrayByEmail(collection, email) {
+    const authed = await ensurePbAuth();
+    if (!authed) return [];
+    const list = await pb.collection(collection).getList(1, 1, { filter: `email = "${email}"` });
+    const rec = list.items?.[0] || null;
+    return (rec && Array.isArray(rec.items)) ? rec.items : [];
+}
+
+async function setArrayByEmail(collection, email, items) {
+    const payload = { items: Array.isArray(items) ? items : [] };
+    const rec = await pbUpsertSingle(collection, email, payload);
+    return Array.isArray(rec.items) ? rec.items : [];
+}
+
+// Products
+app.get('/api/user/products', async (req, res) => {
+    try {
+        const email = String(req.query.email || '').toLowerCase();
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const items = await getArrayByEmail('user_products', email);
+        res.json({ success: true, items });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/user/products', async (req, res) => {
+    try {
+        const email = String(req.body?.email || '').toLowerCase();
+        const items = req.body?.items || [];
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const saved = await setArrayByEmail('user_products', email, items);
+        res.json({ success: true, items: saved });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+// Subscriptions
+app.get('/api/user/subscriptions', async (req, res) => {
+    try {
+        const email = String(req.query.email || '').toLowerCase();
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const items = await getArrayByEmail('user_subscriptions', email);
+        res.json({ success: true, items });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/user/subscriptions', async (req, res) => {
+    try {
+        const email = String(req.body?.email || '').toLowerCase();
+        const items = req.body?.items || [];
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const saved = await setArrayByEmail('user_subscriptions', email, items);
+        res.json({ success: true, items: saved });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+// Referrals
+app.get('/api/user/referrals', async (req, res) => {
+    try {
+        const email = String(req.query.email || '').toLowerCase();
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const items = await getArrayByEmail('user_referrals', email);
+        res.json({ success: true, items });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/user/referrals', async (req, res) => {
+    try {
+        const email = String(req.body?.email || '').toLowerCase();
+        const items = req.body?.items || [];
+        if (!email) return res.status(400).json({ success: false, message: 'email required' });
+        const saved = await setArrayByEmail('user_referrals', email, items);
+        res.json({ success: true, items: saved });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
 // Generate Token for T-Bank API
 function generateToken(params, password) {
     // Remove fields that should not be included in token calculation
