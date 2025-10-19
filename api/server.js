@@ -91,7 +91,7 @@ app.post('/api/payment/create', async (req, res) => {
             res.json({
                 success: true,
                 paymentId: response.data.PaymentId,
-                paymentURL: response.data.PaymentURL,
+                paymentUrl: response.data.PaymentURL, // camelCase for frontend
                 orderId: orderId
             });
         } else {
