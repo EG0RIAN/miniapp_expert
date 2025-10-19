@@ -1,0 +1,45 @@
+# robots.txt для miniapp.expert
+
+# Разрешаем всем поисковикам индексировать сайт
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию административных страниц
+Disallow: /admin.html
+Disallow: /admin-login.html
+Disallow: /admin-*.html
+Disallow: /admin*.js
+
+# Запрещаем индексацию личного кабинета
+Disallow: /cabinet.html
+Disallow: /cabinet*.js
+Disallow: /login.html
+Disallow: /product-manage.html
+
+# Запрещаем индексацию служебных файлов
+Disallow: /*.json$
+Disallow: /README.md
+
+# Разрешаем индексацию публичных страниц
+Allow: /index.html
+Allow: /real-estate-solution.html
+Allow: /privacy.html
+
+# Разрешаем индексацию изображений
+Allow: /images/
+Allow: /favicon.svg
+Allow: /favicon.ico
+
+# Указываем путь к sitemap
+Sitemap: https://miniapp.expert/sitemap.xml
+
+# Специальные правила для популярных поисковиков
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
