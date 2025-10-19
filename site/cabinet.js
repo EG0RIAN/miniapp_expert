@@ -12,9 +12,31 @@ function logout() {
     if (confirm('Вы уверены, что хотите выйти?')) {
         localStorage.removeItem('userAuth');
         localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userPhone');
         window.location.href = '/login.html';
+    }
+}
+
+// ===== Per-user namespaced storage helpers =====
+function getUserEmail() {
+    return localStorage.getItem('userEmail') || '';
+}
+
+function getNsKey(key) {
+    const email = getUserEmail();
+    const safe = email ? email.toLowerCase() : 'anon';
+    return `user:${safe}:${key}`;
+}
+
+function setUserData(key, value) {
+    try { localStorage.setItem(getNsKey(key), JSON.stringify(value)); } catch (_) {}
+}
+
+function getUserData(key, fallback = null) {
+    try {
+        const raw = localStorage.getItem(getNsKey(key));
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (_) {
+        return fallback;
     }
 }
 
@@ -41,9 +63,8 @@ function showSection(sectionId) {
 function saveProfile() {
     const name = document.getElementById('profileName').value;
     const phone = document.getElementById('profilePhone').value;
-    
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userPhone', phone);
+    setUserData('name', name);
+    setUserData('phone', phone);
     
     alert('✅ Профиль сохранен!');
     loadProfile();
@@ -51,10 +72,10 @@ function saveProfile() {
 
 // Load profile
 function loadProfile() {
-    const name = localStorage.getItem('userName') || 'Клиент';
-    const email = localStorage.getItem('userEmail') || '';
-    const phone = localStorage.getItem('userPhone') || '';
-    const regDate = localStorage.getItem('userRegistrationDate');
+    const email = getUserEmail();
+    const name = getUserData('name', 'Клиент');
+    const phone = getUserData('phone', '');
+    const regDate = getUserData('registrationDate', null);
     
     // Update header
     document.getElementById('userName').textContent = name;
@@ -84,7 +105,7 @@ function loadProfile() {
 
 // Load products
 function loadProducts() {
-    const products = JSON.parse(localStorage.getItem('userProducts') || '[]');
+    const products = getUserData('products', []);
     const container = document.getElementById('productsList');
     
     if (products.length === 0) {
@@ -118,6 +139,29 @@ function loadProducts() {
     `).join('');
 }
 
+// Load subscriptions
+function loadSubscriptions() {
+    const subs = getUserData('subscriptions', []);
+    const container = document.getElementById('subscriptionsList');
+    if (!container) return;
+    if (!Array.isArray(subs) || subs.length === 0) {
+        container.innerHTML = '<div class="text-gray-500 text-sm">Подписок пока нет</div>';
+        return;
+    }
+    container.innerHTML = subs.map(s => `
+        <div class="bg-white rounded-2xl shadow p-4 border-2 border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="font-bold">${s.name || 'Подписка'}</div>
+                    <div class="text-xs text-gray-500">Следующий платеж: ${formatDate(s.nextPayment)}</div>
+                </div>
+                <div class="text-primary font-bold">${formatAmountRub(s.price || 0)}</div>
+            </div>
+            <div class="mt-2 text-xs">Статус: ${s.status || 'active'}</div>
+        </div>
+    `).join('');
+}
+
 // Format helpers
 function formatAmountRub(amount) {
     try { return Number(amount || 0).toLocaleString('ru-RU') + ' ₽'; } catch (_) { return amount + ' ₽'; }
@@ -141,7 +185,7 @@ async function loadPayments() {
 
     try {
         const email = localStorage.getItem('userEmail') || '';
-        const phone = localStorage.getItem('userPhone') || '';
+        const phone = getUserData('phone', '');
         const params = new URLSearchParams();
         if (email) params.append('email', email);
         if (phone) params.append('phone', phone);
@@ -271,14 +315,14 @@ function openWithdrawModal() {
 // Load partners data
 function loadPartnersData() {
     // Get user ID
-    const userEmail = localStorage.getItem('userEmail') || '';
+    const userEmail = getUserEmail();
     const userId = userEmail.split('@')[0].toUpperCase();
     
     // Generate referral link
     document.getElementById('referralLink').value = `https://miniapp.expert/?ref=${userId}`;
     
     // Load referrals from localStorage
-    const referrals = JSON.parse(localStorage.getItem('userReferrals') || '[]');
+    const referrals = getUserData('referrals', []);
     
     // Calculate stats
     const totalReferrals = referrals.length;
