@@ -990,39 +990,56 @@
                 }
             });
 
-            // Form submission
-            document.getElementById('quickOrderForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+            // Form submission - attach to the form element
+            const orderForm = document.getElementById('quickOrderForm');
+            console.log('Form found:', orderForm); // Debug
+            
+            if (orderForm) {
+                orderForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('Form submitted!'); // Debug
 
-                const logoFile = document.getElementById('logo').files[0];
-                const formData = {
-                    companyName: document.getElementById('companyName').value,
-                    phone: document.getElementById('phone').value,
-                    email: document.getElementById('email').value,
-                    logo: logoFile ? logoFile.name : 'Не загружен',
-                    primaryColor: primaryColor.value,
-                    secondaryColor: secondaryColor.value,
-                    features: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.nextElementSibling.querySelector('.font-semibold').textContent),
-                    timestamp: new Date().toISOString()
-                };
+                    const logoFile = document.getElementById('logo').files[0];
+                    const formData = {
+                        companyName: document.getElementById('companyName').value,
+                        phone: document.getElementById('phone').value,
+                        email: document.getElementById('email').value,
+                        logo: logoFile ? logoFile.name : 'Не загружен',
+                        primaryColor: primaryColor.value,
+                        secondaryColor: secondaryColor.value,
+                        features: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.nextElementSibling.querySelector('.font-semibold').textContent),
+                        timestamp: new Date().toISOString()
+                    };
 
-                // Save to localStorage for payment
-                try {
-                    localStorage.setItem('pendingOrder', JSON.stringify(formData));
-                } catch (e) {
-                    console.error('Error saving order:', e);
-                }
+                    console.log('Form data:', formData); // Debug
 
-                // Calculate total price
-                let totalPrice = 150000; // Base price
-                const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
-                checkboxes.forEach(cb => {
-                    totalPrice += parseInt(cb.dataset.price) || 0;
+                    // Save to localStorage for payment
+                    try {
+                        localStorage.setItem('pendingOrder', JSON.stringify(formData));
+                        console.log('Order saved to localStorage'); // Debug
+                    } catch (e) {
+                        console.error('Error saving order:', e);
+                    }
+
+                    // Calculate total price
+                    let totalPrice = 150000; // Base price
+                    const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
+                    checkboxes.forEach(cb => {
+                        totalPrice += parseInt(cb.dataset.price) || 0;
+                    });
+
+                    console.log('Total price:', totalPrice); // Debug
+                    console.log('Checkboxes checked:', checkboxes.length); // Debug
+
+                    // Redirect to payment immediately
+                    const redirectUrl = `/payment.html?product=${encodeURIComponent('Mini App для недвижимости')}&price=${totalPrice}&company=${encodeURIComponent(formData.companyName)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`;
+                    console.log('Redirecting to:', redirectUrl); // Debug
+                    
+                    window.location.href = redirectUrl;
                 });
-
-                // Redirect to payment immediately
-                window.location.href = `/payment.html?product=Mini App для недвижимости&price=${totalPrice}&company=${encodeURIComponent(formData.companyName)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`;
-            });
+            } else {
+                console.error('Form not found!'); // Debug
+            }
         });
 
         // Calculate total price based on selected features
