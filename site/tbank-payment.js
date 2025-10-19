@@ -2,8 +2,9 @@
 // Documentation: https://www.tbank.ru/kassa/dev/payments/
 
 class TBankPayment {
-    constructor(terminalKey) {
-        this.terminalKey = terminalKey || 'DEMO_TERMINAL'; // Замените на реальный ключ
+    constructor(terminalKey, password) {
+        this.terminalKey = terminalKey || '1760898345949DEMO'; // Тестовый терминал T-Bank
+        this.password = password || 'm$4Hgg1ASpPUVfhj'; // Тестовый пароль
         this.apiUrl = 'https://securepay.tinkoff.ru/v2';
     }
 
@@ -36,21 +37,9 @@ class TBankPayment {
         };
 
         try {
-            // В production используйте серверную интеграцию!
-            // Это демо-версия для тестирования UI
+            // Реальный API вызов к T-Bank
             console.log('Creating T-Bank payment:', paymentData);
             
-            // Симуляция ответа от T-Bank
-            return {
-                Success: true,
-                PaymentId: 'DEMO_' + Date.now(),
-                PaymentURL: this.getDemoPaymentURL(orderId, amount),
-                OrderId: orderId,
-                Amount: amount
-            };
-            
-            // В production раскомментируйте:
-            /*
             const response = await fetch(`${this.apiUrl}/Init`, {
                 method: 'POST',
                 headers: {
@@ -59,8 +48,14 @@ class TBankPayment {
                 body: JSON.stringify(paymentData)
             });
             
-            return await response.json();
-            */
+            const result = await response.json();
+            
+            if (!result.Success) {
+                console.error('T-Bank error:', result);
+                throw new Error(result.Message || 'Payment creation failed');
+            }
+            
+            return result;
         } catch (error) {
             console.error('T-Bank payment error:', error);
             throw error;
@@ -83,15 +78,6 @@ class TBankPayment {
         try {
             console.log('Checking payment status:', paymentId);
             
-            // Симуляция для демо
-            return {
-                Success: true,
-                Status: 'CONFIRMED',
-                PaymentId: paymentId
-            };
-            
-            // В production:
-            /*
             const response = await fetch(`${this.apiUrl}/GetState`, {
                 method: 'POST',
                 headers: {
@@ -103,8 +89,13 @@ class TBankPayment {
                 })
             });
             
-            return await response.json();
-            */
+            const result = await response.json();
+            
+            if (!result.Success) {
+                console.error('T-Bank status check error:', result);
+            }
+            
+            return result;
         } catch (error) {
             console.error('Check status error:', error);
             throw error;
@@ -182,8 +173,8 @@ class TBankPayment {
     }
 }
 
-// Initialize T-Bank payment handler
-const tbank = new TBankPayment('DEMO_TERMINAL');
+// Initialize T-Bank payment handler with real test terminal
+const tbank = new TBankPayment('1760898345949DEMO', 'm$4Hgg1ASpPUVfhj');
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
