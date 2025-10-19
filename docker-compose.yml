@@ -40,7 +40,11 @@ services:
     restart: unless-stopped
 
   pocketbase:
-    image: ghcr.io/pocketbase/pocketbase:0.21.3
+    build:
+      context: ./pocketbase
+      dockerfile: Dockerfile
+      args:
+        - PB_VERSION=${PB_VERSION:-0.21.3}
     container_name: miniapp_pocketbase
     command: ["serve", "--http=0.0.0.0:8090", "--dir", "/pb_data"]
     volumes:
