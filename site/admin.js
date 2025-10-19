@@ -61,6 +61,12 @@ function loadSectionData(sectionId) {
         case 'partners':
             loadPartners();
             break;
+        case 'events':
+            loadEvents();
+            break;
+        case 'abandoned':
+            loadAbandoned();
+            break;
     }
 }
 
@@ -80,6 +86,13 @@ function loadDashboard() {
     
     // Update users count in sidebar
     document.getElementById('usersCount').textContent = `${users.length} клиентов`;
+    // Try fetch events/abandoned counters (best-effort)
+    fetch('/api/admin/events').then(r=>r.json()).then(d=>{
+        if (d && d.items) document.getElementById('eventsCount').textContent = d.items.length + ' за сегодня';
+    }).catch(()=>{});
+    fetch('/api/admin/abandoned').then(r=>r.json()).then(d=>{
+        if (d && d.items) document.getElementById('abandonedCount').textContent = d.items.length + ' корзин';
+    }).catch(()=>{});
     
     // Update login time
     const loginTime = localStorage.getItem('adminLoginTime');
@@ -88,6 +101,78 @@ function loadDashboard() {
         document.getElementById('loginTime').textContent = formatTime(time);
     }
 }
+
+// ===== Events =====
+function loadEvents() {
+    const tbody = document.getElementById('eventsTableBody');
+    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">Загрузка…</td></tr>`;
+    fetch('/api/admin/events')
+        .then(r=>r.json())
+        .then(d=>{
+            const items = d.items || [];
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-500">Нет данных</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = items.map(ev=>{
+                const t = new Date(ev.created).toLocaleString('ru-RU');
+                const dataStr = (ev.data ? JSON.stringify(ev.data).slice(0,120) + (JSON.stringify(ev.data).length>120?'…':'') : '—');
+                return `<tr class="border-b">
+                    <td class="p-3 whitespace-nowrap text-xs text-gray-500">${t}</td>
+                    <td class="p-3 text-xs">${ev.userId || '—'}</td>
+                    <td class="p-3 font-semibold">${ev.event}</td>
+                    <td class="p-3 text-xs text-gray-600">${ev.data?.page || '—'}</td>
+                    <td class="p-3 text-xs text-gray-500">${dataStr}</td>
+                </tr>`;
+            }).join('');
+        })
+        .catch(()=>{
+            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-500">Ошибка загрузки</td></tr>`;
+        });
+}
+function reloadEvents(){ loadEvents(); }
+
+// ===== Abandoned carts =====
+function loadAbandoned() {
+    const tbody = document.getElementById('abandonedTableBody');
+    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">Загрузка…</td></tr>`;
+    fetch('/api/admin/abandoned')
+        .then(r=>r.json())
+        .then(d=>{
+            const items = d.items || [];
+            document.getElementById('abandonedTotal').textContent = items.length;
+            const active = items.filter(i=>i.status==='active' || i.status==='abandoned').length;
+            document.getElementById('abandonedActive').textContent = active;
+            const totalValue = items.reduce((s,i)=> s + (Number(i.totalPrice)||0), 0);
+            document.getElementById('totalAbandonedValue').textContent = totalValue.toLocaleString('ru-RU') + ' ₽';
+            const avg = items.length ? Math.round(totalValue / items.length) : 0;
+            document.getElementById('avgCartValue').textContent = avg.toLocaleString('ru-RU') + ' ₽';
+            
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">Нет данных</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = items.map(c=>{
+                const created = c.created ? new Date(c.created).toLocaleString('ru-RU') : '—';
+                const last = c.lastActivity ? new Date(c.lastActivity).toLocaleString('ru-RU') : '—';
+                const product = (c.product && (c.product.name || c.product.description)) || 'Mini App';
+                const user = c.userData?.email || c.userData?.phone || c.userId || '—';
+                return `<tr class="border-b">
+                    <td class="p-3 font-mono text-xs">${c.cartId}</td>
+                    <td class="p-3 text-xs">${user}</td>
+                    <td class="p-3">${product}</td>
+                    <td class="p-3 font-bold text-primary">${(Number(c.totalPrice)||0).toLocaleString('ru-RU')} ₽</td>
+                    <td class="p-3 text-xs">${c.status || '—'}</td>
+                    <td class="p-3 text-xs text-gray-500">${created}</td>
+                    <td class="p-3 text-xs text-gray-500">${last}</td>
+                </tr>`;
+            }).join('');
+        })
+        .catch(()=>{
+            tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-500">Ошибка загрузки</td></tr>`;
+        });
+}
+function reloadAbandoned(){ loadAbandoned(); }
 
 // Format time
 function formatTime(date) {

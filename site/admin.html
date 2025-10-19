@@ -107,6 +107,20 @@
                         <div class="text-xs text-gray-500" id="usersCount">0 клиентов</div>
                     </div>
                 </a>
+                <a href="#events" onclick="showSection('events')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="events">
+                    <span class="text-xl">📡</span>
+                    <div>
+                        <div class="font-semibold">Логи событий</div>
+                        <div class="text-xs text-gray-500" id="eventsCount">—</div>
+                    </div>
+                </a>
+                <a href="#abandoned" onclick="showSection('abandoned')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="abandoned">
+                    <span class="text-xl">🛒</span>
+                    <div>
+                        <div class="font-semibold">Брошенные корзины</div>
+                        <div class="text-xs text-gray-500" id="abandonedCount">—</div>
+                    </div>
+                </a>
                 <a href="#partners" onclick="showSection('partners')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
                     <span class="text-xl">🤝</span>
                     <div>
@@ -176,6 +190,77 @@
                 </div>
             </section>
 
+            <!-- Events Section -->
+            <section id="section-events" class="admin-section hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-3xl font-bold">📡 Логи событий</h1>
+                    <button onclick="reloadEvents()" class="px-4 py-2 bg-primary text-white rounded-lg">Обновить</button>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-gray-600 border-b">
+                                    <th class="p-3">Время</th>
+                                    <th class="p-3">Пользователь</th>
+                                    <th class="p-3">Событие</th>
+                                    <th class="p-3">Страница</th>
+                                    <th class="p-3">Данные</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventsTableBody">
+                                <tr><td colspan="5" class="p-6 text-center text-gray-500">Загрузка…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Abandoned Carts Section -->
+            <section id="section-abandoned" class="admin-section hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-3xl font-bold">🛒 Брошенные корзины</h1>
+                    <button onclick="reloadAbandoned()" class="px-4 py-2 bg-primary text-white rounded-lg">Обновить</button>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-red-50 rounded-xl p-4">
+                            <div class="text-2xl font-bold text-red-600" id="totalAbandonedValue">0 ₽</div>
+                            <div class="text-sm text-red-700">Потенциальная выручка</div>
+                        </div>
+                        <div class="bg-orange-50 rounded-xl p-4">
+                            <div class="text-2xl font-bold text-orange-600" id="avgCartValue">0 ₽</div>
+                            <div class="text-sm text-orange-700">Средний чек</div>
+                        </div>
+                        <div class="bg-blue-50 rounded-xl p-4">
+                            <div class="text-2xl font-bold text-blue-600" id="abandonedActive">0</div>
+                            <div class="text-sm text-blue-700">Активные</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="text-2xl font-bold text-gray-700" id="abandonedTotal">0</div>
+                            <div class="text-sm text-gray-600">Всего</div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-gray-600 border-b">
+                                    <th class="p-3">Корзина</th>
+                                    <th class="p-3">Покупатель</th>
+                                    <th class="p-3">Продукт</th>
+                                    <th class="p-3">Сумма</th>
+                                    <th class="p-3">Статус</th>
+                                    <th class="p-3">Создано</th>
+                                    <th class="p-3">Последняя активность</th>
+                                </tr>
+                            </thead>
+                            <tbody id="abandonedTableBody">
+                                <tr><td colspan="7" class="p-6 text-center text-gray-500">Загрузка…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
             <!-- Cases Section -->
             <section id="section-cases" class="admin-section hidden">
                 <div class="flex items-center justify-between mb-8">
