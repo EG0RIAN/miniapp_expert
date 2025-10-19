@@ -75,7 +75,7 @@ app.post('/api/payment/create', async (req, res) => {
                 Phone: phone
             },
             SuccessURL: `https://miniapp.expert/payment-success.html?orderId=${orderId}`,
-            FailURL: `https://miniapp.expert/payment.html?error=failed&orderId=${orderId}`,
+            FailURL: `https://miniapp.expert/payment-failed.html?orderId=${orderId}&error=declined`,
             NotificationURL: `https://miniapp.expert/api/payment/webhook`
         };
         
