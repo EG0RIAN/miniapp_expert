@@ -2,12 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-        <!-- Preconnect to external domains (CRITICAL for LCP) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://t.me">
-    
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
@@ -42,27 +37,269 @@
     <!-- Theme Color -->
     <meta name="theme-color" content="#10B981">
     <meta name="msapplication-TileColor" content="#10B981">
-    
-    
-    
-
-    <!-- Critical Inline CSS (Above-the-fold) -->
-    <style>/* Critical CSS for above-the-fold content */
-*,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::before,::after{--tw-content:''}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}h1,h2,h3{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}button{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button{text-transform:none}button{-webkit-appearance:button;background-color:transparent;background-image:none}img,svg{display:block;vertical-align:middle}img{max-width:100%;height:auto}*,::before,::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate:;--tw-backdrop-sepia:;--tw-contain-size:;--tw-contain-layout:;--tw-contain-paint:;--tw-contain-style:}::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate</style>
-    
-    <!-- Preload critical font -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style">
-    
-    <!-- Load fonts asynchronously with font-display: swap -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
-    
-    <!-- Preload compiled stylesheet -->
-    <link rel="preload" href="/dist/styles.min.css" as="style">
-    
-    <!-- Load main stylesheet asynchronously -->
-    <link rel="stylesheet" href="/dist/styles.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="/dist/styles.min.css"></noscript>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',      // Mint Accent
+                        secondary: '#0088CC',    // TG Blue
+                        mint: {
+                            50: '#ECFDF5',
+                            100: '#D1FAE5',
+                            500: '#10B981',
+                            600: '#059669',
+                        },
+                        tgblue: {
+                            500: '#0088CC',
+                            600: '#006699',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-in',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px rgba(0, 0, 0, 0.05)',
+                        'medium': '0 4px 25px rgba(0, 0, 0, 0.08)',
+                        'large': '0 8px 40px rgba(0, 0, 0, 0.12)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #10B981 0%, #0088CC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #10B981 0%, #0088CC 100%);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(16, 185, 129, 0.2);
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        /* Черные логотипы для MoscaEx и Alfin */
+        .logo-black {
+            filter: brightness(0) saturate(100%);
+        }
+        
+        /* Burger Menu Styles */
+        .burger-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 1000;
+            padding: 5px;
+        }
+        
+        .burger-menu span {
+            width: 28px;
+            height: 3px;
+            background: #10B981;
+            margin: 4px 0;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .burger-menu.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-6px, 7px);
+        }
+        
+        .burger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .burger-menu.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-6px, -7px);
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 999;
+            max-height: calc(100vh - 72px);
+            overflow-y: auto;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Desktop Navigation */
+        .desktop-nav {
+            gap: 0.75rem;
+        }
+        
+        .desktop-nav a {
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .desktop-nav a:hover {
+            transform: translateY(-1px);
+        }
+        
+        /* Mobile Fixes */
+        @media (max-width: 768px) {
+            .burger-menu {
+                display: flex !important;
+            }
+            
+            .desktop-nav {
+                display: none !important;
+            }
+            
+            header {
+                padding: 0.75rem 0;
+            }
+            
+            /* Fix overlapping elements */
+            h1, h2, h3 {
+                line-height: 1.2;
+                margin-bottom: 1rem;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Fix card overlaps */
+            .card-hover {
+                margin-bottom: 1.5rem;
+            }
+            
+            .card-hover:hover {
+                transform: translateY(-5px) scale(1.01);
+            }
+            
+            /* Fix text overflow */
+            .text-4xl {
+                font-size: 2rem !important;
+            }
+            
+            .text-5xl {
+                font-size: 2.5rem !important;
+            }
+            
+            .text-6xl {
+                font-size: 3rem !important;
+            }
+            
+            /* Fix button sizes */
+            button, .btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            /* Fix spacing */
+            section {
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+            
+            /* Fix images */
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .text-4xl {
+                font-size: 1.75rem !important;
+            }
+            
+            .text-5xl {
+                font-size: 2rem !important;
+            }
+            
+            .text-6xl {
+                font-size: 2.25rem !important;
+            }
+        }
+        
+        /* Hero Carousel */
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .hero-slide.active {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     
@@ -86,12 +323,12 @@
                     <a href="#advantages" class="text-gray-700 hover:text-primary transition" data-lang-ru="Преимущества" data-lang-en="Advantages">Преимущества</a>
                     <a href="#process" class="text-gray-700 hover:text-primary transition" data-lang-ru="Процесс" data-lang-en="Process">Процесс</a>
                     <a href="#contact" class="text-gray-700 hover:text-primary transition" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
-                    <a href="https://t.me/MiniAppExpertDemoBot" rel="noopener" target="_blank" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition text-sm whitespace-nowrap" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
+                    <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold hover:bg-secondary/90 transition text-sm whitespace-nowrap" data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</a>
                     <a href="/login.html" class="flex items-center space-x-1.5 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
                         <span class="text-lg">👤</span>
                         <span class="text-sm whitespace-nowrap" data-lang-ru="ЛК" data-lang-en="Account">ЛК</span>
                     </a>
-                    <button aria-label="Переключить язык" id="lang-switcher" class="flex items-center space-x-1.5 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
+                    <button id="lang-switcher" class="flex items-center space-x-1.5 text-gray-700 hover:text-primary transition px-3 py-2 rounded-lg hover:bg-gray-100">
                         <span class="text-lg">🌐</span>
                         <span class="text-sm font-medium" data-lang-ru="RU" data-lang-en="EN">RU</span>
                     </button>
@@ -118,7 +355,7 @@
                 <a href="#contact" class="block text-gray-700 hover:text-primary transition py-2.5 text-base font-medium" data-lang-ru="Контакты" data-lang-en="Contact">Контакты</a>
                 
                 <div class="border-t pt-3 mt-3 space-y-3">
-                    <a href="https://t.me/MiniAppExpertDemoBot" rel="noopener" target="_blank" class="block bg-secondary text-white px-5 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition text-center shadow-sm" data-lang-ru="Демо-приложение" data-lang-en="Demo App">
+                    <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="block bg-secondary text-white px-5 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition text-center shadow-sm" data-lang-ru="Демо-приложение" data-lang-en="Demo App">
                         Демо-приложение
                     </a>
                     <a href="/login.html" class="flex items-center justify-center space-x-2 border-2 border-primary text-primary px-5 py-3 rounded-xl font-semibold hover:bg-primary/10 transition">
@@ -166,7 +403,7 @@
                                 <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                             </span>
                         </a>
-                        <a href="https://t.me/MiniAppExpertDemoBot" rel="noopener" target="_blank" class="group bg-gradient-to-r from-secondary to-tgblue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 text-center transform hover:-translate-y-1">
+                        <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="group bg-gradient-to-r from-secondary to-tgblue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 text-center transform hover:-translate-y-1">
                             <span class="flex items-center justify-center">
                                 <span data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</span>
                                 <span class="ml-2 group-hover:scale-110 transition-transform">⚡</span>
@@ -201,28 +438,28 @@
                             <div id="heroCarousel" class="relative rounded-2xl h-[600px] flex items-center justify-center">
                                 <!-- Slides -->
                                 <div class="hero-slide active">
-                                    <img fetchpriority="high" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/mosca/1.png" alt="MoscaEx App" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/alfin/1.png" alt="Alfin App" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/kukushka/1.png" alt="Kukushka App" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/ulybka/1.png" alt="Улыбка Радуги App" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/mosca/2.webp" alt="MoscaEx Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/mosca/2.png" alt="MoscaEx Screen 2" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/alfin/2.webp" alt="Alfin Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/alfin/2.png" alt="Alfin Screen 2" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/kukushka/2.webp" alt="Kukushka Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/kukushka/2.png" alt="Kukushka Screen 2" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                                 <div class="hero-slide">
-                                    <img loading="lazy" src="images/cases/ulybka/2.webp" alt="Улыбка Радуги Screen 2" class="w-full h-full object-contain rounded-2xl">
+                                    <img src="images/cases/ulybka/2.png" alt="Улыбка Радуги Screen 2" class="w-full h-full object-contain rounded-2xl">
                                 </div>
                             </div>
                         </div>
@@ -238,16 +475,16 @@
             <p class="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-8" data-lang-ru="Нам доверяют" data-lang-en="Trusted by">Нам доверяют</p>
             <div class="flex flex-wrap justify-center items-center gap-12">
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="h-full object-contain logo-black">
+                    <img src="images/cases/mosca/logo.svg" alt="MoscaEx" class="h-full object-contain logo-black">
                 </div>
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="h-full object-contain logo-black">
+                    <img src="images/cases/alfin/logo.svg" alt="Alfin" class="h-full object-contain logo-black">
                 </div>
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="h-full object-contain">
+                    <img src="images/cases/kukushka/logo.svg" alt="Kukushka" class="h-full object-contain">
                 </div>
                 <div class="h-12 flex items-center grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100">
-                    <img loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="h-full object-contain">
+                    <img src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="h-full object-contain">
                 </div>
                 <div class="text-2xl font-bold text-gray-400" data-lang-ru="+ ваш бренд" data-lang-en="+ your brand">+ ваш бренд</div>
             </div>
@@ -274,9 +511,9 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-purple-50 to-blue-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/mosca/logo.svg" alt="MoscaEx" class="w-full h-full object-contain logo-black">
+                            <img src="images/cases/mosca/logo.svg" alt="MoscaEx" class="w-full h-full object-contain logo-black">
                         </div>
-                        <img loading="lazy" src="images/cases/mosca/1.webp" alt="MoscaEx App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img src="images/cases/mosca/1.png" alt="MoscaEx App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -287,7 +524,7 @@
                                 <span class="text-sm font-bold text-primary bg-mint-100 px-3 py-1 rounded-full" data-lang-ru="15K+ операций" data-lang-en="15K+ transactions">15K+ операций</span>
                                 <span class="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full" data-lang-ru="0% комиссия" data-lang-en="0% fee">0% комиссия</span>
                             </div>
-                            <a href="https://t.me/Mosca67_bot" rel="noopener" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Открыть приложение →" data-lang-en="Open app →">Открыть приложение →</a>
+                            <a href="https://t.me/Mosca67_bot" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Открыть приложение →" data-lang-en="Open app →">Открыть приложение →</a>
                         </div>
                     </div>
                 </div>
@@ -296,9 +533,9 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-blue-50 to-indigo-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/alfin/logo.svg" alt="Alfin" class="w-full h-full object-contain logo-black">
+                            <img src="images/cases/alfin/logo.svg" alt="Alfin" class="w-full h-full object-contain logo-black">
                         </div>
-                        <img loading="lazy" src="images/cases/alfin/1.webp" alt="Alfin App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img src="images/cases/alfin/1.png" alt="Alfin App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -309,7 +546,7 @@
                                 <span class="text-sm font-bold text-primary bg-mint-100 px-3 py-1 rounded-full" data-lang-ru="30+ стран" data-lang-en="30+ countries">30+ стран</span>
                                 <span class="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full" data-lang-ru="24/7 доступ" data-lang-en="24/7 access">24/7 доступ</span>
                             </div>
-                            <a href="https://t.me/AlfinExchangeBot" rel="noopener" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Открыть приложение →" data-lang-en="Open app →">Открыть приложение →</a>
+                            <a href="https://t.me/AlfinExchangeBot" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Открыть приложение →" data-lang-en="Open app →">Открыть приложение →</a>
                         </div>
                     </div>
                 </div>
@@ -318,9 +555,9 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-amber-50 to-orange-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/kukushka/logo.svg" alt="Kukushka" class="w-full h-full object-contain">
+                            <img src="images/cases/kukushka/logo.svg" alt="Kukushka" class="w-full h-full object-contain">
                         </div>
-                        <img loading="lazy" src="images/cases/kukushka/1.webp" alt="Kukushka App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img src="images/cases/kukushka/1.png" alt="Kukushka App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -331,7 +568,7 @@
                                 <span class="text-sm font-bold text-primary bg-mint-100 px-3 py-1 rounded-full" data-lang-ru="Команды" data-lang-en="Teams">Команды</span>
                                 <span class="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full" data-lang-ru="Zoom/Meet" data-lang-en="Zoom/Meet">Zoom/Meet</span>
                             </div>
-                            <a href="https://t.me/ququu_bot" rel="noopener" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Открыть приложение →" data-lang-en="Open app →">Открыть приложение →</a>
+                            <a href="https://t.me/ququu_bot" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Открыть приложение →" data-lang-en="Open app →">Открыть приложение →</a>
                         </div>
                     </div>
                 </div>
@@ -340,9 +577,9 @@
                 <div class="group backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-white/50 card-hover">
                     <div class="h-56 overflow-hidden relative bg-gradient-to-br from-pink-50 to-rose-50">
                         <div class="absolute top-4 left-4 z-10 w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-                            <img loading="lazy" src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="w-full h-full object-contain">
+                            <img src="images/cases/ulybka/logo.svg" alt="Улыбка Радуги" class="w-full h-full object-contain">
                         </div>
-                        <img loading="lazy" src="images/cases/ulybka/1.webp" alt="Улыбка Радуги App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
+                        <img src="images/cases/ulybka/1.png" alt="Улыбка Радуги App" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                     </div>
                     <div class="p-8">
@@ -353,7 +590,7 @@
                                 <span class="text-sm font-bold text-primary bg-mint-100 px-3 py-1 rounded-full" data-lang-ru="Геймификация" data-lang-en="Gamification">Геймификация</span>
                                 <span class="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full" data-lang-ru="+85% LTV" data-lang-en="+85% LTV">+85% LTV</span>
                             </div>
-                            <a href="https://www.r-ulybka.ru" rel="noopener" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Посетить сайт →" data-lang-en="Visit website →">Посетить сайт →</a>
+                            <a href="https://www.r-ulybka.ru" target="_blank" class="text-center text-sm font-semibold text-secondary hover:text-primary transition-colors" data-lang-ru="Посетить сайт →" data-lang-en="Visit website →">Посетить сайт →</a>
                         </div>
                     </div>
                 </div>
