@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
             <!-- Preload critical resources in order -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    
     <link rel="preload" href="/dist/styles.min.css" as="style">
     <link rel="preload" href="images/cases/mosca/1.webp" as="image" fetchpriority="high">
     
     <!-- Preconnect to external domains (CRITICAL for LCP) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    
     <link rel="dns-prefetch" href="https://t.me">
     
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Performance hints -->
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
@@ -54,22 +57,23 @@
 
     <!-- Critical Hero Styles -->
     <style>
-/* Match Inter font metrics */
-@font-face {
-  font-family: 'Inter-fallback';
-  src: local('Arial');
-  ascent-override: 90%;
-  descent-override: 22%;
-  line-gap-override: 0%;
-  size-adjust: 107%;
+/* System fonts - zero CLS, instant load */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* Remove all font-face declarations */
+
+
+
+
+/* Match Inter font metrics */
+
+
 /* Prevent font FOUT causing CLS */
-@font-face {
-  font-family: 'Inter';
-  font-display: block;
-  src: local('Arial'), local('Helvetica');
-}
+
 
 /* Emergency CLS fix */
 * {
@@ -146,8 +150,8 @@ body {
     
     
     <!-- Load fonts asynchronously with font-display: swap -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
+    
+    <noscript></noscript>
     
         <!-- Preload LCP image for faster rendering -->
     <link rel="preload" as="image" href="images/cases/mosca/1.webp" imagesrcset="images/cases/mosca/1.webp 1x" fetchpriority="high">
