@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата успешна! | MiniAppExpert</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#0088CC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center px-6">
+        <div class="max-w-2xl w-full">
+            <!-- Success Card -->
+            <div class="bg-white rounded-3xl shadow-2xl p-12 text-center">
+                <!-- Success Icon -->
+                <div class="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">✅ Оплата успешна!</h1>
+                <p class="text-gray-600 mb-8 text-lg">Ваш заказ принят в обработку</p>
+
+                <!-- Order Info -->
+                <div class="bg-gray-50 rounded-2xl p-6 mb-8 text-left">
+                    <div class="text-sm font-semibold text-gray-500 mb-4">Номер заказа:</div>
+                    <div class="font-mono text-xl font-bold text-primary mb-6" id="orderId">ORDER_123456</div>
+                    
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Продукт:</span>
+                            <span class="font-semibold">Mini App для недвижимости</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Сумма:</span>
+                            <span class="font-semibold">150 000 ₽</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Статус:</span>
+                            <span class="font-semibold text-green-600">✅ Оплачено</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What's Next -->
+                <div class="bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary rounded-2xl p-6 mb-8 text-left">
+                    <h2 class="font-bold text-lg mb-4">📬 Что дальше?</h2>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-2xl">⏱️</span>
+                            <div>
+                                <div class="font-semibold mb-1">Через 15 минут</div>
+                                <div class="text-gray-600">Мы отправим на ваш email данные для входа в приложение и админ-панель</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-2xl">📧</span>
+                            <div>
+                                <div class="font-semibold mb-1">Проверьте почту</div>
+                                <div class="text-gray-600">Письмо придет на <span class="font-mono text-primary" id="userEmail">your@email.com</span></div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-2xl">👤</span>
+                            <div>
+                                <div class="font-semibold mb-1">Войдите в личный кабинет</div>
+                                <div class="text-gray-600">Все данные дублируются в вашем ЛК</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-2xl">💬</span>
+                            <div>
+                                <div class="font-semibold mb-1">Поддержка 24/7</div>
+                                <div class="text-gray-600">Мы всегда на связи в Telegram</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <a href="/cabinet.html" class="block w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition">
+                        👤 Перейти в личный кабинет
+                    </a>
+                    <a href="/" class="block w-full border-2 border-gray-300 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 transition">
+                        🏠 Вернуться на главную
+                    </a>
+                </div>
+
+                <!-- Support -->
+                <div class="mt-8 text-sm text-gray-500">
+                    Возникли вопросы? <a href="https://t.me/miniappexpert" target="_blank" class="text-primary font-semibold hover:underline">Напишите нам в Telegram</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get order ID from URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('orderId');
+            
+            if (orderId) {
+                document.getElementById('orderId').textContent = orderId;
+            }
+            
+            // Get email from order
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const order = orders.find(o => o.orderId === orderId);
+            
+            if (order) {
+                document.getElementById('userEmail').textContent = order.email;
+                
+                // Update order status
+                order.status = 'paid';
+                localStorage.setItem('orders', JSON.stringify(orders));
+                
+                // Add to user's products
+                const products = JSON.parse(localStorage.getItem('userProducts') || '[]');
+                products.push({
+                    id: 'product_' + Date.now(),
+                    name: order.product,
+                    price: order.amount,
+                    purchaseDate: new Date().toISOString(),
+                    status: 'active'
+                });
+                localStorage.setItem('userProducts', JSON.stringify(products));
+            }
+        });
+    </script>
+</body>
+</html>
+
