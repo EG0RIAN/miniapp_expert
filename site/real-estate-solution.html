@@ -2,12 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-        <!-- Preconnect to external domains (CRITICAL for LCP) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://t.me">
-    
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
@@ -25,22 +20,27 @@
     <meta property="og:title" content="Mini App для недвижимости - Готовое решение">
     <meta property="og:description" content="Готовое приложение для агентств недвижимости в Telegram. Запуск за 2-3 дня.">
     
-    
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#0088CC',
+                        mint: {
+                            50: '#ECFDF5',
+                            100: '#D1FAE5',
+                            500: '#10B981',
+                            600: '#059669',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-/* GPU acceleration for animations */
-.card-hover, .hero-slide, [class*="hover:scale"], [class*="animate-"] {
-    will-change: transform;
-    transform: translateZ(0);
-}
-
-/* GPU acceleration for animations */
-.card-hover, .hero-slide, [class*="hover:scale"], [class*="animate-"] {
-    will-change: transform;
-    transform: translateZ(0);
-}
-
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -101,24 +101,6 @@
             border-radius: 1rem;
         }
     </style>
-
-    <!-- Critical Inline CSS (Above-the-fold) -->
-    <style>/* Critical CSS for above-the-fold content */
-*,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::before,::after{--tw-content:''}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}h1,h2,h3{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}button{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button{text-transform:none}button{-webkit-appearance:button;background-color:transparent;background-image:none}img,svg{display:block;vertical-align:middle}img{max-width:100%;height:auto}*,::before,::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate:;--tw-backdrop-sepia:;--tw-contain-size:;--tw-contain-layout:;--tw-contain-paint:;--tw-contain-style:}::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate</style>
-    
-    <!-- Preload critical font -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style">
-    
-    <!-- Load fonts asynchronously with font-display: swap -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"></noscript>
-    
-    <!-- Preload compiled stylesheet -->
-    <link rel="preload" href="/dist/styles.min.css" as="style">
-    
-    <!-- Load main stylesheet asynchronously -->
-    <link rel="stylesheet" href="/dist/styles.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="/dist/styles.min.css"></noscript>
 </head>
 <body class="bg-gray-50">
     
@@ -180,7 +162,7 @@
                 </div>
                 
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="https://t.me/MiniAppExpertDemoBot" rel="noopener" target="_blank" class="inline-flex items-center bg-secondary text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="https://t.me/MiniAppExpertDemoBot" target="_blank" class="inline-flex items-center bg-secondary text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 transform hover:-translate-y-1">
                         <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
@@ -211,7 +193,8 @@
                 <div class="group">
                     <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/app-catalog.png')">
                         <!-- Screenshot Image -->
-                        <img fetchpriority="high" src="/images/screenshots/real-estate/app-catalog.png" 
+                        <img 
+                            src="/images/screenshots/real-estate/app-catalog.png" 
                             alt="Каталог объектов недвижимости" 
                             class="w-full h-auto"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'800\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'24\' font-family=\'Arial\'%3E📱 Каталог%3C/text%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'14\' font-family=\'Arial\'%3EЗагрузите скриншот%3C/text%3E%3C/svg%3E'"
@@ -289,7 +272,8 @@
                 <!-- Screenshot 3 - Property Detail -->
                 <div class="group">
                     <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/app-detail.png')">
-                        <img loading="lazy" src="/images/screenshots/real-estate/app-detail.png" 
+                        <img 
+                            src="/images/screenshots/real-estate/app-detail.png" 
                             alt="Детальная страница объекта недвижимости" 
                             class="w-full h-auto"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'800\'%3E%3Crect fill=\'%23f3f4f6\' width=\'400\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'24\' font-family=\'Arial\'%3E🏠 Детали%3C/text%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'14\' font-family=\'Arial\'%3EЗагрузите скриншот%3C/text%3E%3C/svg%3E'"
@@ -343,7 +327,8 @@
                 <!-- Admin Screenshot 1 - Dashboard -->
                 <div class="group">
                     <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-dashboard.png')">
-                        <img loading="lazy" src="/images/screenshots/real-estate/admin-dashboard.png" 
+                        <img 
+                            src="/images/screenshots/real-estate/admin-dashboard.png" 
                             alt="Дашборд админ-панели" 
                             class="w-full h-auto"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E📊 Дашборд%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот админ-панели%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-dashboard.png%3C/text%3E%3C/svg%3E'"
@@ -381,7 +366,8 @@
                 <!-- Admin Screenshot 2 - Add Property -->
                 <div class="group">
                     <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-add-property.png')">
-                        <img loading="lazy" src="/images/screenshots/real-estate/admin-add-property.png" 
+                        <img 
+                            src="/images/screenshots/real-estate/admin-add-property.png" 
                             alt="Добавление объекта недвижимости" 
                             class="w-full h-auto"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%230088CC\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E➕ Добавление объекта%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот формы%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-add-property.png%3C/text%3E%3C/svg%3E'"
@@ -422,7 +408,8 @@
                 <!-- Admin Screenshot 3 - Requests -->
                 <div class="group">
                     <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-requests.png')">
-                        <img loading="lazy" src="/images/screenshots/real-estate/admin-requests.png" 
+                        <img 
+                            src="/images/screenshots/real-estate/admin-requests.png" 
                             alt="Управление заявками" 
                             class="w-full h-auto"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%2310B981\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E📬 Заявки%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот заявок%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-requests.png%3C/text%3E%3C/svg%3E'"
@@ -460,7 +447,8 @@
                 <!-- Admin Screenshot 4 - Analytics -->
                 <div class="group">
                     <div class="relative overflow-hidden rounded-3xl shadow-2xl border-4 border-gray-200 bg-white cursor-pointer transform transition-all duration-300 hover:-translate-y-2 hover:shadow-3xl" onclick="openLightbox('/images/screenshots/real-estate/admin-analytics.png')">
-                        <img loading="lazy" src="/images/screenshots/real-estate/admin-analytics.png" 
+                        <img 
+                            src="/images/screenshots/real-estate/admin-analytics.png" 
                             alt="Аналитика и статистика" 
                             class="w-full h-auto"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1200\' height=\'800\'%3E%3Crect fill=\'%23f9fafb\' width=\'1200\' height=\'800\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' text-anchor=\'middle\' fill=\'%23f59e0b\' font-size=\'32\' font-family=\'Arial\' font-weight=\'bold\'%3E📈 Аналитика%3C/text%3E%3Ctext x=\'50%25\' y=\'52%25\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'16\' font-family=\'Arial\'%3EЗагрузите скриншот аналитики%3C/text%3E%3Ctext x=\'50%25\' y=\'58%25\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'14\' font-family=\'Arial\'%3Eadmin-analytics.png%3C/text%3E%3C/svg%3E'"
@@ -680,7 +668,7 @@
                                         class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary transition cursor-pointer bg-gray-50"
                                     >
                                         <div id="logoPreview" class="hidden mb-4">
-                                            <img loading="lazy" id="logoImage" src="" alt="Logo preview" class="max-h-32 mx-auto rounded-lg">
+                                            <img id="logoImage" src="" alt="Logo preview" class="max-h-32 mx-auto rounded-lg">
                                         </div>
                                         <div id="logoPlaceholder">
                                             <div class="text-5xl mb-3">🏢</div>
@@ -898,17 +886,17 @@
 
             <!-- Benefits -->
             <div class="mt-12 grid md:grid-cols-3 gap-6 text-center">
-                <div class="bg-white rounded-2xl p-6 shadow-lg" style="contain: layout" style="contain: layout">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
                     <div class="text-4xl mb-3">⚡</div>
                     <h4 class="font-bold text-lg mb-2">Мгновенный запуск</h4>
                     <p class="text-sm text-gray-600">Приложение готово сразу после оплаты</p>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-lg" style="contain: layout" style="contain: layout">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
                     <div class="text-4xl mb-3">🎨</div>
                     <h4 class="font-bold text-lg mb-2">Ваш брендинг</h4>
                     <p class="text-sm text-gray-600">Цвета и название вашего агентства</p>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-lg" style="contain: layout" style="contain: layout">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
                     <div class="text-4xl mb-3">🔧</div>
                     <h4 class="font-bold text-lg mb-2">Полный контроль</h4>
                     <p class="text-sm text-gray-600">Админ-панель для управления</p>
@@ -937,7 +925,7 @@
 
     <!-- Lightbox -->
     <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-        <img loading="lazy" id="lightbox-img" src="" alt="">
+        <img id="lightbox-img" src="" alt="">
     </div>
 
     <script>
