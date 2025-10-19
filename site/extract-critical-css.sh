@@ -1,3 +1,9 @@
+#!/bin/bash
+
+echo "📐 Extracting critical CSS for above-the-fold content..."
+
+# Extract only the most critical classes
+cat > dist/critical.css << 'EOF'
 /* Minimal critical CSS - only above-the-fold */
 *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid}
 html{line-height:1.5;-webkit-text-size-adjust:100%}
@@ -19,3 +25,8 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica
 .w-7{width:1.75rem}.h-7{height:1.75rem}.w-8{width:2rem}.h-8{height:2rem}
 .gradient-text{background:linear-gradient(135deg,#10B981 0%,#0088CC 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 @media(min-width:768px){.md\:flex{display:flex}.md\:hidden{display:hidden}.md\:px-6{padding-left:1.5rem;padding-right:1.5rem}.md\:py-4{padding-top:1rem;padding-bottom:1rem}.md\:text-2xl{font-size:1.5rem}.md\:w-8{width:2rem}.md\:h-8{height:2rem}}
+EOF
+
+echo "✅ Critical CSS extracted ($(wc -c < dist/critical.css) bytes)"
+echo "📊 Full CSS: $(wc -c < dist/styles.min.css) bytes"
+
