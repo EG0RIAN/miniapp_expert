@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const axios = require('axios');
 const PocketBase = require('pocketbase/cjs');
+const fs = require('fs');
+const path = require('path');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +30,81 @@ const PB_ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || '';
 const PB_ADMIN_PASSWORD = process.env.PB_ADMIN_PASSWORD || '';
 const pb = new PocketBase(PB_URL);
 
+// Mailer
+const SMTP_HOST = process.env.SMTP_HOST || '';
+const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const MAIL_FROM = process.env.MAIL_FROM || 'MiniAppExpert <no-reply@miniapp.expert>';
+
+const mailTransport = (SMTP_HOST && SMTP_USER && SMTP_PASS)
+  ? nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS }
+    })
+  : null;
+
+async function sendWelcomeEmail({ to, name, product, orderId, magicToken }) {
+    if (!mailTransport || !to) return false;
+    const magicUrl = `https://miniapp.expert/auth/magic?token=${encodeURIComponent(magicToken)}&email=${encodeURIComponent(to)}&name=${encodeURIComponent(name || 'Клиент')}&product=${encodeURIComponent(product || 'Mini App')}`;
+    const html = `
+      <div style="font-family:Inter,Arial,sans-serif;background:#f6f9fc;padding:24px">
+        <div style="max-width:640px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #eee">
+          <div style="padding:24px 24px 0">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:40px;height:40px;background:#10B981;border-radius:12px;display:flex;align-items:center;justify-content:center">
+                <span style="font-size:20px;color:#fff">⚡</span>
+              </div>
+              <div style="font-size:18px;font-weight:800;color:#0b1220">MiniAppExpert</div>
+            </div>
+            <h1 style="margin:24px 0 8px;font-size:22px;color:#0b1220">Оплата принята — доступ в личный кабинет</h1>
+            <p style="margin:0 0 12px;color:#374151">Здравствуйте${name ? `, ${name}` : ''}! Спасибо за оплату заказа <b>${product || 'Продукт'}</b>.</p>
+            <p style="margin:0 0 16px;color:#374151">Номер заказа: <b>${orderId}</b></p>
+          </div>
+          <div style="padding:0 24px 24px">
+            <a href="${magicUrl}" style="display:inline-block;background:#10B981;color:#fff;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:700">Войти в личный кабинет</a>
+            <p style="margin:12px 0 0;font-size:12px;color:#6b7280">Кнопка содержит одноразовую ссылку авторизации и действует 24 часа.</p>
+          </div>
+          <hr style="border:none;border-top:1px solid #eee;margin:0"/>
+          <div style="padding:16px 24px;background:#fafafa">
+            <div style="font-weight:700;margin-bottom:6px;color:#111827">Что дальше?</div>
+            <ul style="margin:0;padding-left:18px;color:#374151">
+              <li>Мы добавили продукт в ваш кабинет со статусом «Настройка»</li>
+              <li>В течение 1–2 рабочих дней мы свяжемся для уточнения деталей</li>
+              <li>Фискальный чек отправлен банком на вашу почту</li>
+            </ul>
+          </div>
+        </div>
+        <p style="text-align:center;margin:12px 0 0;color:#9ca3af;font-size:12px">© ${new Date().getFullYear()} MiniAppExpert</p>
+      </div>`;
+    try {
+        await mailTransport.sendMail({ from: MAIL_FROM, to, subject: 'Оплата принята — доступ в личный кабинет', html });
+        return true;
+    } catch (e) {
+        console.error('Mail send error:', e.message);
+        return false;
+    }
+}
+
+function createMagicToken(payload) {
+    const data = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + 24*60*60*1000 })).toString('base64url');
+    const sig = crypto.createHash('sha256').update(data + (process.env.MAGIC_SECRET || 'secret')).digest('base64url');
+    return `${data}.${sig}`;
+}
+
+function verifyMagicToken(token) {
+    const [data, sig] = String(token || '').split('.');
+    const expected = crypto.createHash('sha256').update(data + (process.env.MAGIC_SECRET || 'secret')).digest('base64url');
+    if (sig !== expected) return null;
+    try {
+        const payload = JSON.parse(Buffer.from(data, 'base64url').toString('utf8'));
+        if (Date.now() > payload.exp) return null;
+        return payload;
+    } catch { return null; }
+}
+
 async function ensurePbAuth() {
     try {
         if (!pb.authStore.isValid && PB_ADMIN_EMAIL && PB_ADMIN_PASSWORD) {
@@ -36,6 +114,36 @@ async function ensurePbAuth() {
     } catch (e) {
         console.error('PocketBase auth error:', e.message);
         return false;
+    }
+}
+
+// Fallback storage helpers (JSONL files)
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const EVENTS_FALLBACK = path.join(DATA_DIR, 'events.log');
+const CARTS_FALLBACK = path.join(DATA_DIR, 'abandoned_carts.log');
+
+function safeMkdir(dir) {
+    try { fs.mkdirSync(dir, { recursive: true }); } catch (_) {}
+}
+
+function appendJsonLine(file, obj) {
+    try {
+        safeMkdir(DATA_DIR);
+        fs.appendFileSync(file, JSON.stringify(obj) + '\n', 'utf8');
+    } catch (e) {
+        console.error('Fallback write error:', e.message);
+    }
+}
+
+function readJsonLines(file, limit = 200) {
+    try {
+        if (!fs.existsSync(file)) return [];
+        const lines = fs.readFileSync(file, 'utf8').trim().split('\n');
+        const recent = lines.slice(-limit);
+        return recent.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean).reverse();
+    } catch (e) {
+        console.error('Fallback read error:', e.message);
+        return [];
     }
 }
 
@@ -201,6 +309,21 @@ app.post('/api/payment/webhook', async (req, res) => {
         
         if (Status === 'CONFIRMED') {
             console.log(`Payment confirmed: ${OrderId}, Amount: ${Amount / 100}₽`);
+
+            // Fetch order for email details
+            try {
+                const list = await pb.collection('orders').getList(1, 1, { filter: `orderId = "${OrderId}"` });
+                const order = list.items?.[0];
+                const email = order?.customer?.email;
+                const name = order?.customer?.name || order?.customer?.Name || 'Клиент';
+                const product = order?.product?.description || 'Продукт';
+                if (email) {
+                    const magicToken = createMagicToken({ email, name, orderId: OrderId, product });
+                    await sendWelcomeEmail({ to: email, name, product, orderId: OrderId, magicToken });
+                }
+            } catch (e) {
+                console.error('Webhook email error:', e.message);
+            }
         }
         
         // Always respond with OK to T-Bank
@@ -217,7 +340,10 @@ app.post('/api/events', async (req, res) => {
     try {
         const authed = await ensurePbAuth();
         if (authed) {
-            await pb.collection('events').create(req.body);
+            try { await pb.collection('events').create(req.body); }
+            catch (e) { console.error('PB events create error:', e.message); appendJsonLine(EVENTS_FALLBACK, { ...req.body, created: new Date().toISOString() }); }
+        } else {
+            appendJsonLine(EVENTS_FALLBACK, { ...req.body, created: new Date().toISOString() });
         }
         res.json({ success: true });
     } catch (e) {
@@ -250,7 +376,10 @@ app.post('/api/cart/track', async (req, res) => {
                 }
             } catch (e) {
                 console.error('PB cart track error:', e.message);
+                appendJsonLine(CARTS_FALLBACK, { ...req.body, lastActivity: new Date().toISOString() });
             }
+        } else {
+            appendJsonLine(CARTS_FALLBACK, { ...req.body, lastActivity: new Date().toISOString() });
         }
         res.json({ success: true });
     } catch (e) {
@@ -259,13 +388,91 @@ app.post('/api/cart/track', async (req, res) => {
     }
 });
 
+// List payments for a user (by email or phone)
+app.get('/api/payments', async (req, res) => {
+	try {
+		const { email, phone } = req.query;
+		const authed = await ensurePbAuth();
+		if (!authed) return res.json({ success: true, items: [] });
+
+		// Fetch recent orders and filter on server side by customer email/phone
+		// (PocketBase JSON field filtering support may vary; server-side filter is safer here)
+		const result = await pb.collection('orders').getList(1, 200, { sort: '-created' });
+		const items = (result.items || []).filter((rec) => {
+			const recEmail = rec.customer?.email || rec.customer?.Email || '';
+			const recPhone = rec.customer?.phone || rec.customer?.Phone || '';
+			const byEmail = email ? String(recEmail).toLowerCase() === String(email).toLowerCase() : true;
+			const byPhone = phone ? String(recPhone) === String(phone) : true;
+			return byEmail && byPhone;
+		}).map((rec) => ({
+			orderId: rec.orderId,
+			paymentId: rec.payment?.paymentId || rec.payment?.PaymentId || null,
+			description: rec.product?.description || rec.product?.Description || 'Оплата заказа',
+			amount: rec.amount,
+			status: rec.status || rec.payment?.status || 'UNKNOWN',
+			createdAt: rec.created,
+		}));
+
+		res.json({ success: true, items });
+	} catch (e) {
+		console.error('Payments list error:', e.message);
+		res.status(500).json({ success: false, items: [], error: e.message });
+	}
+});
+
+// Generate a simple receipt (HTML) for a payment
+app.get('/api/payment/receipt', async (req, res) => {
+	try {
+		const { paymentId } = req.query;
+		if (!paymentId) return res.status(400).json({ success: false, error: 'paymentId is required' });
+
+		const authed = await ensurePbAuth();
+		if (!authed) return res.status(403).json({ success: false, error: 'unauthorized' });
+
+		// Find order by paymentId
+		let order = null;
+		try {
+			const list = await pb.collection('orders').getList(1, 1, { filter: `payment.paymentId = "${paymentId}"` });
+			order = list.items?.[0] || null;
+		} catch (e) {
+			console.error('PB receipt lookup error:', e.message);
+		}
+
+		if (!order) {
+			return res.status(404).json({ success: false, error: 'Order not found for this paymentId' });
+		}
+
+		const amountRub = (Number(order.amount) || 0).toLocaleString('ru-RU');
+		const created = new Date(order.created).toLocaleString('ru-RU');
+		const description = order.product?.description || 'Оплата заказа';
+		const email = order.customer?.email || '';
+		const phone = order.customer?.phone || '';
+		const status = order.status || order.payment?.status || 'UNKNOWN';
+
+		const receiptHtml = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Чек по платежу ${paymentId}</title><style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;color:#111}h1{font-size:20px;margin:0 0 12px}table{width:100%;border-collapse:collapse;margin-top:16px}td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}.total{font-weight:700}.muted{color:#666;font-size:12px}.badge{display:inline-block;padding:4px 8px;border-radius:8px;background:#eef7ee;color:#137333;font-size:12px;font-weight:700}.badge.gray{background:#f2f2f2;color:#444}</style></head><body><h1>Кассовый чек (нефискальный)</h1><div class="muted">Этот чек сформирован системой MiniAppExpert на основании данных банка. Официальный фискальный чек отправлен на вашу почту банком/ОФД.</div><table><tr><th>Платеж</th><td>${paymentId}</td></tr><tr><th>Заказ</th><td>${order.orderId}</td></tr><tr><th>Дата</th><td>${created}</td></tr><tr><th>Описание</th><td>${description}</td></tr><tr><th>Покупатель</th><td>${email || phone || '—'}</td></tr><tr><th>Статус</th><td><span class="badge ${status === 'CONFIRMED' || status === 'AUTHORIZED' ? '' : 'gray'}">${status}</span></td></tr><tr><th class="total">Сумма</th><td class="total">${amountRub} ₽</td></tr></table><p class="muted">Для получения фискального чека проверьте электронную почту, указанную при оплате${email ? ` (${email})` : ''}. Чек формируется и отправляется банком согласно 54‑ФЗ.</p></body></html>`;
+
+		res.json({ success: true, orderId: order.orderId, paymentId, html: receiptHtml });
+	} catch (e) {
+		console.error('Receipt error:', e.message);
+		res.status(500).json({ success: false, error: e.message });
+	}
+});
+
 // Admin: list events (last 200)
 app.get('/api/admin/events', async (req, res) => {
     try {
         const authed = await ensurePbAuth();
-        if (!authed) return res.json({ success: true, items: [] });
-        const result = await pb.collection('events').getList(1, 200, { sort: '-created' });
-        res.json({ success: true, items: result.items });
+        if (authed) {
+            try {
+                const result = await pb.collection('events').getList(1, 200, { sort: '-created' });
+                return res.json({ success: true, items: result.items });
+            } catch (e) {
+                console.error('PB events list error:', e.message);
+            }
+        }
+        // Fallback
+        const fallback = readJsonLines(EVENTS_FALLBACK, 200);
+        res.json({ success: true, items: fallback });
     } catch (e) {
         console.error('Admin events error:', e.message);
         res.status(500).json({ success: false, items: [] });
@@ -276,9 +483,17 @@ app.get('/api/admin/events', async (req, res) => {
 app.get('/api/admin/abandoned', async (req, res) => {
     try {
         const authed = await ensurePbAuth();
-        if (!authed) return res.json({ success: true, items: [] });
-        const result = await pb.collection('abandoned_carts').getList(1, 200, { sort: '-updated' });
-        res.json({ success: true, items: result.items });
+        if (authed) {
+            try {
+                const result = await pb.collection('abandoned_carts').getList(1, 200, { sort: '-updated' });
+                return res.json({ success: true, items: result.items });
+            } catch (e) {
+                console.error('PB abandoned list error:', e.message);
+            }
+        }
+        // Fallback
+        const fallback = readJsonLines(CARTS_FALLBACK, 200);
+        res.json({ success: true, items: fallback });
     } catch (e) {
         console.error('Admin abandoned error:', e.message);
         res.status(500).json({ success: false, items: [] });
@@ -304,5 +519,22 @@ app.listen(PORT, () => {
     console.log(`   POST /api/payment/webhook - T-Bank webhook`);
     console.log(`   GET  /api/health - Health check`);
     console.log(`\n💳 T-Bank Terminal: ${TBANK_CONFIG.terminalKey}`);
+});
+
+// Magic auth landing (served as minimal HTML to set localStorage and redirect)
+app.get('/auth/magic', (req, res) => {
+    try {
+        const token = req.query.token;
+        const payload = verifyMagicToken(token);
+        if (!payload) {
+            return res.status(400).send('<meta charset="utf-8"><div style="font-family:Arial;padding:24px">Ссылка недействительна или истекла.</div>');
+        }
+        const { email, name, product } = payload;
+        const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Вход...</title></head><body><script>(function(){try{localStorage.setItem('userAuth','true');localStorage.setItem('userEmail', ${JSON.stringify(email)});localStorage.setItem('userName', ${JSON.stringify(name)});localStorage.setItem('userRegistrationDate', new Date().toISOString());var products=JSON.parse(localStorage.getItem('userProducts')||'[]');var has=products.some(function(p){return p && p.slug==='paid-product'});if(!has){products.push({slug:'paid-product',name:${JSON.stringify(product || 'Оплаченный продукт')},status:'Настройка',date:new Date().toLocaleDateString('ru-RU'),icon:'📱',appLink:'#',adminLink:'#'});localStorage.setItem('userProducts', JSON.stringify(products));}window.location.replace('/cabinet.html');}catch(e){document.write('<meta charset=\'utf-8\'><div style=\'font-family:Arial;padding:24px\'>Ошибка авторизации. Откройте личный кабинет вручную.</div>');}})();</script></body></html>`;
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+    } catch (e) {
+        res.status(500).send('<meta charset="utf-8"><div style="font-family:Arial;padding:24px">Ошибка. Попробуйте позднее.</div>');
+    }
 });
 
