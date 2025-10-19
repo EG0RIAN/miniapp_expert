@@ -3,8 +3,8 @@
 
 class TBankPayment {
     constructor(terminalKey, password) {
-        this.terminalKey = terminalKey || '1760898345949DEMO'; // Тестовый терминал T-Bank
-        this.password = password || 'm$4Hgg1ASpPUVfhj'; // Тестовый пароль
+        this.terminalKey = terminalKey || '';
+        this.password = password || '';
         this.apiUrl = 'https://securepay.tinkoff.ru/v2';
     }
 
@@ -173,8 +173,8 @@ class TBankPayment {
     }
 }
 
-// Initialize T-Bank payment handler with real test terminal
-const tbank = new TBankPayment('1760898345949DEMO', 'm$4Hgg1ASpPUVfhj');
+// Initialize T-Bank payment handler (keys should be provided server-side)
+const tbank = new TBankPayment('', '');
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {

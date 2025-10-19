@@ -9,7 +9,7 @@ const fixedPaymentScript = `
     <script src="tbank-payment.js"></script>
     <script>
         // Debug mode
-        const DEBUG = true;
+        const DEBUG = false;
         
         // Get order data from URL or localStorage
         function getOrderData() {

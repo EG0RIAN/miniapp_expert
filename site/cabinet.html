@@ -213,35 +213,10 @@
                                     <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Чек</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-sm">15.10.2025</td>
-                                    <td class="px-6 py-4 text-sm font-semibold">Mini App для недвижимости</td>
-                                    <td class="px-6 py-4 text-sm font-bold text-primary">150 000₽</td>
-                                    <td class="px-6 py-4">
-                                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                                            Оплачено
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button class="text-secondary hover:text-secondary/80 font-semibold text-sm">
-                                            📄 Скачать
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-sm">15.10.2025</td>
-                                    <td class="px-6 py-4 text-sm">Подписка: Базовая поддержка</td>
-                                    <td class="px-6 py-4 text-sm font-bold">5 000₽</td>
-                                    <td class="px-6 py-4">
-                                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                                            Оплачено
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button class="text-secondary hover:text-secondary/80 font-semibold text-sm">
-                                            📄 Скачать
-                                        </button>
+                            <tbody id="paymentsTableBody">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                                        Загрузка платежей...
                                     </td>
                                 </tr>
                             </tbody>
@@ -253,7 +228,7 @@
                 <div class="mt-6 bg-gradient-to-r from-mint-50 to-blue-50 rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <span class="text-lg font-semibold text-gray-700">Всего потрачено:</span>
-                        <span class="text-3xl font-bold text-primary">155 000₽</span>
+                        <span id="paymentsTotal" class="text-3xl font-bold text-primary">0 ₽</span>
                     </div>
                 </div>
             </section>

@@ -88,7 +88,7 @@ function loadProducts() {
     const container = document.getElementById('productsList');
     
     if (products.length === 0) {
-        // Show demo product if no products
+        // Nothing to render yet
         return;
     }
     
@@ -116,6 +116,87 @@ function loadProducts() {
             </div>
         </div>
     `).join('');
+}
+
+// Format helpers
+function formatAmountRub(amount) {
+    try { return Number(amount || 0).toLocaleString('ru-RU') + ' ₽'; } catch (_) { return amount + ' ₽'; }
+}
+
+function formatDate(dateStr) {
+    try { return new Date(dateStr).toLocaleDateString('ru-RU'); } catch (_) { return dateStr || '-'; }
+}
+
+function renderStatusBadge(status) {
+    const ok = status === 'CONFIRMED' || status === 'AUTHORIZED' || status === 'PAID' || status === 'CONFIRMING';
+    const cls = ok ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700';
+    const text = ok ? 'Оплачено' : (status || '—');
+    return `<span class="${cls} px-3 py-1 rounded-full text-xs font-bold">${text}</span>`;
+}
+
+// Load payments from backend
+async function loadPayments() {
+    const tbody = document.getElementById('paymentsTableBody');
+    if (!tbody) return;
+
+    try {
+        const email = localStorage.getItem('userEmail') || '';
+        const phone = localStorage.getItem('userPhone') || '';
+        const params = new URLSearchParams();
+        if (email) params.append('email', email);
+        if (phone) params.append('phone', phone);
+
+        const res = await fetch(`/api/payments?${params.toString()}`);
+        const data = await res.json();
+
+        const items = Array.isArray(data.items) ? data.items : [];
+        if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500">Платежей пока нет</td></tr>`;
+            document.getElementById('paymentsTotal').textContent = '0 ₽';
+            return;
+        }
+
+        let total = 0;
+        tbody.innerHTML = items.map(p => {
+            total += Number(p.amount || 0);
+            const receiptBtn = p.paymentId ? `<button class="text-secondary hover:text-secondary/80 font-semibold text-sm" onclick="downloadReceipt('${p.paymentId}')">📄 Скачать</button>` : '<span class="text-gray-400 text-sm">—</span>';
+            return `
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm">${formatDate(p.createdAt)}</td>
+                    <td class="px-6 py-4 text-sm font-semibold">${p.description || 'Оплата заказа'}</td>
+                    <td class="px-6 py-4 text-sm font-bold text-primary">${formatAmountRub((p.amount || 0))}</td>
+                    <td class="px-6 py-4">${renderStatusBadge(p.status)}</td>
+                    <td class="px-6 py-4">${receiptBtn}</td>
+                </tr>`;
+        }).join('');
+
+        document.getElementById('paymentsTotal').textContent = formatAmountRub(total);
+    } catch (e) {
+        console.error('Load payments error:', e);
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-red-500">Ошибка загрузки платежей</td></tr>`;
+    }
+}
+
+// Download receipt via backend
+async function downloadReceipt(paymentId) {
+    try {
+        const res = await fetch(`/api/payment/receipt?paymentId=${encodeURIComponent(paymentId)}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Receipt not available');
+
+        const blob = new Blob([data.html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `receipt_${paymentId}.html`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error('Receipt download error:', e);
+        alert('Чек пока недоступен. Проверьте почту — фискальный чек отправляется банком.');
+    }
 }
 
 // Open admin panel
@@ -246,6 +327,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load products
     loadProducts();
+
+    // Load payments when opening payments section or on hash
+    if (window.location.hash === '#payments') {
+        showSection('payments');
+        loadPayments();
+    }
+
+    // Observe sidebar clicks to trigger loadPayments
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (link.dataset.section === 'payments') {
+                setTimeout(loadPayments, 0);
+            }
+        });
+    });
     
     // Load partners data if on partners section
     if (window.location.hash === '#partners') {
@@ -253,25 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadPartnersData();
     }
     
-    // Demo referrals data (for testing)
-    if (!localStorage.getItem('userReferrals')) {
-        localStorage.setItem('userReferrals', JSON.stringify([
-            {
-                name: 'Иван Иванов',
-                email: 'ivan@example.com',
-                registrationDate: '15.10.2025',
-                purchased: true,
-                earned: 5000
-            },
-            {
-                name: 'Петр Петров',
-                email: 'petr@example.com',
-                registrationDate: '17.10.2025',
-                purchased: false,
-                earned: 0
-            }
-        ]));
-    }
+    // No demo referrals seeding
 });
 
 

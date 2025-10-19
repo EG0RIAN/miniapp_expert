@@ -16,7 +16,7 @@ npm install
 cp env.example .env
 
 # Или создайте вручную:
-echo "TBANK_TERMINAL_KEY=1760898345949DEMO" > .env
+echo "TBANK_TERMINAL_KEY=YOUR_KEY" > .env
 echo "TBANK_PASSWORD=m\$4Hgg1ASpPUVfhj" >> .env
 echo "PORT=3001" >> .env
 ```
@@ -48,7 +48,7 @@ chmod +x deploy-api.sh
   "amount": 150000,
   "orderId": "ORDER_123",
   "description": "Mini App для недвижимости",
-  "email": "client@example.com",
+  "email": "user@domain.com",
   "phone": "+79991234567",
   "name": "Иван Иванов"
 }
@@ -266,8 +266,8 @@ curl https://miniapp.expert/api/health
 ## 📝 Environment Variables
 
 ```bash
-TBANK_TERMINAL_KEY=1760898345949DEMO  # Терминал T-Bank
-TBANK_PASSWORD=m$4Hgg1ASpPUVfhj      # Пароль терминала
+TBANK_TERMINAL_KEY=YOUR_KEY  # Терминал T-Bank
+TBANK_PASSWORD=YOUR_PASSWORD # Пароль терминала
 PORT=3001                             # Порт API
 NODE_ENV=production                   # Окружение
 ```

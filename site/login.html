@@ -104,12 +104,7 @@
                 </button>
             </form>
 
-            <!-- Demo credentials -->
-            <div class="mt-6 p-4 bg-green-50 border-2 border-green-200 rounded-xl">
-                <p class="text-sm font-semibold text-green-800 mb-2">🔑 Тестовый доступ:</p>
-                <p class="text-xs text-green-700">Email: <code class="bg-green-100 px-2 py-1 rounded">client@example.com</code></p>
-                <p class="text-xs text-green-700">Пароль: <code class="bg-green-100 px-2 py-1 rounded">demo123</code></p>
-            </div>
+            
         </div>
 
         <!-- Register Form -->
@@ -225,15 +220,7 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
-            // Demo login
-            if (email === 'client@example.com' && password === 'demo123') {
-                localStorage.setItem('userAuth', 'true');
-                localStorage.setItem('userEmail', email);
-                localStorage.setItem('userName', 'Демо Клиент');
-                window.location.href = '/cabinet.html';
-            } else {
-                alert('❌ Неверный email или пароль\n\nИспользуйте тестовые данные:\nclient@example.com / demo123');
-            }
+            alert('Авторизация через email/пароль отключена. Используйте ссылку из письма после оплаты.');
         }
 
         function handleRegister(e) {

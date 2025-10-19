@@ -48,7 +48,7 @@
                         type="text" 
                         id="username" 
                         class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
-                        placeholder="admin@miniapp.expert"
+                        placeholder="email@example.com"
                         required
                     >
                 </div>
@@ -85,12 +85,7 @@
                 </button>
             </form>
 
-            <!-- Demo credentials -->
-            <div class="mt-6 p-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
-                <p class="text-sm font-semibold text-yellow-800 mb-2">🔑 Тестовый доступ:</p>
-                <p class="text-xs text-yellow-700">Логин: <code class="bg-yellow-100 px-2 py-1 rounded">admin</code></p>
-                <p class="text-xs text-yellow-700">Пароль: <code class="bg-yellow-100 px-2 py-1 rounded">admin123</code></p>
-            </div>
+            
         </div>
 
         <!-- Error message -->
@@ -114,26 +109,7 @@
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // Simple authentication (в продакшене использовать реальную аутентификацию)
-            if (username === 'admin' && password === 'admin123') {
-                // Сохраняем токен в localStorage
-                localStorage.setItem('adminAuth', 'true');
-                localStorage.setItem('adminUser', username);
-                localStorage.setItem('adminLoginTime', new Date().toISOString());
-                
-                // Перенаправляем в админку
-                window.location.href = '/admin.html';
-            } else {
-                // Показываем ошибку
-                document.getElementById('errorMessage').classList.remove('hidden');
-                setTimeout(() => {
-                    document.getElementById('errorMessage').classList.add('hidden');
-                }, 3000);
-            }
+            alert('Вход в админ‑панель по логину/паролю отключен. Используйте защищенный доступ.');
         });
 
         // Проверяем, если пользователь уже авторизован

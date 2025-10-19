@@ -6,9 +6,9 @@ echo ""
 
 expect << 'EOF'
 set timeout 300
-spawn ssh root@85.198.110.66
+spawn ssh root@YOUR_SERVER_IP
 expect "password:"
-send "h421-5882p7vUqkFn+EF\r"
+send "YOUR_SERVER_PASSWORD\r"
 expect "# "
 
 # Go to project directory
@@ -33,10 +33,16 @@ expect "# "
 
 # Create .env file
 send "cat > .env << 'ENVEOF'
-TBANK_TERMINAL_KEY=1760898345949DEMO
-TBANK_PASSWORD=m\$4Hgg1ASpPUVfhj
+TBANK_TERMINAL_KEY=
+TBANK_PASSWORD=
 PORT=3001
 NODE_ENV=production
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=MiniAppExpert <no-reply@miniapp.expert>
+MAGIC_SECRET=
 ENVEOF\r"
 expect "# "
 
