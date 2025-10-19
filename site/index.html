@@ -54,6 +54,23 @@
 
     <!-- Critical Hero Styles -->
     <style>
+/* Match Inter font metrics */
+@font-face {
+  font-family: 'Inter-fallback';
+  src: local('Arial');
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+  size-adjust: 107%;
+}
+
+/* Prevent font FOUT causing CLS */
+@font-face {
+  font-family: 'Inter';
+  font-display: block;
+  src: local('Arial'), local('Helvetica');
+}
+
 /* Emergency CLS fix */
 * {
     box-sizing: border-box;
@@ -87,6 +104,25 @@ section, div, article {
     contain: layout;
 }
 
+
+/* Skeleton to prevent CLS */
+.hero-title, .hero-text {
+    min-height: 60px;
+    display: block;
+}
+
+/* Reserve space for hero content */
+.hero-section {
+    height: 700px;
+    max-height: 700px;
+    overflow: hidden;
+}
+
+/* Prevent font swap CLS */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
 </style>
     
     <!-- Critical Hero Styles -->
@@ -107,7 +143,7 @@ section, div, article {
 *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::before,::after{--tw-content:''}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}h1,h2,h3{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}button{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button{text-transform:none}button{-webkit-appearance:button;background-color:transparent;background-image:none}img,svg{display:block;vertical-align:middle}img{max-width:100%;height:auto}*,::before,::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate:;--tw-backdrop-sepia:;--tw-contain-size:;--tw-contain-layout:;--tw-contain-paint:;--tw-contain-style:}::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x:;--tw-pan-y:;--tw-pinch-zoom:;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position:;--tw-gradient-via-position:;--tw-gradient-to-position:;--tw-ordinal:;--tw-slashed-zero:;--tw-numeric-figure:;--tw-numeric-spacing:;--tw-numeric-fraction:;--tw-ring-inset:;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur:;--tw-brightness:;--tw-contrast:;--tw-grayscale:;--tw-hue-rotate:;--tw-invert:;--tw-saturate:;--tw-sepia:;--tw-drop-shadow:;--tw-backdrop-blur:;--tw-backdrop-brightness:;--tw-backdrop-contrast:;--tw-backdrop-grayscale:;--tw-backdrop-hue-rotate:;--tw-backdrop-invert:;--tw-backdrop-opacity:;--tw-backdrop-saturate</style>
     
     <!-- Preload critical font -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" as="style">
+    
     
     <!-- Load fonts asynchronously with font-display: swap -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
@@ -220,19 +256,19 @@ section, div, article {
                         <span class="font-bold text-primary" data-lang-ru="Рост конверсии до 60%, запуск от 2 недель." data-lang-en="Up to 60% conversion growth, launch from 2 weeks.">Рост конверсии до 60%, запуск от 2 недель.</span>
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                        <a href="#contact" class="group bg-gradient-to-r from-primary to-mint-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25 transition-all duration-300 text-center transform hover:-translate-y-1">
+                        <a href="#contact" class="group bg-gradient-to-r from-primary to-mint-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-primary/25  text-center transform hover:-translate-y-1">
                             <span class="flex items-center justify-center">
                                 <span data-lang-ru="Обсудить проект" data-lang-en="Discuss Project">Обсудить проект</span>
-                                <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                                <span class="ml-2  transition-transform">→</span>
                             </span>
                         </a>
-                        <a href="https://t.me/MiniAppExpertDemoBot" rel="noopener" target="_blank" class="group bg-gradient-to-r from-secondary to-tgblue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25 transition-all duration-300 text-center transform hover:-translate-y-1">
+                        <a href="https://t.me/MiniAppExpertDemoBot" rel="noopener" target="_blank" class="group bg-gradient-to-r from-secondary to-tgblue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-secondary/25  text-center transform hover:-translate-y-1">
                             <span class="flex items-center justify-center">
                                 <span data-lang-ru="Демо-приложение" data-lang-en="Demo App">Демо-приложение</span>
-                                <span class="ml-2 group-hover:scale-110 transition-transform">⚡</span>
+                                <span class="ml-2  transition-transform">⚡</span>
                             </span>
                         </a>
-                        <a href="#cases" class="group bg-white/80 backdrop-blur-sm text-primary border-2 border-primary/20 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white hover:border-primary hover:shadow-lg transition-all duration-300 text-center">
+                        <a href="#cases" class="group bg-white/80 backdrop-blur-sm text-primary border-2 border-primary/20 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white hover:border-primary hover:shadow-lg  text-center">
                             <span data-lang-ru="Смотреть кейсы" data-lang-en="View Cases">Смотреть кейсы</span>
                         </a>
                     </div>
@@ -240,15 +276,15 @@ section, div, article {
                     <!-- Stats -->
                     <div class="grid grid-cols-3 gap-6 mt-12 pt-12 border-t border-gray-200/50">
                         <div class="text-center group">
-                            <div class="text-4xl font-black gradient-text group-hover:scale-110 transition-transform duration-300">50M+</div>
+                            <div class="text-4xl font-black gradient-text  transition-transform duration-300">50M+</div>
                             <div class="text-sm text-gray-600 mt-2 font-medium" data-lang-ru="Пользователей" data-lang-en="Users">Пользователей</div>
                         </div>
                         <div class="text-center group">
-                            <div class="text-4xl font-black gradient-text group-hover:scale-110 transition-transform duration-300">60%</div>
+                            <div class="text-4xl font-black gradient-text  transition-transform duration-300">60%</div>
                             <div class="text-sm text-gray-600 mt-2 font-medium" data-lang-ru="Рост продаж" data-lang-en="Sales Growth">Рост продаж</div>
                         </div>
                         <div class="text-center group">
-                            <div class="text-4xl font-black gradient-text group-hover:scale-110 transition-transform duration-300">2 нед</div>
+                            <div class="text-4xl font-black gradient-text  transition-transform duration-300">2 нед</div>
                             <div class="text-sm text-gray-600 mt-2 font-medium" data-lang-ru="До запуска" data-lang-en="To Launch">До запуска</div>
                         </div>
                     </div>
