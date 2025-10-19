@@ -1,0 +1,17 @@
+{
+  "name": "miniapp-expert-site",
+  "version": "1.0.0",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./dist/styles.min.css --minify",
+    "build:critical": "node scripts/extract-critical-css.js",
+    "build": "npm run build:css && npm run build:critical",
+    "watch": "tailwindcss -i ./src/input.css -o ./dist/styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.17",
+    "cssnano": "^6.0.3",
+    "postcss": "^8.4.35"
+  }
+}
+
