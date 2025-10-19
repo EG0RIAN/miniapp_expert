@@ -107,9 +107,28 @@
             input.type = input.type === 'password' ? 'text' : 'password';
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Вход в админ‑панель по логину/паролю отключен. Используйте защищенный доступ.');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            try {
+                const resp = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await resp.json();
+                if (resp.ok && data.success) {
+                    localStorage.setItem('adminAuth', 'true');
+                    localStorage.setItem('adminUser', username);
+                    localStorage.setItem('adminLoginTime', new Date().toISOString());
+                    window.location.href = '/admin.html';
+                } else {
+                    document.getElementById('errorMessage').classList.remove('hidden');
+                }
+            } catch (err) {
+                document.getElementById('errorMessage').classList.remove('hidden');
+            }
         });
 
         // Проверяем, если пользователь уже авторизован

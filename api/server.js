@@ -16,6 +16,28 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// Simple admin auth via env (username/password)
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || process.env.ADMIN_USER || '';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.ADMIN_PASS || '';
+
+app.post('/api/auth/login', (req, res) => {
+    try {
+        const { username, password } = req.body || {};
+        if (!username || !password) {
+            return res.status(400).json({ success: false, message: 'Missing credentials' });
+        }
+        if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+            return res.status(503).json({ success: false, message: 'Password login is not configured' });
+        }
+        if (String(username) === String(ADMIN_USERNAME) && String(password) === String(ADMIN_PASSWORD)) {
+            return res.json({ success: true, user: { username } });
+        }
+        return res.status(401).json({ success: false, message: 'Invalid username or password' });
+    } catch (e) {
+        console.error('Auth login error:', e.message);
+        return res.status(500).json({ success: false, message: 'Internal error' });
+    }
+});
 
 // T-Bank Configuration
 const TBANK_CONFIG = {
