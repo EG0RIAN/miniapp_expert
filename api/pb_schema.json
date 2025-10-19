@@ -6,19 +6,14 @@
       "schema": [
         { "name": "name", "type": "text", "required": true },
         { "name": "slug", "type": "text", "required": true, "unique": true },
-        { "name": "type", "type": "text", "options": { "max": 50 } },
+        { "name": "type", "type": "text" },
         { "name": "description", "type": "text" },
         { "name": "basePrice", "type": "number" },
-        { "name": "currency", "type": "text", "options": { "max": 8 } },
+        { "name": "currency", "type": "text" },
         { "name": "features", "type": "json" },
         { "name": "extras", "type": "json" },
-        { "name": "status", "type": "text", "options": { "max": 20 } }
-      ],
-      "listRule": "",
-      "viewRule": "",
-      "createRule": "",
-      "updateRule": "",
-      "deleteRule": ""
+        { "name": "status", "type": "text" }
+      ]
     },
     {
       "name": "orders",
@@ -28,18 +23,13 @@
         { "name": "product", "type": "json", "required": true },
         { "name": "customer", "type": "json" },
         { "name": "amount", "type": "number", "required": true },
-        { "name": "status", "type": "text", "options": { "max": 20 } },
+        { "name": "status", "type": "text" },
         { "name": "payment", "type": "json" },
         { "name": "fulfillment", "type": "json" },
         { "name": "configuration", "type": "json" },
         { "name": "timeline", "type": "json" },
         { "name": "source", "type": "json" }
-      ],
-      "listRule": "",
-      "viewRule": "",
-      "createRule": "",
-      "updateRule": "",
-      "deleteRule": ""
+      ]
     },
     {
       "name": "events",
@@ -51,12 +41,7 @@
         { "name": "data", "type": "json" },
         { "name": "page", "type": "text" },
         { "name": "referrer", "type": "text" }
-      ],
-      "listRule": "",
-      "viewRule": "",
-      "createRule": "",
-      "updateRule": "",
-      "deleteRule": ""
+      ]
     },
     {
       "name": "abandoned_carts",
@@ -72,13 +57,10 @@
         { "name": "recoveryAttempts", "type": "json" },
         { "name": "stepsCompleted", "type": "json" },
         { "name": "stepsRemaining", "type": "json" },
-        { "name": "dropOffPoint", "type": "text" }
-      ],
-      "listRule": "",
-      "viewRule": "",
-      "createRule": "",
-      "updateRule": "",
-      "deleteRule": ""
+        { "name": "dropOffPoint", "type": "text" },
+        { "name": "created", "type": "text" },
+        { "name": "lastActivity", "type": "text" }
+      ]
     }
   ]
 }
