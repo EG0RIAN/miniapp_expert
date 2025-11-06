@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import hash from '@adonisjs/core/services/hash'
 
 export default class AuthController {
   public async login({ request, response }: HttpContext) {
@@ -24,7 +25,7 @@ export default class AuthController {
       }
 
       // Проверяем пароль
-      const isPasswordValid = await user.verify(password)
+      const isPasswordValid = await hash.verify(user.password, password)
       
       if (!isPasswordValid) {
         return response.status(401).json({ 
