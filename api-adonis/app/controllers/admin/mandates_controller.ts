@@ -124,7 +124,7 @@ export default class MandatesController {
   /**
    * Отозвать мандат
    */
-  async revoke({ params, response, auth }: HttpContext) {
+  async revoke({ params, request, response, auth }: HttpContext) {
     const { id } = params
 
     try {
