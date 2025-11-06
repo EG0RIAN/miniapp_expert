@@ -109,24 +109,40 @@
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
+            
+            document.getElementById('errorMessage').classList.add('hidden');
+            
             try {
                 const resp = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ email, password })
                 });
+                
                 const data = await resp.json();
-                if (resp.ok && data.success) {
-                    localStorage.setItem('adminAuth', 'true');
-                    localStorage.setItem('adminUser', username);
-                    localStorage.setItem('adminLoginTime', new Date().toISOString());
-                    window.location.href = '/admin.html';
+                
+                if (resp.ok && data.token) {
+                    // Проверяем роль пользователя
+                    if (data.user && (data.user.role === 'admin' || data.user.role === 'finance_manager')) {
+                        localStorage.setItem('adminAuth', 'true');
+                        localStorage.setItem('adminToken', data.token);
+                        localStorage.setItem('adminUser', email);
+                        localStorage.setItem('adminRole', data.user.role);
+                        localStorage.setItem('adminLoginTime', new Date().toISOString());
+                        window.location.href = '/admin.html';
+                    } else {
+                        document.getElementById('errorMessage').querySelector('p').textContent = '❌ У вас нет прав доступа к админ-панели';
+                        document.getElementById('errorMessage').classList.remove('hidden');
+                    }
                 } else {
+                    document.getElementById('errorMessage').querySelector('p').textContent = '❌ ' + (data.message || 'Неверный логин или пароль');
                     document.getElementById('errorMessage').classList.remove('hidden');
                 }
             } catch (err) {
+                console.error('Login error:', err);
+                document.getElementById('errorMessage').querySelector('p').textContent = '❌ Ошибка подключения к серверу';
                 document.getElementById('errorMessage').classList.remove('hidden');
             }
         });
