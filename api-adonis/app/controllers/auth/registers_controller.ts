@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import { sendRegistrationEmail, createMagicToken } from '#services/mailer'
-import crypto from 'crypto'
 import bcrypt from 'bcrypt'
 
 export default class RegistersController {
