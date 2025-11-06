@@ -34,12 +34,10 @@ services:
     restart: unless-stopped
 
   api:
-    image: node:20-alpine
+    build:
+      context: ./api-adonis
+      dockerfile: Dockerfile
     container_name: miniapp_api
-    working_dir: /app
-    volumes:
-      - ./api-adonis:/app
-    command: sh -c "npm ci && node ace build --production && node build/bin/server.js"
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0
@@ -55,11 +53,19 @@ services:
       - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD}
       - TBANK_TERMINAL_KEY=${TBANK_TERMINAL_KEY}
       - TBANK_PASSWORD=${TBANK_PASSWORD}
+      - TBANK_API_URL=${TBANK_API_URL:-https://securepay.tinkoff.ru/v2}
       - API_BASE_URL=${API_BASE_URL:-https://miniapp.expert}
+      - APP_BASE_URL=${APP_BASE_URL:-https://miniapp.expert}
       - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-https://miniapp.expert}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - APP_KEY=${APP_KEY:-some-long-random-key}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - MAIL_FROM=${MAIL_FROM}
+      - MAGIC_SECRET=${MAGIC_SECRET}
     expose:
       - "3333"
     depends_on:
