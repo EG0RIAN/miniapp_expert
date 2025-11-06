@@ -38,9 +38,9 @@ export default class TBankService {
   private apiUrl: string
 
   constructor() {
-    this.terminalKey = env.get('TBANK_TERMINAL_KEY')
-    this.secretKey = env.get('TBANK_PASSWORD')
-    this.apiUrl = env.get('TBANK_API_URL', 'https://securepay.tinkoff.ru/v2')
+    this.terminalKey = env.get('TBANK_TERMINAL_KEY') || ''
+    this.secretKey = env.get('TBANK_PASSWORD') || ''
+    this.apiUrl = env.get('TBANK_API_URL') || 'https://securepay.tinkoff.ru/v2'
   }
 
   /**

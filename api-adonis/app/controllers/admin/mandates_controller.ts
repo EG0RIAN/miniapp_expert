@@ -111,7 +111,7 @@ export default class MandatesController {
         before,
         after: mandate.serialize(),
         ipAddress: request.ip(),
-        userAgent: request.header('user-agent'),
+        userAgent: request.header('user-agent') || undefined,
       })
 
       return response.json({ success: true, mandate: mandate.serialize() })
@@ -143,7 +143,7 @@ export default class MandatesController {
         before,
         after: mandate.serialize(),
         ipAddress: request.ip(),
-        userAgent: request.header('user-agent'),
+        userAgent: request.header('user-agent') || undefined,
       })
 
       return response.json({ success: true })

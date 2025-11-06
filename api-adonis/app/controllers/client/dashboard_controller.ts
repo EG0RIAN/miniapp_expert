@@ -1,6 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
-import PaymentMethod from '#models/payment_method'
 
 export default class DashboardController {
   /**

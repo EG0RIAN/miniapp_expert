@@ -33,6 +33,7 @@ export default class AdminMiddleware {
     }
 
     // Сохраняем роль в контексте для использования в контроллерах
+    // @ts-ignore - добавляем роль динамически
     auth.user.role = user.role
 
     await next()

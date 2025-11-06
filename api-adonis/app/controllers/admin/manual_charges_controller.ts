@@ -18,7 +18,7 @@ export default class ManualChargesController {
    * Получить список ручных списаний
    */
   async index({ request, response }: HttpContext) {
-    const { customerId, customerEmail, status, page = 1, limit = 20 } = request.qs()
+    const { customerEmail, status, page = 1, limit = 20 } = request.qs()
 
     try {
       let query = ManualCharge.query()
@@ -216,7 +216,7 @@ export default class ManualChargesController {
   /**
    * Отменить списание
    */
-  async cancel({ params, response, auth }: HttpContext) {
+  async cancel({ params, request, response, auth }: HttpContext) {
     const { id } = params
 
     try {
@@ -239,7 +239,7 @@ export default class ManualChargesController {
         before,
         after: charge.serialize(),
         ipAddress: request.ip(),
-        userAgent: request.header('user-agent'),
+        userAgent: request.header('user-agent') || undefined,
       })
 
       return response.json({ success: true })

@@ -2,7 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import { sendPasswordResetEmail, sendPasswordChangedEmail, createMagicToken } from '#services/mailer'
 import bcrypt from 'bcrypt'
-import crypto from 'crypto'
 
 export default class PasswordResetsController {
   /**
