@@ -31,6 +31,10 @@ import PaymentMethodsController from '#controllers/client/payment_methods_contro
 import ReferralsController from '#controllers/client/referrals_controller'
 import ProfilesController from '#controllers/client/profiles_controller'
 
+// Auth controllers
+import RegistersController from '#controllers/auth/registers_controller'
+import PasswordResetsController from '#controllers/auth/password_resets_controller'
+
 router.get('/', async () => ({ ok: true }))
 
 router.group(() => {
@@ -54,6 +58,11 @@ router.group(() => {
 
   // Auth
   router.post('auth/login', [AuthController, 'login'])
+  router.post('auth/register', [RegistersController, 'register'])
+  router.get('auth/verify', [RegistersController, 'verify'])
+  router.post('auth/password/request-reset', [PasswordResetsController, 'requestReset'])
+  router.get('auth/password/verify-token', [PasswordResetsController, 'verifyToken'])
+  router.post('auth/password/reset', [PasswordResetsController, 'resetPassword'])
 
   // ========== CLIENT PORTAL ==========
   router

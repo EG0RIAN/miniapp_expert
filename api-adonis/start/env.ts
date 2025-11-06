@@ -37,14 +37,20 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Payments (T-Bank)
   TBANK_TERMINAL_KEY: Env.schema.string.optional(),
   TBANK_PASSWORD: Env.schema.string.optional(),
+  TBANK_API_URL: Env.schema.string.optional(),
   FRONTEND_BASE_URL: Env.schema.string.optional(),
   API_BASE_URL: Env.schema.string.optional(),
+  APP_BASE_URL: Env.schema.string.optional(),
 
-  // Mailer
+  // Mailer (Mail.ru SMTP)
   SMTP_HOST: Env.schema.string.optional(),
   SMTP_PORT: Env.schema.number.optional(),
   SMTP_USER: Env.schema.string.optional(),
   SMTP_PASS: Env.schema.string.optional(),
   MAIL_FROM: Env.schema.string.optional(),
-  MAGIC_SECRET: Env.schema.string.optional()
+  MAGIC_SECRET: Env.schema.string.optional(),
+
+  // Admin
+  ADMIN_USERNAME: Env.schema.string.optional(),
+  ADMIN_PASSWORD: Env.schema.string.optional()
 })
