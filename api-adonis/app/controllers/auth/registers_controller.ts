@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import { sendRegistrationEmail, createMagicToken } from '#services/mailer'
-import bcrypt from 'bcrypt'
+import hash from '@adonisjs/core/services/hash'
 
 export default class RegistersController {
   /**
@@ -19,7 +19,7 @@ export default class RegistersController {
       }
 
       // Хешируем пароль
-      const hashedPassword = await bcrypt.hash(password, 10)
+      const hashedPassword = await hash.make(password)
 
       // Создаём токен подтверждения
       const verificationToken = createMagicToken({ email, action: 'verify' })
