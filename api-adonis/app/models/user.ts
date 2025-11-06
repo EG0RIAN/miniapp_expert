@@ -15,13 +15,43 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare id: number
 
   @column()
-  declare fullName: string | null
+  declare name: string | null
 
   @column()
   declare email: string
 
   @column({ serializeAs: null })
   declare password: string
+
+  @column()
+  declare role: 'client' | 'admin' | 'finance_manager'
+
+  @column()
+  declare emailVerified: boolean
+
+  @column()
+  declare verificationToken: string | null
+
+  @column()
+  declare resetToken: string | null
+
+  @column.dateTime()
+  declare resetTokenExpiresAt: DateTime | null
+
+  @column.dateTime()
+  declare offerAcceptedAt: DateTime | null
+
+  @column()
+  declare offerVersion: string | null
+
+  @column()
+  declare telegramId: string | null
+
+  @column()
+  declare referralCode: string | null
+
+  @column()
+  declare referredBy: number | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
