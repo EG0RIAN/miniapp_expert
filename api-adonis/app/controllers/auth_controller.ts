@@ -24,7 +24,7 @@ export default class AuthController {
       }
 
       // Проверяем пароль
-      const isPasswordValid = await User.accessTokens.verify(user, password)
+      const isPasswordValid = await user.verify(password)
       
       if (!isPasswordValid) {
         return response.status(401).json({ 
