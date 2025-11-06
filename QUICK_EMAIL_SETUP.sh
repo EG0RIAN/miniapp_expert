@@ -41,10 +41,15 @@ cat >> .env << 'EOF'
 SMTP_HOST=smtp.mail.ru
 SMTP_PORT=465
 SMTP_USER=no-reply@miniapp.expert
-SMTP_PASS=DXoz9JYNKhWaqK1QDgq3
+SMTP_PASS=YOUR_SMTP_PASSWORD_HERE
 MAIL_FROM=MiniAppExpert <no-reply@miniapp.expert>
 APP_BASE_URL=https://miniapp.expert
 EOF
+
+echo ""
+echo "⚠️  ВАЖНО: Замените YOUR_SMTP_PASSWORD_HERE на реальный пароль!"
+echo "Откройте .env и добавьте пароль вручную:"
+echo "nano /home/miniapp_expert/.env"
 
 echo "✅ SMTP настройки добавлены"
 echo ""
