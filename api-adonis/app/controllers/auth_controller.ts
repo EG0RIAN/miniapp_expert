@@ -1,22 +1,58 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import env from '#start/env'
+import User from '#models/user'
 
 export default class AuthController {
   public async login({ request, response }: HttpContext) {
     try {
-      const { username, password } = request.only(['username', 'password'])
-      if (!username || !password) return response.status(400).json({ success: false, message: 'Missing credentials' })
-      const ADMIN_USERNAME = (env.get('ADMIN_USERNAME', '') as string) || (env.get('ADMIN_USER', '') as string)
-      const ADMIN_PASSWORD = (env.get('ADMIN_PASSWORD', '') as string) || (env.get('ADMIN_PASS', '') as string)
-      if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
-        return response.status(503).json({ success: false, message: 'Password login is not configured' })
+      const { email, password } = request.only(['email', 'password'])
+      
+      if (!email || !password) {
+        return response.status(400).json({ 
+          success: false, 
+          message: 'Missing credentials' 
+        })
       }
-      if (String(username) === String(ADMIN_USERNAME) && String(password) === String(ADMIN_PASSWORD)) {
-        return response.json({ success: true, user: { username } })
+
+      // Ищем пользователя по email
+      const user = await User.findBy('email', email)
+      
+      if (!user) {
+        return response.status(401).json({ 
+          success: false, 
+          message: 'Invalid email or password' 
+        })
       }
-      return response.status(401).json({ success: false, message: 'Invalid username or password' })
+
+      // Проверяем пароль
+      const isPasswordValid = await User.accessTokens.verify(user, password)
+      
+      if (!isPasswordValid) {
+        return response.status(401).json({ 
+          success: false, 
+          message: 'Invalid email or password' 
+        })
+      }
+
+      // Создаём токен доступа
+      const token = await User.accessTokens.create(user)
+
+      return response.json({ 
+        success: true,
+        token: token.value!.release(),
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          emailVerified: user.emailVerified
+        }
+      })
     } catch (e) {
-      return response.status(500).json({ success: false, message: 'Internal error' })
+      console.error('Login error:', e)
+      return response.status(500).json({ 
+        success: false, 
+        message: 'Internal error' 
+      })
     }
   }
 }
