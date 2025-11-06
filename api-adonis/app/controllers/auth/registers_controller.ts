@@ -26,18 +26,16 @@ export default class RegistersController {
       const verificationToken = createMagicToken({ email, action: 'verify' })
 
       // Создаём пользователя
-      const userId = crypto.randomUUID()
-      await db.table('users').insert({
-        id: userId,
+      const [userId] = await db.table('users').insert({
         email,
         name: name || email.split('@')[0],
         password: hashedPassword,
-        role: 'CLIENT',
+        role: 'client',
         email_verified: false,
         verification_token: verificationToken,
         created_at: new Date(),
         updated_at: new Date(),
-      })
+      }).returning('id')
 
       // Отправляем письмо с подтверждением
       const emailSent = await sendRegistrationEmail({
