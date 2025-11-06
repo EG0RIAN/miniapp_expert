@@ -163,6 +163,25 @@ pm2 restart miniapp-bot
 
 ---
 
+## Backend API
+
+The backend API is now powered by AdonisJS 6 (folder `api-adonis`). The Docker compose service `api` mounts the folder and builds for production at container start.
+
+- Configure env via docker-compose (`DB_*`, `PB_*`, `TBANK_*`, `ADMIN_*`, `APP_KEY`).
+- Nginx proxies `/api/*` to `miniapp_api:3333`.
+
+Local dev:
+
+```bash
+cd api-adonis
+cp .env.example .env # set APP_KEY, DB_*, PB_*, etc.
+npm i
+npm run dev
+# http://localhost:3333/api/health
+```
+
+---
+
 ## Support
 
 📖 **Detailed Guide**: See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)  

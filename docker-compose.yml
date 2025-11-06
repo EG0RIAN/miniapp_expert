@@ -34,33 +34,37 @@ services:
     restart: unless-stopped
 
   api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
+    image: node:20-alpine
     container_name: miniapp_api
+    working_dir: /app
+    volumes:
+      - ./api-adonis:/app
+    command: sh -c "npm ci && node ace build --production && node build/bin/server.js"
     environment:
       - NODE_ENV=production
-      - PORT=3001
-      - PG_HOST=postgres
-      - PG_PORT=5432
-      - PG_DATABASE=${POSTGRES_DB:-miniapp}
-      - PG_USER=${POSTGRES_USER:-miniuser}
-      - PG_PASSWORD=${POSTGRES_PASSWORD:-minipass}
-      - CORS_ORIGIN=${CORS_ORIGIN:-https://miniapp.expert}
-      - API_BASE_URL=${API_BASE_URL:-https://miniapp.expert}
-      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-https://miniapp.expert}
-      - TBANK_TERMINAL_KEY=${TBANK_TERMINAL_KEY}
-      - TBANK_PASSWORD=${TBANK_PASSWORD}
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-supersecretwebhookkey}
+      - HOST=0.0.0.0
+      - PORT=3333
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=${POSTGRES_DB:-miniapp}
+      - DB_USER=${POSTGRES_USER:-miniuser}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-minipass}
       - PB_URL=http://pocketbase:8090
       - PB_ADMIN_EMAIL=${PB_ADMIN_EMAIL}
       - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD}
+      - TBANK_TERMINAL_KEY=${TBANK_TERMINAL_KEY}
+      - TBANK_PASSWORD=${TBANK_PASSWORD}
+      - API_BASE_URL=${API_BASE_URL:-https://miniapp.expert}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-https://miniapp.expert}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - APP_KEY=${APP_KEY:-some-long-random-key}
     expose:
-      - "3001"
+      - "3333"
     depends_on:
       - postgres
+      - pocketbase
     restart: unless-stopped
 
   pocketbase:

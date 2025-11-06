@@ -1,5 +1,5 @@
 upstream miniapp_api {
-    server 127.0.0.1:3001;
+    server miniapp_api:3333;
     keepalive 32;
 }
 
