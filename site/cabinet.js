@@ -81,10 +81,27 @@ function showSection(sectionId) {
         section.classList.add('hidden');
     });
     
+    // Hide all content containers inside sections
+    document.getElementById('productsContent')?.classList.add('hidden');
+    document.getElementById('subscriptionsContent')?.classList.add('hidden');
+    
     // Show selected section
     const section = document.getElementById(`section-${sectionId}`);
     if (section) {
         section.classList.remove('hidden');
+    }
+    
+    // Show content container for products and subscriptions
+    if (sectionId === 'products') {
+        const productsContent = document.getElementById('productsContent');
+        if (productsContent) {
+            productsContent.classList.remove('hidden');
+        }
+    } else if (sectionId === 'subscriptions') {
+        const subscriptionsContent = document.getElementById('subscriptionsContent');
+        if (subscriptionsContent) {
+            subscriptionsContent.classList.remove('hidden');
+        }
     }
     
     // Update sidebar
@@ -110,7 +127,7 @@ function showSection(sectionId) {
             loadPayments();
             break;
         case 'profile':
-    loadProfile();
+            loadProfile();
             break;
         case 'partners':
             loadPartnersData();
@@ -502,23 +519,6 @@ async function loadProducts() {
         // Clear container first
         container.innerHTML = '';
     
-        if (products.length === 0) {
-            container.innerHTML = `
-                <div class="col-span-2 text-center py-12 text-gray-500">
-                    <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                    <p class="text-lg font-semibold mb-2">У вас пока нет продуктов</p>
-                    <p class="text-sm mb-4">Закажите первый продукт и он появится здесь</p>
-                    <a href="/real-estate-solution.html" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
-                        Заказать продукт
-                    </a>
-                </div>
-            `;
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-            return;
-        }
-    
         // Render products from API
         // Filter out subscriptions (they should be shown in subscriptions section)
         const oneTimeProducts = products.filter(p => {
@@ -530,7 +530,7 @@ async function loadProducts() {
         
         if (oneTimeProducts.length === 0) {
             container.innerHTML = `
-                <div class="col-span-2 text-center py-12 text-gray-500">
+                <div class="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
                     <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
                     <p class="text-lg font-semibold mb-2">У вас пока нет продуктов</p>
                     <p class="text-sm mb-4">Закажите первый продукт и он появится здесь</p>
@@ -692,7 +692,7 @@ async function loadSubscriptions() {
         
         if (subscriptions.length === 0) {
             container.innerHTML = `
-                <div class="col-span-2 text-center py-12 text-gray-500">
+                <div class="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
                     <i data-lucide="repeat" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
                     <p class="text-lg font-semibold mb-2">У вас пока нет подписок</p>
                     <p class="text-sm mb-4">Оформите подписку на один из наших продуктов</p>
