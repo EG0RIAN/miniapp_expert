@@ -562,6 +562,18 @@ async function loadProducts() {
             const renewalPrice = product.renewal_price || product.product?.price || product.price || 0;
             const isSubscription = (product.product?.product_type === 'subscription') || (product.product_type === 'subscription');
             
+            // Get app and admin URLs from product
+            const appUrl = product.product?.app_url || product.app_url || null;
+            const adminUrl = product.product?.admin_url || product.admin_url || null;
+            
+            // Determine button classes and behavior
+            const appButtonClass = appUrl 
+                ? 'bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-sm cursor-pointer' 
+                : 'bg-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
+            const adminButtonClass = adminUrl 
+                ? 'border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm cursor-pointer' 
+                : 'border-2 border-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
+            
             return `
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-primary/20 card-hover">
             <div class="h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
@@ -579,12 +591,24 @@ async function loadProducts() {
                         <p class="text-gray-600 mb-2 text-sm">Дата запуска: ${startDate}</p>
                         ${endDate ? `<p class="text-gray-600 mb-4 text-sm">Действует до: ${endDate}</p>` : ''}
                         <div class="grid grid-cols-2 gap-2 mb-2">
-                            <a href="#" class="bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-sm">
-                                Приложение
-                            </a>
-                            <a href="#" class="border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm">
-                                Админка
-                    </a>
+                            ${appUrl ? `
+                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
+                                    Приложение
+                                </a>
+                            ` : `
+                                <span class="${appButtonClass}" title="URL приложения не указан">
+                                    Приложение
+                                </span>
+                            `}
+                            ${adminUrl ? `
+                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
+                                    Админка
+                                </a>
+                            ` : `
+                                <span class="${adminButtonClass}" title="URL админки не указан">
+                                    Админка
+                                </span>
+                            `}
                 </div>
                         ${isSubscription && product.status === 'active' ? `
                             <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${renewalPrice}" 

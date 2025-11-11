@@ -26,6 +26,20 @@ class Product(models.Model):
         limit_choices_to={'document_type': 'subscription_terms', 'is_active': True},
         help_text='Условия подписки для данного продукта (если продукт является подпиской)'
     )
+    app_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='URL приложения',
+        help_text='Ссылка на приложение (Mini App)'
+    )
+    admin_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='URL админки',
+        help_text='Ссылка на админ-панель продукта'
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

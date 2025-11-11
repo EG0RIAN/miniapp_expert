@@ -16,6 +16,10 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('subscription_terms',),
             'description': 'Условия подписки для данного продукта. Выберите документ типа "Условия подписки" из админки документов.'
         }),
+        ('Ссылки на продукт', {
+            'fields': ('app_url', 'admin_url'),
+            'description': 'URL ссылки для кнопок "Приложение" и "Админка" в личном кабинете пользователя. Если не указаны, кнопки будут неактивными.'
+        }),
         ('Метаданные', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
