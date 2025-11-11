@@ -891,7 +891,13 @@ async function loadSubscriptions() {
                             `}
                         </div>
                         <button 
-                            onclick="manageSubscription('${sub.id}', '${productName}', '${price}', '${subscriptionPeriod}', '${sub.start_date || ''}', '${sub.end_date || ''}')" 
+                            data-subscription-id="${sub.id}"
+                            data-product-name="${(sub.product?.name || sub.name || 'Подписка').replace(/"/g, '&quot;')}"
+                            data-price="${price}"
+                            data-period="${subscriptionPeriod}"
+                            data-start-date="${sub.start_date || ''}"
+                            data-end-date="${sub.end_date || ''}"
+                            onclick="manageSubscriptionFromButton(this)" 
                             class="w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition"
                         >
                             Управлять подпиской
@@ -1962,71 +1968,119 @@ async function loadPaymentMethods() {
     }
 }
 
+// Manage subscription from button - wrapper to get data from data attributes
+function manageSubscriptionFromButton(button) {
+    const subscriptionId = button.getAttribute('data-subscription-id');
+    const productName = button.getAttribute('data-product-name');
+    const price = button.getAttribute('data-price');
+    const period = button.getAttribute('data-period');
+    const startDate = button.getAttribute('data-start-date');
+    const endDate = button.getAttribute('data-end-date');
+    
+    manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
+}
+
 // Manage subscription - show modal with options
 async function manageSubscription(subscriptionId, productName, price, period, startDate, endDate) {
-    const periodText = period === 'monthly' ? 'месяц' : period === 'yearly' ? 'год' : 'месяц';
-    const startDateFormatted = startDate ? new Date(startDate).toLocaleDateString('ru-RU') : '-';
-    const endDateFormatted = endDate ? new Date(endDate).toLocaleDateString('ru-RU') : '-';
+    console.log('manageSubscription called with:', { subscriptionId, productName, price, period, startDate, endDate });
     
-    // Escape HTML to prevent XSS
-    const escapedProductName = productName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    const escapedSubscriptionId = subscriptionId.replace(/'/g, "\\'");
-    
-    showModal({
-        title: 'Управление подпиской',
-        type: 'info',
-        html: `
-            <div class="space-y-4 mt-4">
-                <div class="bg-gray-50 rounded-xl p-4">
-                    <h4 class="font-semibold text-lg mb-3">${escapedProductName}</h4>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Стоимость:</span>
-                            <span class="font-semibold">${formatAmountRub(price)}/${periodText}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Начало подписки:</span>
-                            <span class="font-semibold">${startDateFormatted}</span>
-                        </div>
-                        ${endDateFormatted !== '-' ? `
+    try {
+        const periodText = period === 'monthly' ? 'месяц' : period === 'yearly' ? 'год' : 'месяц';
+        const startDateFormatted = startDate ? new Date(startDate).toLocaleDateString('ru-RU') : '-';
+        const endDateFormatted = endDate ? new Date(endDate).toLocaleDateString('ru-RU') : '-';
+        
+        // Escape HTML to prevent XSS
+        const escapedProductName = (productName || 'Подписка').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        
+        // Create modal content with unique IDs for buttons
+        const modalId = `subscription-modal-${subscriptionId}`;
+        const cancelButtonId = `cancel-subscription-${subscriptionId}`;
+        const historyButtonId = `history-subscription-${subscriptionId}`;
+        
+        showModal({
+            title: 'Управление подпиской',
+            type: 'info',
+            html: `
+                <div class="space-y-4 mt-4" id="${modalId}">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <h4 class="font-semibold text-lg mb-3">${escapedProductName}</h4>
+                        <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Следующий платеж:</span>
-                                <span class="font-semibold text-green-600">${endDateFormatted}</span>
+                                <span class="text-gray-600">Стоимость:</span>
+                                <span class="font-semibold">${formatAmountRub(price)}/${periodText}</span>
                             </div>
-                        ` : ''}
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Начало подписки:</span>
+                                <span class="font-semibold">${startDateFormatted}</span>
+                            </div>
+                            ${endDateFormatted !== '-' ? `
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Следующий платеж:</span>
+                                    <span class="font-semibold text-green-600">${endDateFormatted}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <button 
+                            id="${cancelButtonId}"
+                            data-subscription-id="${subscriptionId}"
+                            data-product-name="${escapedProductName}"
+                            class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold"
+                        >
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="x-circle" class="w-5 h-5"></i>
+                                <span>Отменить подписку</span>
+                            </div>
+                            <div class="text-xs text-red-600 mt-1">Подписка будет отменена после окончания текущего периода</div>
+                        </button>
+                        <button 
+                            id="${historyButtonId}"
+                            data-subscription-id="${subscriptionId}"
+                            class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold"
+                        >
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="history" class="w-5 h-5"></i>
+                                <span>История платежей</span>
+                            </div>
+                        </button>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <button 
-                        onclick="closeModal(); cancelSubscription('${escapedSubscriptionId}', '${escapedProductName.replace(/'/g, "\\'")}');" 
-                        class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold"
-                    >
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="x-circle" class="w-5 h-5"></i>
-                            <span>Отменить подписку</span>
-                        </div>
-                        <div class="text-xs text-red-600 mt-1">Подписка будет отменена после окончания текущего периода</div>
-                    </button>
-                    <button 
-                        onclick="viewSubscriptionHistory('${escapedSubscriptionId}')" 
-                        class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold"
-                    >
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="history" class="w-5 h-5"></i>
-                            <span>История платежей</span>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        `,
-        confirmText: 'Закрыть',
-        onConfirm: () => closeModal(),
-        onCancel: () => closeModal()
-    });
-    
-    // Re-initialize icons
-    if (typeof lucide !== 'undefined') {
-        setTimeout(() => lucide.createIcons(), 100);
+            `,
+            confirmText: 'Закрыть',
+            onConfirm: () => closeModal(),
+            onCancel: () => closeModal()
+        });
+        
+        // Add event listeners after modal is shown
+        setTimeout(() => {
+            const cancelBtn = document.getElementById(cancelButtonId);
+            const historyBtn = document.getElementById(historyButtonId);
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', async () => {
+                    closeModal();
+                    const subId = cancelBtn.getAttribute('data-subscription-id');
+                    const prodName = cancelBtn.getAttribute('data-product-name');
+                    await cancelSubscription(subId, prodName);
+                });
+            }
+            
+            if (historyBtn) {
+                historyBtn.addEventListener('click', () => {
+                    const subId = historyBtn.getAttribute('data-subscription-id');
+                    viewSubscriptionHistory(subId);
+                });
+            }
+            
+            // Re-initialize icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }, 100);
+    } catch (error) {
+        console.error('Error in manageSubscription:', error);
+        notifyError('Ошибка при открытии окна управления подпиской');
     }
 }
 
