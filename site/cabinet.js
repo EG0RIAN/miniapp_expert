@@ -2096,9 +2096,11 @@ async function manageSubscription(subscriptionId, productName, price, period, st
         }
         
         // Create modal content with unique IDs for buttons
-        const modalId = `subscription-modal-${escapedSubscriptionId}`;
-        const cancelButtonId = `cancel-subscription-${escapedSubscriptionId}`;
-        const historyButtonId = `history-subscription-${escapedSubscriptionId}`;
+        // Use simple numeric IDs to avoid issues with UUIDs containing special characters
+        const timestamp = Date.now();
+        const modalId = `subscription-modal-${timestamp}`;
+        const cancelButtonId = `cancel-subscription-${timestamp}`;
+        const historyButtonId = `history-subscription-${timestamp}`;
         
         console.log('Opening modal with data:', {
             modalId,
@@ -2108,7 +2110,9 @@ async function manageSubscription(subscriptionId, productName, price, period, st
             priceFormatted,
             periodText,
             startDateFormatted,
-            endDateFormatted
+            endDateFormatted,
+            subscriptionId,
+            normalizedPrice
         });
         
         showModal({
@@ -2138,9 +2142,10 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                     <div class="space-y-2">
                         <button 
                             id="${cancelButtonId}"
-                            data-subscription-id="${escapedSubscriptionId}"
-                            data-product-name="${escapedProductName}"
-                            class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold"
+                            type="button"
+                            data-subscription-id="${subscriptionId}"
+                            data-product-name="${normalizedProductName}"
+                            class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold subscription-cancel-btn"
                         >
                             <div class="flex items-center gap-2">
                                 <i data-lucide="x-circle" class="w-5 h-5"></i>
@@ -2150,8 +2155,9 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                         </button>
                         <button 
                             id="${historyButtonId}"
-                            data-subscription-id="${escapedSubscriptionId}"
-                            class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold"
+                            type="button"
+                            data-subscription-id="${subscriptionId}"
+                            class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold subscription-history-btn"
                         >
                             <div class="flex items-center gap-2">
                                 <i data-lucide="history" class="w-5 h-5"></i>
@@ -2174,57 +2180,118 @@ async function manageSubscription(subscriptionId, productName, price, period, st
             }
         });
         
-        // Add event listeners after modal is shown
+        // Store subscription data for event handlers
+        window._subscriptionModalData = window._subscriptionModalData || {};
+        window._subscriptionModalData[timestamp] = {
+            subscriptionId: subscriptionId,
+            productName: normalizedProductName
+        };
+        
+        // Add event listeners after modal is shown using event delegation
         setTimeout(() => {
             try {
+                const modalElement = document.getElementById(modalId);
+                if (!modalElement) {
+                    console.error('Modal element not found:', modalId);
+                    return;
+                }
+                
+                // Use event delegation for buttons inside modal
+                modalElement.addEventListener('click', (e) => {
+                    const target = e.target.closest('.subscription-cancel-btn, .subscription-history-btn');
+                    if (!target) return;
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const dataKey = timestamp.toString();
+                    const data = window._subscriptionModalData[dataKey];
+                    
+                    if (!data) {
+                        console.error('Subscription modal data not found for:', dataKey);
+                        return;
+                    }
+                    
+                    if (target.classList.contains('subscription-cancel-btn')) {
+                        console.log('Cancel button clicked via delegation');
+                        if (typeof closeModal === 'function') {
+                            closeModal();
+                        }
+                        if (data.subscriptionId && typeof cancelSubscription === 'function') {
+                            cancelSubscription(data.subscriptionId, data.productName);
+                        }
+                    } else if (target.classList.contains('subscription-history-btn')) {
+                        console.log('History button clicked via delegation');
+                        if (typeof closeModal === 'function') {
+                            closeModal();
+                        }
+                        if (data.subscriptionId && typeof viewSubscriptionHistory === 'function') {
+                            viewSubscriptionHistory(data.subscriptionId);
+                        }
+                    }
+                });
+                
+                // Also try direct event listeners as fallback
                 const cancelBtn = document.getElementById(cancelButtonId);
                 const historyBtn = document.getElementById(historyButtonId);
                 
-                console.log('Setting up event listeners:', { cancelBtn: !!cancelBtn, historyBtn: !!historyBtn });
+                console.log('Setting up event listeners:', { 
+                    cancelBtn: !!cancelBtn, 
+                    historyBtn: !!historyBtn,
+                    modalElement: !!modalElement,
+                    timestamp 
+                });
                 
                 if (cancelBtn) {
                     cancelBtn.addEventListener('click', async (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Cancel button clicked');
+                        console.log('Cancel button clicked (direct)');
                         if (typeof closeModal === 'function') {
                             closeModal();
                         }
-                        const subId = cancelBtn.getAttribute('data-subscription-id');
-                        const prodName = cancelBtn.getAttribute('data-product-name');
-                        if (subId && typeof cancelSubscription === 'function') {
-                            await cancelSubscription(subId, prodName);
+                        const data = window._subscriptionModalData[timestamp];
+                        if (data && data.subscriptionId && typeof cancelSubscription === 'function') {
+                            await cancelSubscription(data.subscriptionId, data.productName);
                         }
                     });
-                } else {
-                    console.error('Cancel button not found:', cancelButtonId);
                 }
                 
                 if (historyBtn) {
                     historyBtn.addEventListener('click', (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('History button clicked');
+                        console.log('History button clicked (direct)');
                         if (typeof closeModal === 'function') {
                             closeModal();
                         }
-                        const subId = historyBtn.getAttribute('data-subscription-id');
-                        if (subId && typeof viewSubscriptionHistory === 'function') {
-                            viewSubscriptionHistory(subId);
+                        const data = window._subscriptionModalData[timestamp];
+                        if (data && data.subscriptionId && typeof viewSubscriptionHistory === 'function') {
+                            viewSubscriptionHistory(data.subscriptionId);
                         }
                     });
-                } else {
-                    console.error('History button not found:', historyButtonId);
                 }
                 
                 // Re-initialize icons
                 if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
                     lucide.createIcons();
                 }
+                
+                // Clean up data after modal is closed (optional, but good practice)
+                const cleanup = () => {
+                    if (window._subscriptionModalData && window._subscriptionModalData[timestamp]) {
+                        delete window._subscriptionModalData[timestamp];
+                    }
+                };
+                
+                // Store cleanup function
+                window._subscriptionModalCleanup = window._subscriptionModalCleanup || {};
+                window._subscriptionModalCleanup[timestamp] = cleanup;
             } catch (error) {
                 console.error('Error setting up event listeners:', error);
+                console.error('Error stack:', error.stack);
             }
-        }, 200); // Increased timeout to ensure DOM is ready
+        }, 300); // Increased timeout to ensure DOM is fully ready
     } catch (error) {
         console.error('Error in manageSubscription:', error);
         console.error('Error stack:', error.stack);
