@@ -1033,29 +1033,68 @@ async function loadPartnersData() {
 
 // Load affiliate terms content
 async function loadAffiliateTermsContent() {
+    const contentEl = document.getElementById('affiliateTermsContent');
+    if (!contentEl) return;
+    
+    // Show loading state
+    contentEl.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div><p class="mt-4 text-gray-600">Загрузка условий...</p></div>';
+    
     try {
+        console.log('🔄 Loading affiliate terms from API...');
         const result = await apiRequest('/documents/affiliate_terms/');
-        if (result && result.data && result.data.document) {
-            const contentEl = document.getElementById('affiliateTermsContent');
-            if (contentEl) {
-                // Extract text content from HTML (remove HTML tags for preview)
-                const content = result.data.document.content_text || result.data.document.content || '';
-                // Show first 2000 characters as preview
-                const preview = content.length > 2000 ? content.substring(0, 2000) + '...' : content;
-                contentEl.innerHTML = `<div class="whitespace-pre-wrap text-sm text-gray-700">${preview}</div>`;
+        console.log('📦 Affiliate terms API response:', result);
+        
+        if (result && result.data) {
+            // API может возвращать данные в разных форматах
+            let document = null;
+            
+            if (result.data.document) {
+                // Формат: {success: true, document: {...}}
+                document = result.data.document;
+            } else if (result.data.content) {
+                // Формат: {success: true, content: "...", title: "..."}
+                document = result.data;
+            } else if (result.data.success && result.data.document) {
+                // Вложенный формат
+                document = result.data.document;
+            }
+            
+            if (document && document.content) {
+                const content = document.content || '';
+                const title = document.title || 'Условия партнерской программы';
+                
+                // Показываем HTML контент (уже отформатированный)
+                contentEl.innerHTML = `
+                    <div class="prose prose-sm max-w-none">
+                        <h3 class="text-lg font-bold mb-4 text-gray-900">${title}</h3>
+                        <div class="text-sm text-gray-700 leading-relaxed">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+                console.log('✅ Affiliate terms loaded successfully');
+            } else {
+                throw new Error('Document content not found');
             }
         } else {
-            // Fallback to default text
-            const contentEl = document.getElementById('affiliateTermsContent');
-            if (contentEl) {
-                contentEl.innerHTML = '<p class="text-gray-600">Условия партнерской программы загружаются...</p>';
-            }
+            throw new Error('Invalid API response');
         }
     } catch (error) {
-        console.error('Error loading affiliate terms:', error);
-        const contentEl = document.getElementById('affiliateTermsContent');
-        if (contentEl) {
-            contentEl.innerHTML = '<p class="text-gray-600">Не удалось загрузить условия. Пожалуйста, ознакомьтесь с условиями по <a href="/affiliate-terms.html" target="_blank" class="text-primary hover:underline">ссылке</a>.</p>';
+        console.error('❌ Error loading affiliate terms:', error);
+        contentEl.innerHTML = `
+            <div class="text-center py-8">
+                <i data-lucide="alert-circle" class="w-12 h-12 text-yellow-500 mx-auto mb-4"></i>
+                <p class="text-gray-700 mb-4">Не удалось загрузить условия партнерской программы.</p>
+                <p class="text-sm text-gray-600 mb-4">Пожалуйста, ознакомьтесь с условиями на странице документа.</p>
+                <a href="/affiliate-terms.html" target="_blank" class="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <span>Открыть условия партнерской программы</span>
+                </a>
+            </div>
+        `;
+        // Re-initialize icons after error
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
         }
     }
 }
