@@ -5,7 +5,7 @@ from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
-from django.db.models import Max
+from django.db.models import Max, Q
 from .models import Document, DocumentAcceptance
 from .serializers import DocumentPublicSerializer, DocumentAcceptanceSerializer
 
@@ -21,6 +21,7 @@ class ClientDocumentsView(views.APIView):
         # Получаем документы, которые должны быть уникальными (privacy, cabinet_terms, affiliate_terms)
         # Для subscription_terms не возвращаем все документы, так как они привязаны к продуктам
         # Пользователь должен подписывать subscription_terms через продукт при оформлении подписки
+        # subscription_terms документы показываются только если у пользователя есть активные подписки на продукты с этими документами
         unique_document_types = ['privacy', 'cabinet_terms', 'affiliate_terms']
         documents = []
         
@@ -32,6 +33,32 @@ class ClientDocumentsView(views.APIView):
             ).first()
             if doc:
                 documents.append(doc)
+        
+        # Получаем subscription_terms документы только для продуктов, на которые у пользователя есть активные подписки
+        from apps.products.models import UserProduct
+        user_subscriptions = UserProduct.objects.filter(
+            user=user,
+            status='active',
+            product__product_type='subscription',
+            product__subscription_terms__isnull=False
+        ).select_related('product', 'product__subscription_terms')
+        
+        # Получаем уникальные subscription_terms документы из активных подписок
+        subscription_terms_docs = []
+        seen_subscription_terms_ids = set()
+        
+        for user_sub in user_subscriptions:
+            if user_sub.product and user_sub.product.subscription_terms:
+                subscription_terms_doc = user_sub.product.subscription_terms
+                # Добавляем только если документ активен, опубликован и еще не добавлен
+                if (subscription_terms_doc.is_active and 
+                    subscription_terms_doc.is_published and 
+                    subscription_terms_doc.id not in seen_subscription_terms_ids):
+                    subscription_terms_docs.append(subscription_terms_doc)
+                    seen_subscription_terms_ids.add(subscription_terms_doc.id)
+        
+        # Добавляем subscription_terms документы к общему списку документов
+        documents.extend(subscription_terms_docs)
         
         # Получаем последние принятые версии для каждого документа
         accepted_docs = DocumentAcceptance.objects.filter(
