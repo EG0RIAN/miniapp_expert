@@ -892,12 +892,13 @@ async function loadSubscriptions() {
                         </div>
                         <button 
                             data-subscription-id="${sub.id}"
-                            data-product-name="${(sub.product?.name || sub.name || 'Подписка').replace(/"/g, '&quot;')}"
-                            data-price="${price}"
-                            data-period="${subscriptionPeriod}"
-                            data-start-date="${sub.start_date || ''}"
-                            data-end-date="${sub.end_date || ''}"
-                            onclick="manageSubscriptionFromButton(this)" 
+                            data-product-name="${String(sub.product?.name || sub.name || 'Подписка').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                            data-price="${String(price || 0)}"
+                            data-period="${String(subscriptionPeriod || 'monthly')}"
+                            data-start-date="${String(sub.start_date || '')}"
+                            data-end-date="${String(sub.end_date || '')}"
+                            type="button"
+                            onclick="if(typeof manageSubscriptionFromButton === 'function') { manageSubscriptionFromButton(this); } else { console.error('manageSubscriptionFromButton is not defined'); alert('Функция управления подпиской не загружена. Обновите страницу.'); }" 
                             class="w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition"
                         >
                             Управлять подпиской
@@ -1970,14 +1971,41 @@ async function loadPaymentMethods() {
 
 // Manage subscription from button - wrapper to get data from data attributes
 function manageSubscriptionFromButton(button) {
-    const subscriptionId = button.getAttribute('data-subscription-id');
-    const productName = button.getAttribute('data-product-name');
-    const price = button.getAttribute('data-price');
-    const period = button.getAttribute('data-period');
-    const startDate = button.getAttribute('data-start-date');
-    const endDate = button.getAttribute('data-end-date');
-    
-    manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
+    try {
+        console.log('manageSubscriptionFromButton called', button);
+        
+        if (!button) {
+            console.error('Button element is null');
+            notifyError('Ошибка: элемент кнопки не найден');
+            return;
+        }
+        
+        const subscriptionId = button.getAttribute('data-subscription-id');
+        const productName = button.getAttribute('data-product-name');
+        const price = button.getAttribute('data-price');
+        const period = button.getAttribute('data-period');
+        const startDate = button.getAttribute('data-start-date');
+        const endDate = button.getAttribute('data-end-date');
+        
+        console.log('Extracted data:', { subscriptionId, productName, price, period, startDate, endDate });
+        
+        if (!subscriptionId) {
+            console.error('Subscription ID is missing');
+            notifyError('Ошибка: не указан ID подписки');
+            return;
+        }
+        
+        if (typeof manageSubscription !== 'function') {
+            console.error('manageSubscription function is not defined');
+            notifyError('Ошибка: функция управления подпиской не найдена');
+            return;
+        }
+        
+        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
+    } catch (error) {
+        console.error('Error in manageSubscriptionFromButton:', error);
+        notifyError('Ошибка при открытии окна управления подпиской: ' + error.message);
+    }
 }
 
 // Manage subscription - show modal with options
@@ -1985,17 +2013,103 @@ async function manageSubscription(subscriptionId, productName, price, period, st
     console.log('manageSubscription called with:', { subscriptionId, productName, price, period, startDate, endDate });
     
     try {
-        const periodText = period === 'monthly' ? 'месяц' : period === 'yearly' ? 'год' : 'месяц';
-        const startDateFormatted = startDate ? new Date(startDate).toLocaleDateString('ru-RU') : '-';
-        const endDateFormatted = endDate ? new Date(endDate).toLocaleDateString('ru-RU') : '-';
+        // Validate inputs
+        if (!subscriptionId) {
+            console.error('Subscription ID is required');
+            notifyError('Ошибка: не указан ID подписки');
+            return;
+        }
+        
+        // Check if showModal is available
+        if (typeof showModal !== 'function') {
+            console.error('showModal function is not defined');
+            notifyError('Ошибка: функция модального окна не найдена');
+            return;
+        }
+        
+        // Check if formatAmountRub is available
+        if (typeof formatAmountRub !== 'function') {
+            console.error('formatAmountRub function is not defined');
+            notifyError('Ошибка: функция форматирования суммы не найдена');
+            return;
+        }
+        
+        // Normalize data
+        const normalizedProductName = productName || 'Подписка';
+        const normalizedPrice = price ? parseFloat(price) : 0;
+        const normalizedPeriod = period || 'monthly';
+        const normalizedStartDate = startDate || '';
+        const normalizedEndDate = endDate || '';
+        
+        // Format period text
+        const periodText = normalizedPeriod === 'monthly' ? 'месяц' : 
+                          normalizedPeriod === 'yearly' ? 'год' : 
+                          normalizedPeriod === 'weekly' ? 'неделя' : 'месяц';
+        
+        // Format dates safely
+        let startDateFormatted = '-';
+        let endDateFormatted = '-';
+        
+        try {
+            if (normalizedStartDate) {
+                const startDateObj = new Date(normalizedStartDate);
+                if (!isNaN(startDateObj.getTime())) {
+                    startDateFormatted = startDateObj.toLocaleDateString('ru-RU');
+                }
+            }
+        } catch (e) {
+            console.warn('Error formatting start date:', e);
+        }
+        
+        try {
+            if (normalizedEndDate) {
+                const endDateObj = new Date(normalizedEndDate);
+                if (!isNaN(endDateObj.getTime())) {
+                    endDateFormatted = endDateObj.toLocaleDateString('ru-RU');
+                }
+            }
+        } catch (e) {
+            console.warn('Error formatting end date:', e);
+        }
         
         // Escape HTML to prevent XSS
-        const escapedProductName = (productName || 'Подписка').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const escapeHtml = (text) => {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+        
+        const escapedProductName = escapeHtml(normalizedProductName);
+        const escapedSubscriptionId = escapeHtml(subscriptionId);
+        
+        // Format price
+        let priceFormatted = '0 ₽';
+        try {
+            priceFormatted = formatAmountRub(normalizedPrice);
+        } catch (e) {
+            console.warn('Error formatting price:', e);
+            priceFormatted = `${normalizedPrice} ₽`;
+        }
         
         // Create modal content with unique IDs for buttons
-        const modalId = `subscription-modal-${subscriptionId}`;
-        const cancelButtonId = `cancel-subscription-${subscriptionId}`;
-        const historyButtonId = `history-subscription-${subscriptionId}`;
+        const modalId = `subscription-modal-${escapedSubscriptionId}`;
+        const cancelButtonId = `cancel-subscription-${escapedSubscriptionId}`;
+        const historyButtonId = `history-subscription-${escapedSubscriptionId}`;
+        
+        console.log('Opening modal with data:', {
+            modalId,
+            cancelButtonId,
+            historyButtonId,
+            escapedProductName,
+            priceFormatted,
+            periodText,
+            startDateFormatted,
+            endDateFormatted
+        });
         
         showModal({
             title: 'Управление подпиской',
@@ -2007,7 +2121,7 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Стоимость:</span>
-                                <span class="font-semibold">${formatAmountRub(price)}/${periodText}</span>
+                                <span class="font-semibold">${priceFormatted}/${periodText}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Начало подписки:</span>
@@ -2024,7 +2138,7 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                     <div class="space-y-2">
                         <button 
                             id="${cancelButtonId}"
-                            data-subscription-id="${subscriptionId}"
+                            data-subscription-id="${escapedSubscriptionId}"
                             data-product-name="${escapedProductName}"
                             class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold"
                         >
@@ -2036,7 +2150,7 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                         </button>
                         <button 
                             id="${historyButtonId}"
-                            data-subscription-id="${subscriptionId}"
+                            data-subscription-id="${escapedSubscriptionId}"
                             class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold"
                         >
                             <div class="flex items-center gap-2">
@@ -2048,39 +2162,77 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                 </div>
             `,
             confirmText: 'Закрыть',
-            onConfirm: () => closeModal(),
-            onCancel: () => closeModal()
+            onConfirm: () => {
+                if (typeof closeModal === 'function') {
+                    closeModal();
+                }
+            },
+            onCancel: () => {
+                if (typeof closeModal === 'function') {
+                    closeModal();
+                }
+            }
         });
         
         // Add event listeners after modal is shown
         setTimeout(() => {
-            const cancelBtn = document.getElementById(cancelButtonId);
-            const historyBtn = document.getElementById(historyButtonId);
-            
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', async () => {
-                    closeModal();
-                    const subId = cancelBtn.getAttribute('data-subscription-id');
-                    const prodName = cancelBtn.getAttribute('data-product-name');
-                    await cancelSubscription(subId, prodName);
-                });
+            try {
+                const cancelBtn = document.getElementById(cancelButtonId);
+                const historyBtn = document.getElementById(historyButtonId);
+                
+                console.log('Setting up event listeners:', { cancelBtn: !!cancelBtn, historyBtn: !!historyBtn });
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Cancel button clicked');
+                        if (typeof closeModal === 'function') {
+                            closeModal();
+                        }
+                        const subId = cancelBtn.getAttribute('data-subscription-id');
+                        const prodName = cancelBtn.getAttribute('data-product-name');
+                        if (subId && typeof cancelSubscription === 'function') {
+                            await cancelSubscription(subId, prodName);
+                        }
+                    });
+                } else {
+                    console.error('Cancel button not found:', cancelButtonId);
+                }
+                
+                if (historyBtn) {
+                    historyBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('History button clicked');
+                        if (typeof closeModal === 'function') {
+                            closeModal();
+                        }
+                        const subId = historyBtn.getAttribute('data-subscription-id');
+                        if (subId && typeof viewSubscriptionHistory === 'function') {
+                            viewSubscriptionHistory(subId);
+                        }
+                    });
+                } else {
+                    console.error('History button not found:', historyButtonId);
+                }
+                
+                // Re-initialize icons
+                if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error('Error setting up event listeners:', error);
             }
-            
-            if (historyBtn) {
-                historyBtn.addEventListener('click', () => {
-                    const subId = historyBtn.getAttribute('data-subscription-id');
-                    viewSubscriptionHistory(subId);
-                });
-            }
-            
-            // Re-initialize icons
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }, 100);
+        }, 200); // Increased timeout to ensure DOM is ready
     } catch (error) {
         console.error('Error in manageSubscription:', error);
-        notifyError('Ошибка при открытии окна управления подпиской');
+        console.error('Error stack:', error.stack);
+        if (typeof notifyError === 'function') {
+            notifyError('Ошибка при открытии окна управления подпиской: ' + (error.message || 'Неизвестная ошибка'));
+        } else {
+            alert('Ошибка при открытии окна управления подпиской: ' + (error.message || 'Неизвестная ошибка'));
+        }
     }
 }
 
