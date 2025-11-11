@@ -248,9 +248,9 @@ function updateEmailVerificationStatus(emailVerified) {
     const unverifiedBadge = document.getElementById('emailUnverifiedBadge');
     
     // Get sidebar and main container for positioning
-    const sidebar = document.querySelector('aside.w-64.bg-white.border-r');
+    const sidebar = document.getElementById('desktopSidebar');
     const mainContainer = document.getElementById('mainContainer');
-    const mainContent = document.getElementById('mainContent');
+    const mobileSidebar = document.getElementById('mobileSidebar');
     
     if (emailVerified) {
         // Show verified banner (small), hide unverified banner
@@ -260,19 +260,27 @@ function updateEmailVerificationStatus(emailVerified) {
         if (verifiedBanner) {
             verifiedBanner.classList.remove('hidden');
             // Adjust positions: header (64px) + small banner (~48px) = ~112px
+            const bannerHeight = '7rem'; // 112px
             if (sidebar) {
-                sidebar.style.top = '7rem'; // 112px
+                sidebar.style.top = bannerHeight;
+            }
+            if (mobileSidebar) {
+                mobileSidebar.style.top = bannerHeight;
             }
             if (mainContainer) {
-                mainContainer.style.paddingTop = '7rem';
+                mainContainer.style.paddingTop = bannerHeight;
             }
         } else {
             // No banner shown
+            const normalTop = '4rem'; // header only (64px)
             if (sidebar) {
-                sidebar.style.top = '4rem'; // header only (64px)
+                sidebar.style.top = normalTop;
+            }
+            if (mobileSidebar) {
+                mobileSidebar.style.top = normalTop;
             }
             if (mainContainer) {
-                mainContainer.style.paddingTop = '4rem';
+                mainContainer.style.paddingTop = normalTop;
             }
         }
         
@@ -288,19 +296,27 @@ function updateEmailVerificationStatus(emailVerified) {
         if (verificationBanner) {
             verificationBanner.classList.remove('hidden');
             // Adjust positions: header (64px) + large banner (~96px) = ~160px
+            const bannerHeight = '10rem'; // 160px
             if (sidebar) {
-                sidebar.style.top = '10rem'; // 160px
+                sidebar.style.top = bannerHeight;
+            }
+            if (mobileSidebar) {
+                mobileSidebar.style.top = bannerHeight;
             }
             if (mainContainer) {
-                mainContainer.style.paddingTop = '10rem';
+                mainContainer.style.paddingTop = bannerHeight;
             }
         } else {
             // No banner shown (shouldn't happen for unverified, but handle it)
+            const normalTop = '4rem';
             if (sidebar) {
-                sidebar.style.top = '4rem';
+                sidebar.style.top = normalTop;
+            }
+            if (mobileSidebar) {
+                mobileSidebar.style.top = normalTop;
             }
             if (mainContainer) {
-                mainContainer.style.paddingTop = '4rem';
+                mainContainer.style.paddingTop = normalTop;
             }
         }
         if (verifiedBanner) {
