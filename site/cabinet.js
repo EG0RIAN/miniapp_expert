@@ -2159,64 +2159,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Cabinet initialization complete');
 });
 
-        modalContainer.innerHTML = modalHtml;
-        document.body.appendChild(modalContainer);
-        
-        // Initialize Lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-        
-        // Get elements
-        const checkbox = document.getElementById(checkboxId);
-        const acceptBtn = document.getElementById(acceptBtnId);
-        const cancelBtn = modalContainer.querySelector('button:last-child');
-        
-        // Checkbox handler
-        if (checkbox && acceptBtn) {
-            checkbox.addEventListener('change', function() {
-                acceptBtn.disabled = !this.checked;
-            });
-        }
-        
-        // Accept button handler
-        if (acceptBtn) {
-            acceptBtn.addEventListener('click', async function() {
-                if (checkbox && checkbox.checked) {
-                    acceptBtn.disabled = true;
-                    acceptBtn.textContent = 'Обработка...';
-                    
-                    // Sign document
-                    const signed = await signDocument(documentType, true);
-                    if (signed) {
-                        modalContainer.remove();
-                        resolve(true);
-                    } else {
-                        acceptBtn.disabled = false;
-                        acceptBtn.textContent = 'Принять';
-                    }
-                }
-            });
-        }
-        
-        // Cancel button handler
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', function() {
-                modalContainer.remove();
-                resolve(false);
-            });
-        }
-        
-        // Close on backdrop click
-        modalContainer.addEventListener('click', function(e) {
-            if (e.target === modalContainer) {
-                modalContainer.remove();
-                resolve(false);
-            }
-        });
-    });
-}
-
 // Check and sign required documents on first login
 async function checkAndSignRequiredDocuments() {
     try {
