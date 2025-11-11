@@ -1332,8 +1332,187 @@ async function loadPartnersData() {
         }
         
         console.log('✅ Partners data loaded successfully from API');
+        
+        // Load commissions history
+        await loadCommissionsHistory();
     } catch (error) {
         console.error('❌ Error in loadPartnersData:', error);
+    }
+}
+
+// Load commissions history
+async function loadCommissionsHistory() {
+    try {
+        console.log('🔄 Loading commissions history from API...');
+        const result = await apiRequest('/client/referrals/commissions/');
+        console.log('📦 Commissions API response:', result);
+        
+        if (!result || result.error) {
+            console.error('❌ Failed to load commissions:', result?.error);
+            const tbody = document.getElementById('commissionsTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Ошибка загрузки истории начислений</td></tr>';
+            }
+            return;
+        }
+        
+        const data = result.data;
+        const commissions = data.commissions || [];
+        const tbody = document.getElementById('commissionsTableBody');
+        const commissionsTable = document.getElementById('commissionsTable');
+        const commissionsEmpty = document.getElementById('commissionsEmpty');
+        
+        console.log('💰 Commissions data from API:', commissions.length);
+        
+        if (!tbody) {
+            console.error('❌ Commissions table body not found');
+            return;
+        }
+        
+        if (commissions.length === 0) {
+            // Show empty state
+            if (commissionsTable) commissionsTable.classList.add('hidden');
+            if (commissionsEmpty) commissionsEmpty.classList.remove('hidden');
+            console.log('✅ No commissions found');
+            return;
+        }
+        
+        // Show table, hide empty state
+        if (commissionsTable) commissionsTable.classList.remove('hidden');
+        if (commissionsEmpty) commissionsEmpty.classList.add('hidden');
+        
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '—';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Format amount
+        function formatAmount(amount, currency = 'RUB') {
+            return new Intl.NumberFormat('ru-RU', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+        
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const statusMap = {
+                'pending': { text: 'Ожидает', class: 'bg-yellow-100 text-yellow-800' },
+                'processing': { text: 'Обрабатывается', class: 'bg-blue-100 text-blue-800' },
+                'paid': { text: 'Выплачено', class: 'bg-green-100 text-green-800' },
+                'failed': { text: 'Ошибка', class: 'bg-red-100 text-red-800' },
+                'cancelled': { text: 'Отменено', class: 'bg-gray-100 text-gray-800' },
+            };
+            const statusInfo = statusMap[status] || { text: status, class: 'bg-gray-100 text-gray-800' };
+            return `<span class="px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.class}">${statusInfo.text}</span>`;
+        }
+        
+        // Render commissions - Desktop table
+        if (tbody) {
+            tbody.innerHTML = commissions.map(commission => {
+                const referralName = commission.referral?.referred_user?.name || commission.referral?.referred_user?.email || 'Неизвестно';
+                const referralEmail = commission.referral?.referred_user?.email || '';
+                const orderId = commission.order?.order_id || 'N/A';
+                const productName = commission.order?.product?.name || 'N/A';
+                const orderAmount = commission.order?.amount || commission.amount || 0;
+                const orderCurrency = commission.order?.currency || 'RUB';
+                const commissionAmount = commission.commission_amount || 0;
+                const commissionRate = commission.commission_rate || 0;
+                const status = commission.status || 'pending';
+                const createdAt = commission.created_at;
+                
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                        <td class="p-4 text-sm text-gray-700">${formatDate(createdAt)}</td>
+                        <td class="p-4 text-sm">
+                            <div class="font-medium text-gray-900">${referralName}</div>
+                            ${referralEmail ? `<div class="text-xs text-gray-500">${referralEmail}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-sm">
+                            <div class="font-medium text-gray-900">${orderId}</div>
+                            <div class="text-xs text-gray-500">${productName}</div>
+                        </td>
+                        <td class="p-4 text-sm font-semibold text-gray-900">${formatAmount(orderAmount, orderCurrency)}</td>
+                        <td class="p-4 text-sm font-bold text-primary">${formatAmount(commissionAmount, orderCurrency)}</td>
+                        <td class="p-4 text-sm text-gray-600">${commissionRate.toFixed(2)}%</td>
+                        <td class="p-4 text-sm">${getStatusBadge(status)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Render commissions - Mobile cards
+        if (commissionsMobileList) {
+            commissionsMobileList.innerHTML = commissions.map(commission => {
+                const referralName = commission.referral?.referred_user?.name || commission.referral?.referred_user?.email || 'Неизвестно';
+                const referralEmail = commission.referral?.referred_user?.email || '';
+                const orderId = commission.order?.order_id || 'N/A';
+                const productName = commission.order?.product?.name || 'N/A';
+                const orderAmount = commission.order?.amount || commission.amount || 0;
+                const orderCurrency = commission.order?.currency || 'RUB';
+                const commissionAmount = commission.commission_amount || 0;
+                const commissionRate = commission.commission_rate || 0;
+                const status = commission.status || 'pending';
+                const createdAt = commission.created_at;
+                
+                return `
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="font-semibold text-gray-900">${referralName}</div>
+                                ${referralEmail ? `<div class="text-xs text-gray-500 mt-1">${referralEmail}</div>` : ''}
+                            </div>
+                            ${getStatusBadge(status)}
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Заказ:</span>
+                                <span class="font-medium text-gray-900">${orderId}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Продукт:</span>
+                                <span class="font-medium text-gray-900">${productName}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Сумма заказа:</span>
+                                <span class="font-semibold text-gray-900">${formatAmount(orderAmount, orderCurrency)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Комиссия (${commissionRate.toFixed(2)}%):</span>
+                                <span class="font-bold text-primary text-lg">${formatAmount(commissionAmount, orderCurrency)}</span>
+                            </div>
+                            <div class="flex justify-between pt-2 border-t border-gray-200">
+                                <span class="text-gray-500 text-xs">Дата:</span>
+                                <span class="text-gray-500 text-xs">${formatDate(createdAt)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Reinitialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        console.log('✅ Commissions history loaded successfully:', commissions.length, 'commissions');
+    } catch (error) {
+        console.error('❌ Error in loadCommissionsHistory:', error);
+        const tbody = document.getElementById('commissionsTableBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-red-500">Ошибка загрузки истории начислений</td></tr>';
+        }
     }
 }
 
@@ -1981,12 +2160,7 @@ function manageSubscriptionFromButton(button) {
         });
         
         if (!button) {
-            console.error('Button element is null');
-            if (typeof notifyError === 'function') {
-                notifyError('Ошибка: элемент кнопки не найден');
-            } else {
-                alert('Ошибка: элемент кнопки не найден');
-            }
+            console.warn('Button element is null');
             return;
         }
         
@@ -2000,64 +2174,41 @@ function manageSubscriptionFromButton(button) {
         console.log('Extracted data:', { subscriptionId, productName, price, period, startDate, endDate });
         
         if (!subscriptionId) {
-            console.error('Subscription ID is missing');
-            if (typeof notifyError === 'function') {
-                notifyError('Ошибка: не указан ID подписки');
-            } else {
-                alert('Ошибка: не указан ID подписки');
-            }
+            console.warn('Subscription ID is missing');
             return;
         }
         
         // Check if modal functions are available - wait if needed
-        if (typeof showModal !== 'function' && typeof window.showModal !== 'function') {
-            console.warn('showModal not immediately available, waiting...');
+        const checkAndCall = () => {
+            const modalFn = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
+            if (modalFn && typeof modalFn === 'function' && typeof manageSubscription === 'function') {
+                manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
+                return true;
+            }
+            return false;
+        };
+        
+        // Try immediately
+        if (!checkAndCall()) {
             // Wait for modal.js to load (max 2 seconds)
             let waitCount = 0;
             const checkModal = setInterval(() => {
                 waitCount++;
-                if (typeof showModal === 'function' || typeof window.showModal === 'function') {
+                if (checkAndCall()) {
                     clearInterval(checkModal);
-                    console.log('showModal loaded, continuing...');
-                    // Use window.showModal if available
-                    const modalFn = window.showModal || showModal;
-                    if (modalFn) {
-                        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
-                    }
                 } else if (waitCount >= 20) {
                     clearInterval(checkModal);
-                    console.error('showModal still not available after 2 seconds');
+                    console.warn('Modal functions not available, skipping');
                     // Silently fail - don't show error to user
-                    return;
                 }
             }, 100);
-            return;
         }
-        
-        // Use window.showModal if available, otherwise use global showModal
-        if (typeof window.showModal === 'function' && typeof showModal !== 'function') {
-            window.showModal = window.showModal;
-        }
-        
-        if (typeof manageSubscription !== 'function') {
-            console.error('manageSubscription function is not defined');
-            if (typeof notifyError === 'function') {
-                notifyError('Ошибка: функция управления подпиской не найдена');
-            } else {
-                alert('Ошибка: функция управления подпиской не найдена');
-            }
-            return;
-        }
+        return;
         
         manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
     } catch (error) {
         console.error('Error in manageSubscriptionFromButton:', error);
-        console.error('Error stack:', error.stack);
-        if (typeof notifyError === 'function') {
-            notifyError('Ошибка при открытии окна управления подпиской: ' + error.message);
-        } else {
-            alert('Ошибка при открытии окна управления подпиской: ' + error.message);
-        }
+        // Silently fail - don't show error to user
     }
 }
 
@@ -2068,8 +2219,7 @@ async function manageSubscription(subscriptionId, productName, price, period, st
     try {
         // Validate inputs
         if (!subscriptionId) {
-            console.error('Subscription ID is required');
-            notifyError('Ошибка: не указан ID подписки');
+            console.warn('Subscription ID is required');
             return;
         }
         
