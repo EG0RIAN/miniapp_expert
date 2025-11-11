@@ -1031,6 +1031,111 @@ async function loadPartnersData() {
     }
 }
 
+// Load affiliate terms content
+async function loadAffiliateTermsContent() {
+    try {
+        const result = await apiRequest('/documents/affiliate_terms/');
+        if (result && result.data && result.data.document) {
+            const contentEl = document.getElementById('affiliateTermsContent');
+            if (contentEl) {
+                // Extract text content from HTML (remove HTML tags for preview)
+                const content = result.data.document.content_text || result.data.document.content || '';
+                // Show first 2000 characters as preview
+                const preview = content.length > 2000 ? content.substring(0, 2000) + '...' : content;
+                contentEl.innerHTML = `<div class="whitespace-pre-wrap text-sm text-gray-700">${preview}</div>`;
+            }
+        } else {
+            // Fallback to default text
+            const contentEl = document.getElementById('affiliateTermsContent');
+            if (contentEl) {
+                contentEl.innerHTML = '<p class="text-gray-600">Условия партнерской программы загружаются...</p>';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading affiliate terms:', error);
+        const contentEl = document.getElementById('affiliateTermsContent');
+        if (contentEl) {
+            contentEl.innerHTML = '<p class="text-gray-600">Не удалось загрузить условия. Пожалуйста, ознакомьтесь с условиями по <a href="/affiliate-terms.html" target="_blank" class="text-primary hover:underline">ссылке</a>.</p>';
+        }
+    }
+}
+
+// Accept affiliate terms
+async function acceptAffiliateTerms() {
+    const checkbox = document.getElementById('affiliateTermsCheckbox');
+    const btn = document.getElementById('acceptAffiliateTermsBtn');
+    
+    if (!checkbox || !checkbox.checked) {
+        notifyError('Пожалуйста, подтвердите согласие с условиями партнерской программы');
+        return;
+    }
+    
+    if (!btn) return;
+    
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Обработка...';
+    
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    try {
+        const result = await apiRequest('/auth/accept-affiliate-terms/', {
+            method: 'POST',
+        });
+        
+        if (!result || result.error) {
+            notifyError(result?.data?.message || 'Ошибка при принятии условий');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            return;
+        }
+        
+        if (result.data.success) {
+            notifySuccess('Условия партнерской программы приняты! Теперь вы можете участвовать в программе.');
+            
+            // Hide agreement form and show content
+            const agreementForm = document.getElementById('affiliateTermsAgreement');
+            const partnersContent = document.getElementById('partnersContent');
+            
+            if (agreementForm) {
+                agreementForm.classList.add('hidden');
+            }
+            if (partnersContent) {
+                partnersContent.classList.remove('hidden');
+            }
+            
+            // Load partners data
+            await loadPartnersData();
+            
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        } else {
+            notifyError(result.data.message || 'Ошибка при принятии условий');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+    } catch (error) {
+        console.error('Error accepting affiliate terms:', error);
+        notifyError('Ошибка при принятии условий. Попробуйте позже.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+}
+
 // Load payout history
 async function loadPayoutHistory() {
     try {
