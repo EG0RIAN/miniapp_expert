@@ -2144,6 +2144,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
+    // Check and auto-sign required documents on first login (after UI is loaded)
+    // This is done separately to avoid blocking the UI if there's an error
+    try {
+        await checkAndSignRequiredDocuments();
+    } catch (error) {
+        console.error('Error checking required documents:', error);
+        // Don't show error to user, just log it - document signing is not critical for basic functionality
+    }
+    
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -2270,6 +2279,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (loadingSpinner) {
             loadingSpinner.classList.add('hidden');
         }
+    }
+    
+    // Check and auto-sign required documents on first login (after UI is loaded)
+    // This is done separately to avoid blocking the UI if there's an error
+    try {
+        await checkAndSignRequiredDocuments();
+    } catch (error) {
+        console.error('Error checking required documents:', error);
+        // Don't show error to user, just log it - document signing is not critical for basic functionality
     }
     
     // Initialize Lucide icons
