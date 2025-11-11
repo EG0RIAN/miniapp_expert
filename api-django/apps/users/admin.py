@@ -3,21 +3,22 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db import models
 from django.utils.html import format_html
 from .models import User
+from .admin_otp import AdminOTP
 
 
-@admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = ('email', 'name', 'role', 'email_verified', 'referral_code', 'referred_by', 'created_at', 'get_related_counts')
     list_filter = ('role', 'email_verified', 'is_active', 'created_at')
     search_fields = ('email', 'name', 'referral_code', 'telegram_id')
     ordering = ('-created_at',)
-    readonly_fields = ('created_at', 'updated_at', 'referral_code', 'get_related_counts_display')
+    readonly_fields = ('created_at', 'updated_at', 'referral_code', 'get_related_counts_display', 'totp_secret')
     
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Персональная информация', {'fields': ('name', 'phone', 'telegram_id')}),
         ('Права доступа', {'fields': ('role', 'is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
         ('Верификация', {'fields': ('email_verified', 'verification_token', 'reset_token', 'reset_token_expires_at')}),
+        ('Двухфакторная аутентификация', {'fields': ('totp_enabled', 'totp_secret')}),
         ('Оферта', {'fields': ('offer_accepted_at', 'offer_version')}),
         ('Реферальная программа', {'fields': ('referral_code', 'referred_by')}),
         ('Связанные данные', {'fields': ('get_related_counts_display',)}),
@@ -164,4 +165,21 @@ class UserAdmin(BaseUserAdmin):
         """Проверка прав на удаление"""
         # Разрешаем удаление всех пользователей (кроме самого себя, что проверяется в delete_model)
         return super().has_delete_permission(request, obj)
+
+
+class AdminOTPAdmin(admin.ModelAdmin):
+    """Админка для OTP кодов"""
+    list_display = ('user', 'code', 'created_at', 'expires_at', 'used', 'used_at', 'ip_address')
+    list_filter = ('used', 'created_at', 'expires_at')
+    search_fields = ('user__email', 'code', 'ip_address')
+    readonly_fields = ('user', 'code', 'created_at', 'expires_at', 'used', 'used_at', 'ip_address')
+    ordering = ('-created_at',)
+    
+    def has_add_permission(self, request):
+        """Запрещаем создание OTP через админку"""
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        """Запрещаем изменение OTP через админку"""
+        return False
 

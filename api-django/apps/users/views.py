@@ -231,30 +231,73 @@ class AcceptAffiliateTermsView(views.APIView):
     def post(self, request):
         user = request.user
         
-        # Проверяем, не приняты ли уже условия
-        if user.offer_accepted_at:
-            return Response({
-                'success': False,
-                'message': 'Условия уже приняты'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
         try:
-            # Устанавливаем дату принятия условий
+            # Используем DocumentAcceptance для принятия условий
+            from apps.documents.models import Document, DocumentAcceptance
+            
+            # Получаем документ affiliate_terms
+            document = Document.objects.get(
+                document_type='affiliate_terms',
+                is_active=True,
+                is_published=True
+            )
+            
+            # Проверяем, не принят ли уже документ этой версии
+            existing_acceptance = DocumentAcceptance.objects.filter(
+                user=user,
+                document=document,
+                version=document.version
+            ).first()
+            
+            if existing_acceptance:
+                return Response({
+                    'success': True,
+                    'message': 'Условия уже приняты'
+                })
+            
+            # Получаем IP адрес и User-Agent
+            ip_address = self._get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            
+            # Создаем новую запись о принятии документа
+            acceptance = DocumentAcceptance.objects.create(
+                user=user,
+                document=document,
+                version=document.version,
+                ip_address=ip_address,
+                user_agent=user_agent,
+            )
+            
+            # Обновляем offer_accepted_at в User (для обратной совместимости)
             from django.utils import timezone
             user.offer_accepted_at = timezone.now()
-            user.offer_version = '1.0'  # Можно сделать динамическим
+            user.offer_version = str(document.version)
             user.save(update_fields=['offer_accepted_at', 'offer_version'])
             
             return Response({
                 'success': True,
                 'message': 'Условия партнерской программы приняты'
             })
+        except Document.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Документ не найден'
+            }, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(f"Error accepting affiliate terms: {e}")
             return Response({
                 'success': False,
                 'message': 'Ошибка при принятии условий'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def _get_client_ip(self, request):
+        """Получить IP адрес клиента"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
 
 @method_decorator(csrf_exempt, name='dispatch')

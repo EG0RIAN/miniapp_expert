@@ -16,7 +16,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',  # Используем SimpleAdminConfig чтобы отключить autodiscover
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.affiliates',
     'apps.audit',
+    'apps.documents',
 ]
 
 MIDDLEWARE = [
@@ -62,7 +63,7 @@ ROOT_URLCONF = 'miniapp_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Добавляем папку templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,6 +120,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# TOTP settings
+TOTP_ISSUER_NAME = 'MiniAppExpert'
+
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
@@ -164,14 +168,39 @@ TBANK_TERMINAL_KEY = config('TBANK_TERMINAL_KEY', default='')
 TBANK_PASSWORD = config('TBANK_PASSWORD', default='')
 TBANK_API_URL = config('TBANK_API_URL', default='https://securepay.tinkoff.ru/v2')
 
-# Email settings
+# Email settings (Mail.ru SMTP)
+# Mail.ru поддерживает два варианта:
+# - Порт 465 с SSL (EMAIL_USE_SSL=True, EMAIL_USE_TLS=False) - может быть заблокирован
+# - Порт 587 с STARTTLS (EMAIL_USE_TLS=True, EMAIL_USE_SSL=False) - рекомендуется
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('SMTP_HOST', default='')
-EMAIL_PORT = config('SMTP_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('SMTP_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('SMTP_USER', default='')
-EMAIL_HOST_PASSWORD = config('SMTP_PASS', default='')
+EMAIL_HOST = config('SMTP_HOST', default='smtp.mail.ru')
+EMAIL_PORT = config('SMTP_PORT', default=587, cast=int)  # Порт 587 для STARTTLS (более надежный)
+EMAIL_USE_TLS = config('SMTP_USE_TLS', default=True, cast=bool)  # True для STARTTLS на порту 587
+EMAIL_USE_SSL = config('SMTP_USE_SSL', default=False, cast=bool)  # False для STARTTLS на порту 587
+EMAIL_HOST_USER = config('SMTP_USER', default='no-reply@miniapp.expert')
+EMAIL_HOST_PASSWORD = config('SMTP_PASS', default='WjjmVlTb3OmQ3MxEfavh')
 DEFAULT_FROM_EMAIL = config('MAIL_FROM', default='MiniAppExpert <no-reply@miniapp.expert>')
+EMAIL_TIMEOUT = 10  # Таймаут подключения к SMTP (секунды)
+
+# Тестовый режим: перенаправление всех писем на тестовый email
+EMAIL_TEST_MODE = config('EMAIL_TEST_MODE', default=True, cast=bool)
+EMAIL_TEST_RECIPIENT = config('EMAIL_TEST_RECIPIENT', default='e.arkhiptsev@gmail.com')
+
+# Альтернативные способы отправки email (через API)
+# SendGrid (бесплатно до 100 писем/день)
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
+
+# Mailgun (бесплатно до 5000 писем/месяц)
+MAILGUN_API_KEY = config('MAILGUN_API_KEY', default='')
+MAILGUN_DOMAIN = config('MAILGUN_DOMAIN', default='')
+
+# Альтернативный SMTP (например, Yandex)
+EMAIL_ALT_HOST = config('EMAIL_ALT_HOST', default='')
+EMAIL_ALT_PORT = config('EMAIL_ALT_PORT', default=465, cast=int)
+EMAIL_ALT_USER = config('EMAIL_ALT_USER', default='')
+EMAIL_ALT_PASS = config('EMAIL_ALT_PASS', default='')
+EMAIL_ALT_USE_TLS = config('EMAIL_ALT_USE_TLS', default=False, cast=bool)
+EMAIL_ALT_USE_SSL = config('EMAIL_ALT_USE_SSL', default=True, cast=bool)
 
 # App settings
 APP_BASE_URL = config('APP_BASE_URL', default='https://miniapp.expert')

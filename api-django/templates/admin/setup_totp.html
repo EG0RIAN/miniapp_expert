@@ -1,0 +1,227 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Настройка Google Authenticator{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+    .totp-setup {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .qr-code {
+        text-align: center;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+    }
+    .qr-code img {
+        max-width: 300px;
+        height: auto;
+        border: 3px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        background: white;
+    }
+    .instructions {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 5px;
+        margin: 20px 0;
+        border-left: 4px solid #2196F3;
+    }
+    .instructions ol {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+    .instructions li {
+        margin: 10px 0;
+        line-height: 1.6;
+    }
+    .secret-key {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 14px;
+        word-break: break-all;
+        margin: 15px 0;
+        text-align: center;
+    }
+    .verification-form {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #eee;
+    }
+    .form-row {
+        margin: 20px 0;
+    }
+    .form-row label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+    .form-row input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 18px;
+        text-align: center;
+        letter-spacing: 4px;
+    }
+    .form-row input:focus {
+        border-color: #417690;
+        outline: none;
+    }
+    .submit-button {
+        background: #417690;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+    }
+    .submit-button:hover {
+        background: #205067;
+    }
+    .danger-zone {
+        margin-top: 40px;
+        padding: 20px;
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 5px;
+    }
+    .danger-zone h3 {
+        color: #856404;
+        margin-top: 0;
+    }
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #417690;
+        text-decoration: none;
+    }
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .status-enabled {
+        background: #d4edda;
+        color: #155724;
+    }
+    .status-disabled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="totp-setup">
+    <h1>Настройка Google Authenticator</h1>
+    
+    {% if totp_enabled %}
+    <div class="status-badge status-enabled">✓ TOTP включен</div>
+    <p>Google Authenticator настроен и активен. Вы можете использовать его для входа в админ-панель.</p>
+    
+    <div class="qr-code">
+        <h3>Текущий QR-код:</h3>
+        <img src="{{ qr_code }}" alt="TOTP QR Code">
+    </div>
+    
+    <div class="secret-key">
+        <strong>Секретный ключ:</strong><br>
+        {{ secret }}
+    </div>
+    
+    <div class="danger-zone">
+        <h3>⚠️ Отключить Google Authenticator</h3>
+        <p>Если вы хотите отключить Google Authenticator и вернуться к использованию email OTP:</p>
+        <form method="post" action="{% url 'admin:disable_totp' %}" onsubmit="return confirm('Вы уверены, что хотите отключить Google Authenticator?');">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="confirm_disable">Введите "отключить" для подтверждения:</label>
+                <input type="text" name="confirm" id="confirm_disable" required>
+            </div>
+            <button type="submit" class="submit-button" style="background: #dc3545;">Отключить TOTP</button>
+        </form>
+    </div>
+    
+    {% else %}
+    <div class="status-badge status-disabled">✗ TOTP не настроен</div>
+    
+    <div class="instructions">
+        <h3>Инструкция по настройке:</h3>
+        <ol>
+            <li>Установите приложение <strong>Google Authenticator</strong> на ваш телефон (iOS или Android)</li>
+            <li>Откройте приложение и нажмите <strong>"+"</strong> для добавления аккаунта</li>
+            <li>Выберите <strong>"Сканировать QR-код"</strong></li>
+            <li>Отсканируйте QR-код ниже</li>
+            <li>Введите 6-значный код из приложения для подтверждения</li>
+        </ol>
+    </div>
+    
+    <div class="qr-code">
+        <h3>QR-код для сканирования:</h3>
+        <img src="{{ qr_code }}" alt="TOTP QR Code">
+    </div>
+    
+    <div class="secret-key">
+        <strong>Секретный ключ (для ручного ввода):</strong><br>
+        {{ secret }}
+    </div>
+    
+    <div class="verification-form">
+        <h3>Подтверждение настройки</h3>
+        <p>Введите 6-значный код из приложения Google Authenticator для завершения настройки:</p>
+        
+        <form method="post" action="{% url 'admin:setup_totp' %}">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="verification_code">Код из Google Authenticator:</label>
+                <input type="text" name="verification_code" id="verification_code" 
+                       maxlength="6" pattern="[0-9]{6}" required autofocus 
+                       placeholder="000000" style="font-size: 24px; letter-spacing: 8px;">
+            </div>
+            <button type="submit" class="submit-button">Подтвердить и включить TOTP</button>
+        </form>
+    </div>
+    {% endif %}
+    
+    <a href="{% url 'admin:index' %}" class="back-link">← Вернуться в админ-панель</a>
+</div>
+
+<script>
+    // Автоматический фокус и ввод только цифр для кода
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeInput = document.getElementById('verification_code') || document.getElementById('confirm_disable');
+        if (codeInput && codeInput.id === 'verification_code') {
+            codeInput.addEventListener('input', function(e) {
+                // Разрешаем только цифры
+                this.value = this.value.replace(/[^0-9]/g, '');
+                // Ограничиваем длину до 6 символов
+                if (this.value.length > 6) {
+                    this.value = this.value.slice(0, 6);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+

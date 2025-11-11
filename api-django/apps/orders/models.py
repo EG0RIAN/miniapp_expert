@@ -4,6 +4,35 @@ from apps.products.models import Product
 import uuid
 
 
+class PreOrder(models.Model):
+    """Предзаказ - сессия оплаты с UUID"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='pre_orders')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='RUB')
+    referral_code = models.CharField(max_length=50, blank=True, null=True, db_index=True, help_text='Реферальный код партнера')
+    referred_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_pre_orders')
+    expires_at = models.DateTimeField(help_text='Время истечения предзаказа')
+    is_used = models.BooleanField(default=False, db_index=True)
+    used_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'pre_orders'
+        verbose_name = 'Предзаказ'
+        verbose_name_plural = 'Предзаказы'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['is_used']),
+            models.Index(fields=['expires_at']),
+            models.Index(fields=['referral_code']),
+        ]
+    
+    def __str__(self):
+        return f"PreOrder {self.id} - {self.product.name}"
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('NEW', 'Новый'),
@@ -28,6 +57,7 @@ class Order(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order_id = models.CharField(max_length=255, unique=True, db_index=True)
+    pre_order = models.ForeignKey(PreOrder, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
@@ -46,6 +76,10 @@ class Order(models.Model):
     subscription_agreed = models.BooleanField(default=False)
     subscription_agreed_at = models.DateTimeField(blank=True, null=True)
     
+    # Referral info
+    referral_code = models.CharField(max_length=50, blank=True, null=True, db_index=True)
+    referred_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_orders')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -60,8 +94,8 @@ class Order(models.Model):
             models.Index(fields=['status']),
             models.Index(fields=['customer_email']),
             models.Index(fields=['-created_at']),
+            models.Index(fields=['referral_code']),
         ]
     
     def __str__(self):
         return f"Order {self.order_id} - {self.amount} {self.currency}"
-

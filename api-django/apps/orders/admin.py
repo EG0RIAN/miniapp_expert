@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import Order
 
 
-@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order_id', 'customer_email', 'customer_name', 'amount', 'currency', 'status', 'product', 'created_at')
     list_filter = ('status', 'currency', 'subscription_agreed', 'created_at')

@@ -13,4 +13,6 @@ redis==5.0.1
 python-dateutil==2.8.2
 pytz==2024.1
 gunicorn==21.2.0
+pyotp==2.9.0
+qrcode[pil]==8.2
 

@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import PaymentMethod, Mandate, Payment, ManualCharge, Transaction
 
 
-@admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin):
     list_display = ('user', 'pan_mask', 'exp_date', 'status', 'is_default', 'provider', 'created_at')
     list_filter = ('status', 'provider', 'is_default', 'created_at')
@@ -10,7 +9,6 @@ class PaymentMethodAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
 
-@admin.register(Mandate)
 class MandateAdmin(admin.ModelAdmin):
     list_display = ('user', 'mandate_number', 'type', 'bank', 'status', 'signed_at', 'created_at')
     list_filter = ('type', 'bank', 'status', 'created_at')
@@ -18,7 +16,6 @@ class MandateAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
 
-@admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('id', 'order', 'user', 'amount', 'currency', 'status', 'method', 'provider_ref', 'created_at')
     list_filter = ('status', 'method', 'currency', 'created_at')
@@ -39,7 +36,6 @@ class PaymentAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(ManualCharge)
 class ManualChargeAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'amount', 'currency', 'channel', 'status', 'initiator', 'created_at')
     list_filter = ('status', 'channel', 'currency', 'created_at')
@@ -66,7 +62,6 @@ class ManualChargeAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'transaction_type', 'amount', 'currency', 'order', 'created_at')
     list_filter = ('transaction_type', 'currency', 'created_at')

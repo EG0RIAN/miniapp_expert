@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import Referral, ReferralPayout, ReferralCommission
 
 
-@admin.register(Referral)
 class ReferralAdmin(admin.ModelAdmin):
     list_display = ('referrer', 'referred_user', 'status', 'commission_rate', 'total_earned', 'paid_out', 'created_at')
     list_filter = ('status', 'created_at')
@@ -11,7 +10,6 @@ class ReferralAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
-@admin.register(ReferralPayout)
 class ReferralPayoutAdmin(admin.ModelAdmin):
     list_display = ('id', 'referrer', 'amount', 'currency', 'status', 'payment_method', 'payment_ref', 'processed_at', 'created_at')
     list_filter = ('status', 'currency', 'created_at')
@@ -20,7 +18,6 @@ class ReferralPayoutAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
-@admin.register(ReferralCommission)
 class ReferralCommissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'referral', 'order', 'amount', 'commission_rate', 'commission_amount', 'status', 'payout', 'created_at')
     list_filter = ('status', 'created_at')

@@ -13,7 +13,7 @@ class PaymentMethod(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payment_methods')
-    provider = models.CharField(max_length=50, default='tinkoff')
+    provider = models.CharField(max_length=50, default='tbank')
     rebill_id = models.CharField(max_length=255, unique=True, db_index=True)
     pan_mask = models.CharField(max_length=20)
     exp_date = models.CharField(max_length=10, blank=True, null=True)

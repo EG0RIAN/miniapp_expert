@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата не прошла | MiniAppExpert</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981',
+                        secondary: '#0088CC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center px-6">
+        <div class="max-w-2xl w-full">
+            <!-- Failed Card -->
+            <div class="bg-white rounded-3xl shadow-2xl p-12 text-center">
+                <!-- Failed Icon -->
+                <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="x-circle" class="w-12 h-12 text-red-600"></i>
+                </div>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
+                    <i data-lucide="alert-circle" class="w-8 h-8 text-red-500"></i>
+                    <span>Оплата не прошла</span>
+                </h1>
+                <p class="text-gray-600 mb-8 text-lg">Не удалось обработать платеж</p>
+
+                <!-- Order Info -->
+                <div class="bg-gray-50 rounded-2xl p-6 mb-8 text-left">
+                    <div class="text-sm font-semibold text-gray-500 mb-4">Номер заказа:</div>
+                    <div class="font-mono text-xl font-bold text-gray-900 mb-6" id="orderId">ORDER_123456</div>
+                    
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Статус:</span>
+                            <span class="font-semibold text-red-600 flex items-center gap-2">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                <span>Не оплачено</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Possible Reasons -->
+                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6 mb-8 text-left">
+                    <h2 class="font-bold text-lg mb-4 flex items-center gap-2 text-red-700">
+                        <i data-lucide="info" class="w-5 h-5"></i>
+                        <span>Возможные причины:</span>
+                    </h2>
+                    <div class="space-y-3 text-sm text-red-700">
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="credit-card" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Недостаточно средств на карте</div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="lock" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Банк отклонил транзакцию по соображениям безопасности</div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="clock" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Истек срок действия карты</div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="wifi-off" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Проблемы с интернет-соединением во время оплаты</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What to do -->
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-8 text-left">
+                    <h2 class="font-bold text-lg mb-4 flex items-center gap-2 text-blue-700">
+                        <i data-lucide="help-circle" class="w-5 h-5"></i>
+                        <span>Что делать?</span>
+                    </h2>
+                    <div class="space-y-3 text-sm text-blue-700">
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Проверьте баланс карты и попробуйте снова</div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Убедитесь, что карта не заблокирована</div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Свяжитесь с вашим банком, если проблема повторяется</div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                            <div>Используйте другую карту при необходимости</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <button onclick="retryPayment()" class="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition flex items-center justify-center gap-2">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        <span>Попробовать снова</span>
+                    </button>
+                    <a href="/" class="block w-full border-2 border-gray-300 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        <span>Вернуться на главную</span>
+                    </a>
+                </div>
+
+                <!-- Support -->
+                <div class="mt-8 text-sm text-gray-500">
+                    Нужна помощь? <a href="https://t.me/miniappexpert_support" target="_blank" class="text-primary font-semibold hover:underline">Напишите нам в Telegram</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get order ID from URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('orderId') || params.get('OrderId');
+            const error = params.get('error') || params.get('ErrorCode');
+            const errorMessage = params.get('ErrorMessage');
+            
+            if (orderId) {
+                document.getElementById('orderId').textContent = orderId;
+            }
+            
+            // Load order info from API
+            if (orderId) {
+                fetch(`https://miniapp.expert/api/payment/status?orderId=${orderId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.order) {
+                            // Order exists, payment failed
+                            // Update order in localStorage if exists
+                            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                            const orderIndex = orders.findIndex(o => o.orderId === orderId);
+                            if (orderIndex !== -1) {
+                                orders[orderIndex].status = 'failed';
+                                orders[orderIndex].error = error || errorMessage || 'Payment declined';
+                                localStorage.setItem('orders', JSON.stringify(orders));
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching order:', error);
+                    });
+            }
+            
+            // Update order in localStorage
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const order = orders.find(o => o.orderId === orderId);
+            if (order) {
+                order.status = 'failed';
+                order.error = error || errorMessage || 'Payment declined';
+                localStorage.setItem('orders', JSON.stringify(orders));
+            }
+            
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+        
+        // Retry payment
+        function retryPayment() {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('orderId');
+            
+            if (orderId) {
+                // Get order from localStorage
+                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const order = orders.find(o => o.orderId === orderId);
+                
+                if (order && order.paymentUrl) {
+                    // Redirect to payment page
+                    window.location.href = order.paymentUrl;
+                } else {
+                    // Redirect to payment page with order data
+                    const paymentUrl = `/payment.html?product=${encodeURIComponent(order?.product || '')}&price=${order?.amount || ''}`;
+                    window.location.href = paymentUrl;
+                }
+            } else {
+                // Redirect to home page
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+</html>
+

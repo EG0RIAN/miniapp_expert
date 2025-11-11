@@ -115,6 +115,12 @@ function showSection(sectionId) {
         case 'partners':
             loadPartnersData();
             break;
+        case 'cards':
+            loadPaymentMethods();
+            break;
+        case 'documents':
+            loadDocuments();
+            break;
     }
 }
 
@@ -1567,6 +1573,358 @@ async function loadEmailVerificationStatus() {
     }
 }
 
+// Load payment methods (cards)
+async function loadPaymentMethods() {
+    try {
+        console.log('🔄 Loading payment methods from API...');
+        const result = await apiRequest('/client/payment-methods/');
+        console.log('📦 Payment methods API response:', result);
+        
+        if (!result || result.error) {
+            console.error('❌ Failed to load payment methods:', result?.error);
+            const cardsList = document.getElementById('cardsList');
+            if (cardsList) {
+                cardsList.innerHTML = '<div class="text-center py-12 text-gray-500">Ошибка загрузки карт</div>';
+            }
+            return;
+        }
+        
+        const methods = result.data.methods || [];
+        const cardsList = document.getElementById('cardsList');
+        
+        if (!cardsList) return;
+        
+        if (methods.length === 0) {
+            cardsList.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
+                    <i data-lucide="credit-card" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                    <p class="text-gray-600 mb-2">У вас нет привязанных карт</p>
+                    <p class="text-sm text-gray-500">Карта автоматически привязывается при первой оплате</p>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            return;
+        }
+        
+        cardsList.innerHTML = methods.map(method => {
+            const isDefault = method.is_default || false;
+            const cardType = method.card_type || 'Карта';
+            const panMask = method.pan_mask || '**** **** **** ****';
+            const expDate = method.exp_date || '';
+            
+            return `
+                <div class="bg-white rounded-2xl shadow-sm p-6 border-2 ${isDefault ? 'border-primary' : 'border-gray-200'}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                                <i data-lucide="credit-card" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-lg">${panMask}</div>
+                                <div class="text-sm text-gray-600">${cardType}${expDate ? ' · ' + expDate : ''}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            ${isDefault ? `
+                                <span class="bg-primary text-white px-3 py-1 rounded-lg text-sm font-semibold">
+                                    Основная
+                                </span>
+                            ` : ''}
+                            ${!isDefault ? `
+                                <button 
+                                    onclick="setDefaultCard('${method.id}')" 
+                                    class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition text-sm"
+                                >
+                                    Сделать основной
+                                </button>
+                            ` : ''}
+                            ${!isDefault ? `
+                                <button 
+                                    onclick="deleteCard('${method.id}')" 
+                                    class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-red-200 transition text-sm"
+                                >
+                                    Удалить
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Re-initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        console.log('✅ Payment methods loaded successfully');
+    } catch (error) {
+        console.error('❌ Error in loadPaymentMethods:', error);
+        const cardsList = document.getElementById('cardsList');
+        if (cardsList) {
+            cardsList.innerHTML = '<div class="text-center py-12 text-gray-500">Ошибка загрузки карт</div>';
+        }
+    }
+}
+
+// Set default card
+async function setDefaultCard(methodId) {
+    try {
+        const result = await apiRequest(`/client/payment-methods/${methodId}/`, {
+            method: 'PATCH',
+            body: JSON.stringify({ is_default: true }),
+        });
+        
+        if (!result || result.error) {
+            notifyError(result?.data?.message || 'Ошибка при установке карты как основной');
+            return;
+        }
+        
+        notifySuccess('Карта установлена как основная');
+        await loadPaymentMethods();
+    } catch (error) {
+        console.error('Error setting default card:', error);
+        notifyError('Ошибка при установке карты как основной');
+    }
+}
+
+// Delete card
+async function deleteCard(methodId) {
+    if (!confirm('Вы уверены, что хотите удалить эту карту?')) {
+        return;
+    }
+    
+    try {
+        const result = await apiRequest(`/client/payment-methods/${methodId}/`, {
+            method: 'DELETE',
+        });
+        
+        if (!result || result.error) {
+            notifyError(result?.data?.message || 'Ошибка при удалении карты');
+            return;
+        }
+        
+        notifySuccess('Карта успешно удалена');
+        await loadPaymentMethods();
+    } catch (error) {
+        console.error('Error deleting card:', error);
+        notifyError('Ошибка при удалении карты');
+    }
+}
+
+// Check documents status (for badge)
+async function checkDocumentsStatus() {
+    try {
+        const result = await apiRequest('/client/documents/');
+        if (!result || result.error) {
+            return;
+        }
+        
+        const documentsToSign = result.data.documents_to_sign || [];
+        
+        // Show badge if there are documents to sign
+        const badge = document.getElementById('documentsBadge');
+        const badgeMobile = document.getElementById('documentsBadgeMobile');
+        
+        if (documentsToSign.length > 0) {
+            if (badge) {
+                badge.classList.remove('hidden');
+                badge.textContent = documentsToSign.length.toString();
+            }
+            if (badgeMobile) {
+                badgeMobile.classList.remove('hidden');
+                badgeMobile.textContent = documentsToSign.length.toString();
+            }
+        } else {
+            if (badge) {
+                badge.classList.add('hidden');
+            }
+            if (badgeMobile) {
+                badgeMobile.classList.add('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Error checking documents status:', error);
+    }
+}
+
+// Load documents
+async function loadDocuments() {
+    try {
+        console.log('🔄 Loading documents from API...');
+        const result = await apiRequest('/client/documents/');
+        console.log('📦 Documents API response:', result);
+        
+        if (!result || result.error) {
+            console.error('❌ Failed to load documents:', result?.error);
+            return;
+        }
+        
+        const signedDocuments = result.data.signed_documents || [];
+        const documentsToSign = result.data.documents_to_sign || [];
+        
+        // Show/hide banner for documents to sign
+        const banner = document.getElementById('documentsToSignBanner');
+        const bannerList = document.getElementById('documentsToSignList');
+        const signedList = document.getElementById('signedDocumentsList');
+        
+        if (documentsToSign.length > 0) {
+            if (banner) {
+                banner.classList.remove('hidden');
+            }
+            if (bannerList) {
+                bannerList.innerHTML = documentsToSign.map(doc => {
+                    const documentTypeLabels = {
+                        'privacy': 'Политика конфиденциальности',
+                        'affiliate_terms': 'Условия партнерской программы',
+                        'cabinet_terms': 'Условия использования личного кабинета',
+                        'subscription_terms': 'Условия подписки',
+                    };
+                    const label = documentTypeLabels[doc.document_type] || doc.title;
+                    const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
+                    
+                    return `
+                        <div class="bg-white rounded-xl p-4 border border-yellow-300 mb-2">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">${label}</h4>
+                                    ${hasNewVersion ? `
+                                        <p class="text-sm text-gray-600 mt-1">
+                                            Подписана версия ${doc.signed_version}, доступна версия ${doc.current_version}
+                                        </p>
+                                    ` : `
+                                        <p class="text-sm text-gray-600 mt-1">Требуется подпись</p>
+                                    `}
+                                </div>
+                                <button 
+                                    onclick="signDocument('${doc.document_type}')" 
+                                    class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm"
+                                >
+                                    Подписать
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } else {
+            if (banner) {
+                banner.classList.add('hidden');
+            }
+        }
+        
+        // Show signed documents
+        if (signedList) {
+            if (signedDocuments.length === 0 && documentsToSign.length === 0) {
+                signedList.innerHTML = `
+                    <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
+                        <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p class="text-gray-600">У вас нет подписанных документов</p>
+                    </div>
+                `;
+            } else {
+                signedList.innerHTML = signedDocuments.map(doc => {
+                    const documentTypeLabels = {
+                        'privacy': 'Политика конфиденциальности',
+                        'affiliate_terms': 'Условия партнерской программы',
+                        'cabinet_terms': 'Условия использования личного кабинета',
+                        'subscription_terms': 'Условия подписки',
+                    };
+                    const label = documentTypeLabels[doc.document_type] || doc.title;
+                    const signedDate = doc.signed_at ? new Date(doc.signed_at).toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    }) : '';
+                    
+                    const docUrls = {
+                        'privacy': '/privacy.html',
+                        'affiliate_terms': '/affiliate-terms.html',
+                        'cabinet_terms': '/cabinet-terms.html',
+                        'subscription_terms': '/subscription-terms.html',
+                    };
+                    const docUrl = docUrls[doc.document_type] || '#';
+                    
+                    return `
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                        <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">${label}</h3>
+                                        <p class="text-sm text-gray-600">Версия ${doc.current_version} · Подписано ${signedDate}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <a 
+                                        href="${docUrl}" 
+                                        target="_blank"
+                                        class="text-primary hover:text-primary/80 font-semibold text-sm flex items-center gap-2"
+                                    >
+                                        <span>Открыть</span>
+                                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        // Re-initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        console.log('✅ Documents loaded successfully');
+    } catch (error) {
+        console.error('❌ Error in loadDocuments:', error);
+        const signedList = document.getElementById('signedDocumentsList');
+        if (signedList) {
+            signedList.innerHTML = '<div class="text-center py-12 text-gray-500">Ошибка загрузки документов</div>';
+        }
+    }
+}
+
+// Sign document
+async function signDocument(documentType) {
+    if (!confirm('Вы уверены, что хотите подписать этот документ?')) {
+        return;
+    }
+    
+    try {
+        const result = await apiRequest(`/client/documents/accept/${documentType}/`, {
+            method: 'POST',
+        });
+        
+        if (!result || result.error) {
+            notifyError(result?.data?.message || 'Ошибка при подписании документа');
+            return;
+        }
+        
+        notifySuccess('Документ успешно подписан');
+        
+        // Reload documents
+        await loadDocuments();
+        
+        // Update badge
+        await checkDocumentsStatus();
+        
+        // If it's affiliate_terms, reload partners data
+        if (documentType === 'affiliate_terms') {
+            await loadPartnersData();
+        }
+    } catch (error) {
+        console.error('Error signing document:', error);
+        notifyError('Ошибка при подписании документа');
+    }
+}
+
 // Initialize - Load all data from API
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Cabinet page loaded, initializing...');
@@ -1600,13 +1958,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             loadProducts(),
             loadSubscriptions(),
             loadPayments(),
-            loadPartnersData()
+            loadPartnersData(),
+            checkDocumentsStatus() // Check documents status for badge
         ]);
         console.log('All sections loaded');
         
         // Check hash for section
         const hash = window.location.hash.replace('#', '');
-        if (hash && ['products', 'subscriptions', 'payments', 'profile', 'partners'].includes(hash)) {
+        if (hash && ['products', 'subscriptions', 'payments', 'profile', 'partners', 'cards', 'documents'].includes(hash)) {
             showSection(hash);
         } else {
             showSection('products');

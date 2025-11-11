@@ -48,6 +48,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     referral_code = models.CharField(max_length=50, unique=True, blank=True, null=True)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrals', db_column='referred_by')
     phone = models.CharField(max_length=20, blank=True, null=True)
+    totp_secret = models.CharField(max_length=32, blank=True, null=True, help_text='TOTP секрет для Google Authenticator')
+    totp_enabled = models.BooleanField(default=False, help_text='Включен ли TOTP (Google Authenticator)')
     date_joined = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

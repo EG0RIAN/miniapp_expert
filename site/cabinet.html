@@ -148,6 +148,15 @@
                     <i data-lucide="users" class="w-5 h-5"></i>
                     <span class="font-semibold">Партнерская программа</span>
                 </a>
+                <a href="#cards" onclick="showSection('cards'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="cards">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                    <span class="font-semibold">Карты</span>
+                </a>
+                <a href="#documents" onclick="showSection('documents'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="documents">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span class="font-semibold">Документы</span>
+                    <span id="documentsBadge" class="hidden ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">!</span>
+                </a>
             </nav>
         </aside>
 
@@ -178,6 +187,15 @@
                 <a href="#partners" onclick="showSection('partners'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
                     <i data-lucide="users" class="w-5 h-5"></i>
                     <span class="font-semibold">Партнерская программа</span>
+                </a>
+                <a href="#cards" onclick="showSection('cards'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="cards">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                    <span class="font-semibold">Карты</span>
+                </a>
+                <a href="#documents" onclick="showSection('documents'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="documents">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span class="font-semibold">Документы</span>
+                    <span id="documentsBadgeMobile" class="hidden ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">!</span>
                 </a>
             </nav>
         </aside>
@@ -643,6 +661,64 @@
                         </div>
                     </div>
                 </div>
+                </div>
+            </section>
+
+            <!-- Cards Section -->
+            <section id="section-cards" class="cabinet-section hidden">
+                <h1 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                    <i data-lucide="credit-card" class="w-8 h-8 text-primary"></i>
+                    <span>Привязанные карты</span>
+                </h1>
+
+                <!-- Cards List -->
+                <div id="cardsList" class="space-y-4 mb-6">
+                    <div class="text-center py-12 text-gray-500">
+                        <i data-lucide="credit-card" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p>Загрузка карт...</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <h2 class="text-xl font-bold mb-4">Как привязать карту?</h2>
+                    <p class="text-gray-700 mb-4">
+                        Карта автоматически привязывается при первой оплате. После успешной оплаты карта будет доступна для рекуррентных платежей и будет отображаться в этом списке.
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Для привязки новой карты совершите платеж на любой странице оплаты.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Documents Section -->
+            <section id="section-documents" class="cabinet-section hidden">
+                <h1 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                    <i data-lucide="file-text" class="w-8 h-8 text-primary"></i>
+                    <span>Подписанные документы</span>
+                </h1>
+
+                <!-- Documents to Sign Banner -->
+                <div id="documentsToSignBanner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-yellow-900 mb-2">Требуется подпись документов</h3>
+                            <p class="text-sm text-yellow-700 mb-3">
+                                Доступны новые версии документов, которые необходимо подписать.
+                            </p>
+                            <div id="documentsToSignList" class="space-y-2">
+                                <!-- Список документов для подписи -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signed Documents List -->
+                <div id="signedDocumentsList" class="space-y-4">
+                    <div class="text-center py-12 text-gray-500">
+                        <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p>Загрузка документов...</p>
+                    </div>
                 </div>
             </section>
         </main>

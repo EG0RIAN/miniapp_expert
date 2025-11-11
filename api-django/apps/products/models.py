@@ -17,6 +17,15 @@ class Product(models.Model):
     currency = models.CharField(max_length=3, default='RUB')
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPE_CHOICES, default='one_time')
     subscription_period = models.CharField(max_length=20, blank=True, null=True, help_text='monthly, yearly')
+    subscription_terms = models.ForeignKey(
+        'documents.Document',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products',
+        limit_choices_to={'document_type': 'subscription_terms', 'is_active': True},
+        help_text='Условия подписки для данного продукта (если продукт является подпиской)'
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -46,6 +55,7 @@ class UserProduct(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     renewal_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    payment_method = models.ForeignKey('payments.PaymentMethod', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_products', help_text='Платежный метод для автоматического списания подписки')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

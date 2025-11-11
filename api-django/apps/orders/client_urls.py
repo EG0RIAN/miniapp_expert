@@ -1,8 +1,7 @@
 from django.urls import path
-from .client_views import ClientOrdersView, ClientOrderDetailView
+from .views import PreOrderCreateView, PreOrderDetailView
 
 urlpatterns = [
-    path('orders/', ClientOrdersView.as_view(), name='client-orders'),
-    path('orders/<uuid:order_id>/', ClientOrderDetailView.as_view(), name='client-order-detail'),
+    path('pre-order/create', PreOrderCreateView.as_view(), name='pre-order-create'),
+    path('pre-order/<uuid:pre_order_id>', PreOrderDetailView.as_view(), name='pre-order-detail'),
 ]
-

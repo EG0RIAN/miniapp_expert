@@ -1,13 +1,16 @@
 from rest_framework import serializers
 from .models import Product, UserProduct
+from apps.documents.serializers import DocumentPublicSerializer
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    subscription_terms = DocumentPublicSerializer(read_only=True)
+    
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'description', 'slug', 'price', 'currency',
-            'product_type', 'subscription_period', 'is_active',
+            'product_type', 'subscription_period', 'subscription_terms', 'is_active',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

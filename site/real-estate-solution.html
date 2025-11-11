@@ -591,7 +591,7 @@
                             </svg>
                             <span class="text-gray-700">Каталог с фильтрами</span>
                                 </li>
-                        <li class="flex items-start">
+                                <li class="flex items-start">
                             <svg class="w-6 h-6 text-primary mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
@@ -611,7 +611,7 @@
                                 </li>
                             </ul>
                     
-                    <a href="/payment.html?product=Mini%20App%20для%20недвижимости%20-%20Старт&price=3000&subscription=monthly" 
+                    <a href="#" data-product-slug="real-estate-start" onclick="event.preventDefault(); createPreOrderAndRedirect('real-estate-start', this);" 
                        class="block w-full bg-gradient-to-r from-primary to-secondary text-white text-center px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                         Начать сейчас →
                     </a>
@@ -674,7 +674,7 @@
                         </li>
                     </ul>
                     
-                    <a href="/payment.html?product=Mini%20App%20для%20недвижимости%20-%20Бизнес&price=5000&subscription=monthly" 
+                    <a href="#" data-product-slug="real-estate-business" onclick="event.preventDefault(); createPreOrderAndRedirect('real-estate-business', this);" 
                        class="block w-full bg-white text-primary text-center px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                         Выбрать план →
                     </a>
@@ -730,7 +730,7 @@
                         </li>
                     </ul>
                     
-                    <a href="/payment.html?product=Mini%20App%20для%20недвижимости%20-%20Корпоративный&price=10000&subscription=monthly" 
+                    <a href="#" data-product-slug="real-estate-corporate" onclick="event.preventDefault(); createPreOrderAndRedirect('real-estate-corporate', this);" 
                        class="block w-full bg-gradient-to-r from-secondary to-purple-600 text-white text-center px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                         Подключить →
                     </a>
@@ -772,18 +772,45 @@
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12 px-6">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="flex items-center justify-center space-x-3 mb-4">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-                    </svg>
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="text-2xl font-bold">MiniAppExpert</div>
+                    </div>
+                    <p class="text-gray-400 text-sm">Разработка Telegram Mini Apps для вашего бизнеса</p>
                 </div>
-                <div class="text-2xl font-bold" style="color: white;">MiniAppExpert</div>
+                <div>
+                    <h4 class="font-semibold mb-4">Компания</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="/" class="hover:text-white transition">Главная</a></li>
+                        <li><a href="/#cases" class="hover:text-white transition">Кейсы</a></li>
+                        <li><a href="/#advantages" class="hover:text-white transition">Преимущества</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Контакты</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li>Telegram: <a href="https://t.me/miniappexpert_support" target="_blank" rel="noopener" class="hover:text-white transition underline">@miniappexpert_support</a></li>
+                        <li>Email: <a href="mailto:hello@miniapp.expert" class="hover:text-white transition underline">hello@miniapp.expert</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Документы</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="/privacy.html" class="hover:text-white transition">Политика конфиденциальности</a></li>
+                        <li><a href="/cabinet-terms.html" class="hover:text-white transition">Условия использования ЛК</a></li>
+                        <li><a href="/affiliate-terms.html" class="hover:text-white transition">Условия партнерской программы</a></li>
+                    </ul>
+                </div>
             </div>
-            <p class="text-gray-400 text-sm mb-6">Разработка Telegram Mini Apps для вашего бизнеса</p>
-            <div class="text-gray-400 text-sm">
-                © 2025 MiniAppExpert. Все права защищены.
+            <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 MiniAppExpert. Все права защищены.</p>
             </div>
         </div>
     </footer>
@@ -794,6 +821,109 @@
     </div>
 
     <script>
+        // GLOBAL FUNCTIONS - доступны из onclick handlers
+        
+        // Create pre-order and redirect to payment page
+        async function createPreOrderAndRedirect(productSlug, buttonElement) {
+            // Get referral code from URL
+            const params = new URLSearchParams(window.location.search);
+            const referralCode = params.get('ref');
+            
+            // Find button - buttonElement should be the DOM element (this)
+            let button = buttonElement;
+            if (!button) {
+                button = document.querySelector(`a[data-product-slug="${productSlug}"]`);
+            }
+            
+            if (!button) {
+                console.error('Button not found for product:', productSlug);
+                alert('Ошибка: кнопка не найдена');
+                return false;
+            }
+            
+            // Save original button state
+            const originalText = button.innerHTML;
+            const originalOnclick = button.getAttribute('onclick');
+            
+            // Show loading state
+            button.innerHTML = '<span class="animate-pulse">Создание заказа...</span>';
+            button.style.pointerEvents = 'none';
+            button.style.opacity = '0.6';
+            button.style.cursor = 'wait';
+            
+            // Disable button temporarily
+            button.setAttribute('data-processing', 'true');
+            button.onclick = function(e) { 
+                if (e) e.preventDefault(); 
+                return false; 
+            };
+            
+            try {
+                console.log('Creating pre-order for product:', productSlug, 'referral:', referralCode);
+                
+                // Create pre-order
+                const response = await fetch('/api/order/pre-order/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        product_slug: productSlug,
+                        referral_code: referralCode,
+                    }),
+                });
+                
+                console.log('Pre-order response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Pre-order creation failed:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Pre-order result:', result);
+                
+                if (result.success && result.pre_order_id) {
+                    // Redirect to payment page with pre-order UUID
+                    console.log('Redirecting to payment page with pre-order:', result.pre_order_id);
+                    window.location.href = `/payment.html?pre_order_id=${result.pre_order_id}`;
+                    return false;
+                } else {
+                    const errorMsg = result.message || 'Ошибка создания заказа';
+                    console.error('Pre-order creation failed:', errorMsg);
+                    alert(errorMsg);
+                    // Restore button
+                    restoreButton(button, originalText, originalOnclick);
+                }
+            } catch (error) {
+                console.error('Error creating pre-order:', error);
+                alert('Ошибка создания заказа: ' + (error.message || 'Неизвестная ошибка') + '\n\nПроверьте консоль браузера для деталей.');
+                // Restore button
+                restoreButton(button, originalText, originalOnclick);
+            }
+            
+            return false;
+        }
+        
+        // Helper function to restore button state
+        function restoreButton(button, originalText, originalOnclick) {
+            if (button) {
+                button.innerHTML = originalText;
+                button.style.pointerEvents = 'auto';
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+                button.removeAttribute('data-processing');
+                if (originalOnclick) {
+                    button.setAttribute('onclick', originalOnclick);
+                } else {
+                    button.onclick = null;
+                }
+            }
+        }
+        
         function openLightbox(id) {
             // For now, just show a placeholder
             document.getElementById('lightbox').classList.add('active');
@@ -895,11 +1025,13 @@
                     console.log('Total price:', totalPrice); // Debug
                     console.log('Checkboxes checked:', checkboxes.length); // Debug
 
-                    // Redirect to payment immediately
-                    const redirectUrl = `/payment.html?product=${encodeURIComponent('Mini App для недвижимости')}&price=${totalPrice}&company=${encodeURIComponent(formData.companyName)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`;
-                    console.log('Redirecting to:', redirectUrl); // Debug
+                    // Get referral code from URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const referralCode = urlParams.get('ref');
                     
-                    window.location.href = redirectUrl;
+                    // Create pre-order first, then redirect
+                    // For custom orders with additional features, use real-estate-business product
+                    createPreOrderFromForm('real-estate-business', referralCode, formData);
                 });
             } else {
                 console.error('Form not found!'); // Debug
@@ -951,11 +1083,63 @@
             const installmentMonthly = Math.round(totalPrice / 12);
             document.getElementById('installmentPrice').textContent = installmentMonthly.toLocaleString('ru-RU') + '₽/мес';
             
-            // Update payment button link
+            // Update payment button link - will create pre-order on click
             const paymentButton = document.querySelector('a[href*="/payment.html"]');
             if (paymentButton) {
-                paymentButton.href = `/payment.html?product=Mini App для недвижимости&price=${totalPrice}`;
+                paymentButton.onclick = function(e) {
+                    e.preventDefault();
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const referralCode = urlParams.get('ref');
+                    createPreOrderFromForm('real-estate-business', referralCode);
+                };
                 paymentButton.innerHTML = `Оплатить сейчас - ${totalPrice.toLocaleString('ru-RU')} ₽`;
+            }
+        }
+        
+        // Create pre-order from form data
+        async function createPreOrderFromForm(productSlug, referralCode, formData = null) {
+            try {
+                // Show loading
+                const paymentButton = document.querySelector('a[href*="/payment.html"]');
+                if (paymentButton) {
+                    paymentButton.innerHTML = '<span class="animate-pulse">Создание заказа...</span>';
+                    paymentButton.disabled = true;
+                }
+                
+                // Create pre-order
+                const response = await fetch('/api/order/pre-order/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        product_slug: productSlug,
+                        referral_code: referralCode,
+                    }),
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.pre_order_id) {
+                    // Save form data to localStorage for later use
+                    if (formData) {
+                        localStorage.setItem('pendingOrderFormData', JSON.stringify(formData));
+                    }
+                    
+                    // Redirect to payment page
+                    window.location.href = `/payment.html?pre_order_id=${result.pre_order_id}`;
+                } else {
+                    alert(result.message || 'Ошибка создания заказа');
+                    if (paymentButton) {
+                        paymentButton.innerHTML = `Оплатить сейчас - ${document.getElementById('totalPrice').textContent}`;
+                        paymentButton.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Error creating pre-order:', error);
+                alert('Ошибка создания заказа. Попробуйте еще раз.');
             }
         }
         

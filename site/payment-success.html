@@ -52,11 +52,11 @@
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Продукт:</span>
-                            <span class="font-semibold">Mini App для недвижимости</span>
+                            <span class="font-semibold" id="productName">Загрузка...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Сумма:</span>
-                            <span class="font-semibold">150 000 ₽</span>
+                            <span class="font-semibold" id="orderAmount">Загрузка...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Статус:</span>
@@ -108,7 +108,7 @@
 
                 <!-- Actions -->
                 <div class="space-y-3">
-                    <a href="/cabinet.html" class="block w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition flex items-center justify-center gap-2">
+                    <a href="/cabinet.html" id="cabinetBtn" class="block w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition flex items-center justify-center gap-2">
                         <i data-lucide="user" class="w-5 h-5"></i>
                         <span>Перейти в личный кабинет</span>
                     </a>
@@ -130,45 +130,142 @@
         // Get order ID from URL
         document.addEventListener('DOMContentLoaded', function() {
             const params = new URLSearchParams(window.location.search);
-            const orderId = params.get('orderId');
+            const orderId = params.get('orderId') || params.get('OrderId');
+            const paymentId = params.get('PaymentId');
+            const status = params.get('Status');
             
             if (orderId) {
                 document.getElementById('orderId').textContent = orderId;
             }
             
-            // Get email from order
-            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-            const order = orders.find(o => o.orderId === orderId);
-            
-            if (order) {
-                document.getElementById('userEmail').textContent = order.email;
+            // Load order info from API (more reliable than localStorage)
+            if (orderId) {
+                // Show loading state
+                document.getElementById('productName').textContent = 'Загрузка...';
+                document.getElementById('orderAmount').textContent = 'Загрузка...';
                 
-                // Update order status
-                order.status = 'paid';
-                localStorage.setItem('orders', JSON.stringify(orders));
-                
-                // Add to user's products
-                const products = JSON.parse(localStorage.getItem('userProducts') || '[]');
-                products.push({
-                    id: 'product_' + Date.now(),
-                    name: order.product,
-                    price: order.amount,
-                    purchaseDate: new Date().toISOString(),
-                    status: 'active'
-                });
-                localStorage.setItem('userProducts', JSON.stringify(products));
+                fetch(`/api/payment/status?orderId=${encodeURIComponent(orderId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Order data received:', data);
+                        if (data.success && data.order) {
+                            // Update order ID
+                            document.getElementById('orderId').textContent = data.order.orderId;
+                            
+                            // Update email
+                            if (data.order.customerEmail) {
+                                document.getElementById('userEmail').textContent = data.order.customerEmail;
+                            }
+                            
+                            // Update product name
+                            if (data.order.description) {
+                                document.getElementById('productName').textContent = data.order.description;
+                            } else {
+                                document.getElementById('productName').textContent = 'Загрузка...';
+                            }
+                            
+                            // Update amount
+                            if (data.order.amount) {
+                                const amount = parseFloat(data.order.amount);
+                                document.getElementById('orderAmount').textContent = amount.toLocaleString('ru-RU') + ' ₽';
+                            } else {
+                                document.getElementById('orderAmount').textContent = 'Загрузка...';
+                            }
+                            
+                            // Если платеж подтвержден и есть токен авторизации, автоматически авторизуем пользователя
+                            if (data.authToken && data.user) {
+                                localStorage.setItem('userAuth', 'true');
+                                localStorage.setItem('userToken', data.authToken);
+                                localStorage.setItem('userEmail', data.user.email);
+                                localStorage.setItem('userName', data.user.name || data.user.email);
+                                
+                                console.log('✅ User automatically authorized after payment');
+                                
+                                // Кнопка уже должна работать, но убедимся что она кликабельна
+                                const cabinetBtn = document.getElementById('cabinetBtn');
+                                if (cabinetBtn) {
+                                    cabinetBtn.style.pointerEvents = 'auto';
+                                    cabinetBtn.style.opacity = '1';
+                                }
+                            } else {
+                                // Если токена нет, показываем сообщение что нужно войти
+                                console.warn('⚠️ No auth token received. User may need to login manually.');
+                                const cabinetBtn = document.getElementById('cabinetBtn');
+                                if (cabinetBtn) {
+                                    cabinetBtn.onclick = function(e) {
+                                        e.preventDefault();
+                                        alert('Для доступа в личный кабинет необходимо войти. Вы будете перенаправлены на страницу входа.');
+                                        window.location.href = '/login.html?email=' + encodeURIComponent(data.order.customerEmail || '');
+                                    };
+                                }
+                            }
+                            
+                            // Update order in localStorage if exists
+                            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                            const orderIndex = orders.findIndex(o => o.orderId === orderId);
+                            if (orderIndex !== -1) {
+                                orders[orderIndex].status = 'paid';
+                                orders[orderIndex].paymentId = paymentId || data.payment?.paymentId;
+                                orders[orderIndex].paidAt = new Date().toISOString();
+                                localStorage.setItem('orders', JSON.stringify(orders));
+                            }
+                        } else {
+                            // Fallback to localStorage if API fails
+                            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                            const order = orders.find(o => o.orderId === orderId);
+                            
+                            if (order) {
+                                document.getElementById('userEmail').textContent = order.email || 'your@email.com';
+                                if (order.product) {
+                                    document.getElementById('productName').textContent = order.product;
+                                }
+                                if (order.amount) {
+                                    document.getElementById('orderAmount').textContent = order.amount.toLocaleString('ru-RU') + ' ₽';
+                                }
+                                order.status = 'paid';
+                                order.paymentId = paymentId;
+                                order.paidAt = new Date().toISOString();
+                                localStorage.setItem('orders', JSON.stringify(orders));
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching order:', error);
+                        // Fallback to localStorage
+                        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                        const order = orders.find(o => o.orderId === orderId);
+                        if (order) {
+                            document.getElementById('userEmail').textContent = order.email || 'your@email.com';
+                            if (order.product) {
+                                document.getElementById('productName').textContent = order.product;
+                            }
+                            if (order.amount) {
+                                document.getElementById('orderAmount').textContent = order.amount.toLocaleString('ru-RU') + ' ₽';
+                            }
+                        }
+                    });
             }
-        });
-    </script>
-    
-    <!-- Initialize Lucide Icons -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
         });
     </script>
+    
 </body>
 </html>
 

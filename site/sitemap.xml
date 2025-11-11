@@ -7,7 +7,7 @@
     <!-- Главная страница -->
     <url>
         <loc>https://miniapp.expert/</loc>
-        <lastmod>2025-10-19</lastmod>
+        <lastmod>2025-11-12</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -15,7 +15,7 @@
     <!-- Главная страница с index.html -->
     <url>
         <loc>https://miniapp.expert/index.html</loc>
-        <lastmod>2025-10-19</lastmod>
+        <lastmod>2025-11-12</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -23,32 +23,53 @@
     <!-- Коробочное решение для недвижимости -->
     <url>
         <loc>https://miniapp.expert/real-estate-solution.html</loc>
-        <lastmod>2025-10-19</lastmod>
+        <lastmod>2025-11-12</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
-    </url>
-
-    <!-- Личный кабинет - вход -->
-    <url>
-        <loc>https://miniapp.expert/login.html</loc>
-        <lastmod>2025-10-19</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
     </url>
 
     <!-- Политика конфиденциальности -->
     <url>
         <loc>https://miniapp.expert/privacy.html</loc>
-        <lastmod>2025-10-19</lastmod>
+        <lastmod>2025-11-12</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <!-- Условия подписки -->
+    <url>
+        <loc>https://miniapp.expert/subscription-terms.html</loc>
+        <lastmod>2025-11-12</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+
+    <!-- Условия партнерской программы -->
+    <url>
+        <loc>https://miniapp.expert/affiliate-terms.html</loc>
+        <lastmod>2025-11-12</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
 
-    <!-- Демо-приложение (внешняя ссылка на Telegram) -->
-    <!-- Не включаем внешние ссылки в sitemap -->
+    <!-- Условия использования личного кабинета -->
+    <url>
+        <loc>https://miniapp.expert/cabinet-terms.html</loc>
+        <lastmod>2025-11-12</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
 
-    <!-- Админ-панель (закрытые страницы) -->
-    <!-- Не включаем страницы требующие авторизацию -->
+    <!-- 
+    Не включаем в sitemap (имеют noindex или требуют авторизацию/параметры):
+    - login.html (noindex)
+    - payment.html (noindex, требует параметры)
+    - payment-success.html (требует параметры)
+    - payment-failed.html (требует параметры)
+    - verify-email.html (noindex, требует параметры)
+    - cabinet.html (noindex, требует авторизацию)
+    - product-manage.html (noindex, требует авторизацию)
+    - index-optimized.html (резервная копия)
+    -->
 
 </urlset>
-

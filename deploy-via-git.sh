@@ -1,75 +1,96 @@
 #!/bin/bash
 
-# Деплой через Git на сервер
-SERVER="85.198.110.66"
-USER="root"
-REMOTE_DIR="/home/miniapp_expert"
+# Скрипт для деплоя изменений через Git
+# Использование: ./deploy-via-git.sh [commit_message]
 
-echo "🚀 Деплой через Git на сервер"
-echo "=============================="
-echo ""
+set -e
 
-# Создаем архив с проектом
-echo "📦 Создание архива..."
-tar -czf miniapp-git-deploy.tar.gz \
-    dist/ \
-    site/ \
-    bot/ \
-    package.json \
-    package-lock.json \
-    deploy-configs/ \
-    bot-env-template
+SERVER_USER="root"
+SERVER_HOST="85.198.110.66"
+SERVER_PASS="h421-5882p7vUqkFn+EF"
+API_DIR="/home/miniapp_expert/api-django"
+SITE_DIR="/var/www/miniapp.expert"
 
-echo "✅ Архив создан: miniapp-git-deploy.tar.gz"
-echo ""
-echo "📤 Теперь загрузите файл на сервер одним из способов:"
-echo ""
-echo "Способ 1: SCP (если SSH заработает):"
-echo "  scp miniapp-git-deploy.tar.gz ${USER}@${SERVER}:${REMOTE_DIR}/"
-echo ""
-echo "Способ 2: Через Git репозиторий (если есть GitHub/GitLab):"
-echo "  1. Создайте репозиторий на GitHub"
-echo "  2. git remote add origin <URL>"
-echo "  3. git add ."
-echo "  4. git commit -m 'Deploy'"
-echo "  5. git push origin main"
-echo "  6. На сервере: git clone <URL> /home/miniapp_expert"
-echo ""
-echo "Способ 3: Через панель хостинга:"
-echo "  Загрузите miniapp-git-deploy.tar.gz через файловый менеджер в /home/miniapp_expert/"
-echo ""
-echo "Способ 4: Через wget на сервере:"
-echo "  1. Загрузите файл куда-то (Dropbox, Google Drive, etc)"
-echo "  2. На сервере: wget <URL> -O /home/miniapp_expert/miniapp-git-deploy.tar.gz"
-echo ""
-echo "================================"
-echo "После загрузки на сервер выполните:"
-echo "================================"
-echo ""
-cat << 'SERVERCOMMANDS'
-cd /home/miniapp_expert
-tar -xzf miniapp-git-deploy.tar.gz
-chmod +x deploy-configs/*.sh
+COMMIT_MESSAGE="${1:-'Обновления через автоматический деплой'}"
 
-# Создать .env для бота
-echo 'BOT_TOKEN=8395636611:AAH6MAKtZORX_8e9GcxbMvJcnu0D37LCTEY' > bot/.env
-echo 'WEBAPP_URL=https://demoapp.miniapp.expert' >> bot/.env
+echo "🚀 Начинаем деплой через Git..."
 
-# Установка
-export DEBIAN_FRONTEND=noninteractive
-./deploy-configs/full-setup.sh
-./deploy-configs/setup-nginx.sh
-./deploy-configs/setup-ssl.sh
-./deploy-configs/bot-setup.sh
+# 1. Проверяем статус Git
+echo "📋 Проверяем статус Git..."
+git status --short
 
-echo "✅ Готово!"
-SERVERCOMMANDS
+# 2. Добавляем все изменения
+echo "➕ Добавляем изменения в Git..."
+git add -A
 
+# 3. Коммитим изменения
+echo "💾 Коммитим изменения..."
+git commit -m "$COMMIT_MESSAGE" || echo "Нет изменений для коммита"
+
+# 4. Пушим в репозиторий
+echo "📤 Пушим изменения в репозиторий..."
+git push origin main
+
+# 5. На сервере: обновляем API
+echo "🔄 Обновляем API на сервере..."
+sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_HOST} << EOF
+    set -e
+    cd ${API_DIR}
+    
+    # Сохраняем локальные изменения, если есть
+    git stash || true
+    
+    # Обновляем из репозитория
+    git pull origin main || {
+        echo "⚠️  Конфликт при git pull, копируем файлы напрямую"
+        exit 0
+    }
+    
+    # Активируем виртуальное окружение
+    source venv/bin/activate
+    
+    # Собираем статические файлы
+    python manage.py collectstatic --noinput
+    
+    # Проверяем конфигурацию
+    python manage.py check
+    
+    echo "✅ API обновлен"
+EOF
+
+# 6. На сервере: копируем файлы сайта напрямую (если нет Git репозитория)
+echo "📁 Копируем файлы сайта..."
+sshpass -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no \
+    site/login.html \
+    site/request-password-reset.html \
+    site/cabinet.html \
+    site/cabinet.js \
+    ${SERVER_USER}@${SERVER_HOST}:${SITE_DIR}/
+
+# 7. Перезапускаем Gunicorn
+echo "🔄 Перезапускаем Gunicorn..."
+sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_HOST} << EOF
+    sudo systemctl restart gunicorn
+    sleep 2
+    sudo systemctl status gunicorn --no-pager | head -10
+EOF
+
+# 8. Проверяем здоровье API
+echo "🏥 Проверяем здоровье API..."
+sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_HOST} \
+    "curl -s http://localhost:8000/api/auth/health/ | head -5"
+
+echo "✅ Деплой завершен успешно!"
 echo ""
-echo "================================"
-echo "Или используйте одну команду:"
-echo "================================"
+echo "📝 Что было сделано:"
+echo "  1. Изменения закоммичены в Git"
+echo "  2. Изменения запушены в origin/main"
+echo "  3. API обновлен на сервере"
+echo "  4. Файлы сайта скопированы"
+echo "  5. Gunicorn перезапущен"
 echo ""
-echo "cd /home/miniapp_expert && tar -xzf miniapp-git-deploy.tar.gz && chmod +x deploy-configs/*.sh && echo 'BOT_TOKEN=8395636611:AAH6MAKtZORX_8e9GcxbMvJcnu0D37LCTEY' > bot/.env && echo 'WEBAPP_URL=https://demoapp.miniapp.expert' >> bot/.env && export DEBIAN_FRONTEND=noninteractive && ./deploy-configs/full-setup.sh && ./deploy-configs/setup-nginx.sh && ./deploy-configs/setup-ssl.sh && ./deploy-configs/bot-setup.sh"
-echo ""
-
+echo "🔍 Проверьте:"
+echo "  - https://miniapp.expert/request-password-reset.html"
+echo "  - https://miniapp.expert/login.html (ссылка 'Забыли пароль?')"
+echo "  - https://miniapp.expert/cabinet.html (статус email)"
+echo "  - https://miniapp.expert/api/auth/health/"

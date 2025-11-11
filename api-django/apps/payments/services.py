@@ -13,31 +13,43 @@ class TBankService:
         self.api_url = settings.TBANK_API_URL
     
     def _generate_token(self, params: Dict) -> str:
-        """Генерация токена для T-Bank API"""
+        """Генерация токена для T-Bank API
+        
+        Алгоритм генерации токена (по документации T-Bank):
+        1. Берем все параметры кроме Token
+        2. Добавляем Password
+        3. Сортируем ключи по алфавиту
+        4. Для каждого ключа преобразуем значение в строку
+        5. Для вложенных структур (dict, list) используется JSON сериализация БЕЗ пробелов
+        6. Конкатенируем все значения в одну строку (БЕЗ ключей)
+        7. Хешируем через SHA256
+        
+        Важно: для вложенных структур (Receipt, Items) используется JSON сериализация
+        с separators=(',', ':') для компактности
+        """
         import json
         
         # Создаем копию параметров без Token
         token_params = {k: v for k, v in params.items() if k != 'Token'}
         token_params['Password'] = self.password
         
-        # Функция для преобразования значений в строку
-        def value_to_string(value):
-            if isinstance(value, dict):
-                # Для словарей сортируем ключи и рекурсивно обрабатываем значения
-                sorted_items = sorted(value.items())
-                return ''.join(f'{k}{value_to_string(v)}' for k, v in sorted_items)
-            elif isinstance(value, list):
-                # Для списков обрабатываем каждый элемент
-                return ''.join(value_to_string(item) for item in value)
-            else:
-                # Для примитивных типов просто преобразуем в строку
-                return str(value)
-        
         # Сортируем ключи и формируем строку для токена
+        # ВАЖНО: Только значения, БЕЗ ключей! (по документации T-Bank)
         sorted_keys = sorted(token_params.keys())
-        token_string = ''.join(f'{k}{value_to_string(token_params[k])}' for k in sorted_keys)
+        token_parts = []
         
-        return hashlib.sha256(token_string.encode()).hexdigest()
+        for key in sorted_keys:
+            value = token_params[key]
+            # Для dict и list используем JSON сериализацию БЕЗ пробелов
+            if isinstance(value, (dict, list)):
+                # Используем компактный JSON (без пробелов, без сортировки ключей внутри)
+                token_parts.append(json.dumps(value, ensure_ascii=False, separators=(',', ':')))
+            else:
+                token_parts.append(str(value))
+        
+        token_string = ''.join(token_parts)
+        
+        return hashlib.sha256(token_string.encode('utf-8')).hexdigest()
     
     def init_payment(
         self,
@@ -47,41 +59,63 @@ class TBankService:
         email: str,
         phone: str,
         name: str,
-        save_method: bool = False
+        save_method: bool = False,
+        is_subscription: bool = False,
+        product_name: str = None,
     ) -> Dict:
-        """Создание платежа"""
+        """Создание платежа
+        
+        Args:
+            amount: Сумма платежа
+            order_id: ID заказа
+            description: Описание платежа
+            email: Email клиента
+            phone: Телефон клиента
+            name: Имя клиента
+            save_method: Сохранить карту для рекуррентных платежей
+            is_subscription: Является ли платеж подпиской
+            product_name: Название продукта для чека
+        """
+        # Базовая структура платежа
         payment_data = {
             'TerminalKey': self.terminal_key,
             'Amount': int(amount * 100),  # Конвертируем в копейки
             'OrderId': order_id,
-            'Description': description,
-            'Receipt': {
-                'Email': email,
-                'Phone': phone,
-                'Taxation': 'usn_income',
-                'Items': [
-                    {
-                        'Name': description,
-                        'Price': int(amount * 100),
-                        'Quantity': 1,
-                        'Amount': int(amount * 100),
-                        'Tax': 'none',
-                    }
-                ],
-            },
-            'DATA': {
-                'Name': name or 'Клиент',
-                'Email': email,
-                'Phone': phone,
-            },
-            'SuccessURL': f"{settings.FRONTEND_BASE_URL}/payment-success.html?orderId={order_id}",
-            'FailURL': f"{settings.FRONTEND_BASE_URL}/payment-failed.html?orderId={order_id}&error=declined",
-            'NotificationURL': f"{settings.API_BASE_URL}/api/payment/webhook",
+            'Description': description[:250],  # Ограничение T-Bank API
         }
         
-        if save_method:
+        # URL для редиректов после оплаты
+        payment_data['SuccessURL'] = f"{settings.FRONTEND_BASE_URL}/payment-success.html?orderId={order_id}"
+        payment_data['FailURL'] = f"{settings.FRONTEND_BASE_URL}/payment-failed.html?orderId={order_id}"
+        payment_data['NotificationURL'] = f"{settings.API_BASE_URL}/api/payment/webhook"
+        
+        # Для подписок включаем рекуррентные платежи
+        if save_method or is_subscription:
             payment_data['Recurrent'] = 'Y'
         
+        # Добавляем объект Receipt для формирования чека
+        # Согласно документации T-Bank, Receipt должен содержать:
+        # - Email или Phone клиента
+        # - Items - список товаров/услуг
+        # - Taxation - система налогообложения
+        receipt = {
+            'Email': email,
+            'Phone': phone,
+            'Taxation': 'usn_income',  # Упрощенная система налогообложения (доходы)
+            'Items': [
+                {
+                    'Name': product_name or description[:128],  # Название товара/услуги (макс 128 символов)
+                    'Price': int(amount * 100),  # Цена в копейках
+                    'Quantity': 1.0,  # Количество
+                    'Amount': int(amount * 100),  # Сумма в копейках
+                    'Tax': 'none',  # Налог (none - без НДС, vat10, vat20 и т.д.)
+                    'Ean13': '',  # Штрих-код (опционально)
+                }
+            ]
+        }
+        payment_data['Receipt'] = receipt
+        
+        # Генерируем токен ПОСЛЕ формирования всех данных
         payment_data['Token'] = self._generate_token(payment_data)
         
         response = requests.post(f"{self.api_url}/Init", json=payment_data)
@@ -98,16 +132,84 @@ class TBankService:
         response = requests.post(f"{self.api_url}/GetState", json=payload)
         return response.json()
     
-    def charge_mit(self, rebill_id: str, amount: float, order_id: str, idempotency_key: str) -> Dict:
-        """Списание по MIT (сохраненной карте)"""
+    def charge_mit(
+        self,
+        rebill_id: str,
+        amount: float,
+        order_id: str,
+        description: str = None,
+        email: str = None,
+        phone: str = None,
+        product_name: str = None,
+    ) -> Dict:
+        """Списание по MIT (сохраненной карте) для рекуррентных платежей
+        
+        Args:
+            rebill_id: ID сохраненной карты (RebillId)
+            amount: Сумма списания
+            order_id: ID заказа
+            description: Описание платежа
+            email: Email клиента (для чека)
+            phone: Телефон клиента (для чека)
+            product_name: Название продукта (для чека)
+        """
         payment_data = {
             'TerminalKey': self.terminal_key,
             'Amount': int(amount * 100),
             'OrderId': order_id,
             'RebillId': rebill_id,
         }
+        
+        # Добавляем описание, если указано
+        if description:
+            payment_data['Description'] = description[:250]
+        
+        # Добавляем Receipt для формирования чека при рекуррентном списании
+        if email or phone:
+            receipt = {
+                'Taxation': 'usn_income',
+                'Items': [
+                    {
+                        'Name': (product_name or description or 'Подписка')[:128],
+                        'Price': int(amount * 100),
+                        'Quantity': 1.0,
+                        'Amount': int(amount * 100),
+                        'Tax': 'none',
+                        'Ean13': '',
+                    }
+                ]
+            }
+            if email:
+                receipt['Email'] = email
+            if phone:
+                receipt['Phone'] = phone
+            payment_data['Receipt'] = receipt
+        
         payment_data['Token'] = self._generate_token(payment_data)
         
         response = requests.post(f"{self.api_url}/Charge", json=payment_data)
         return response.json()
+    
+    def get_receipt(self, payment_id: str) -> Dict:
+        """Получение чека по ID платежа
+        
+        T-Bank может предоставить URL чека через GetState или через отдельный endpoint.
+        Этот метод получает статус платежа и извлекает информацию о чеке.
+        """
+        payment_status = self.get_payment_status(payment_id)
+        
+        # T-Bank может вернуть URL чека в разных полях
+        receipt_url = (
+            payment_status.get('ReceiptURL') or 
+            payment_status.get('ReceiptUrl') or 
+            payment_status.get('Receipt') or
+            payment_status.get('receipt_url')
+        )
+        
+        return {
+            'success': payment_status.get('Success', False),
+            'receipt_url': receipt_url,
+            'payment_id': payment_id,
+            'status': payment_status.get('Status'),
+        }
 

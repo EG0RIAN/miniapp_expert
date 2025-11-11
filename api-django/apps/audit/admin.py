@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import AuditLog
 
 
-@admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
     list_display = ('id', 'entity_type', 'entity_id', 'action', 'actor_email', 'actor_role', 'ip_address', 'created_at')
     list_filter = ('entity_type', 'action', 'actor_role', 'created_at')
