@@ -152,11 +152,6 @@
                     <i data-lucide="credit-card" class="w-5 h-5"></i>
                     <span class="font-semibold">Карты</span>
                 </a>
-                <a href="#documents" onclick="showSection('documents'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="documents">
-                    <i data-lucide="file-text" class="w-5 h-5"></i>
-                    <span class="font-semibold">Документы</span>
-                    <span id="documentsBadge" class="hidden ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">!</span>
-                </a>
             </nav>
         </aside>
 
@@ -191,11 +186,6 @@
                 <a href="#cards" onclick="showSection('cards'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="cards">
                     <i data-lucide="credit-card" class="w-5 h-5"></i>
                     <span class="font-semibold">Карты</span>
-                </a>
-                <a href="#documents" onclick="showSection('documents'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="documents">
-                    <i data-lucide="file-text" class="w-5 h-5"></i>
-                    <span class="font-semibold">Документы</span>
-                    <span id="documentsBadgeMobile" class="hidden ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">!</span>
                 </a>
             </nav>
         </aside>
@@ -242,6 +232,36 @@
                     <button 
                         onclick="document.getElementById('emailVerifiedBanner').classList.add('hidden')" 
                         class="text-green-600 hover:text-green-800 p-1"
+                        aria-label="Закрыть"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Documents to Sign Banner - Inside main container (shown on all pages) -->
+            <div id="documentsToSignBanner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-yellow-900 mb-2">Требуется подпись документов</h3>
+                        <p class="text-sm text-yellow-700 mb-3">
+                            Доступны новые версии документов, которые необходимо подписать.
+                        </p>
+                        <div id="documentsToSignList" class="space-y-2 mb-3">
+                            <!-- Список документов для подписи -->
+                        </div>
+                        <button 
+                            onclick="showSection('profile')" 
+                            class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm flex items-center gap-2"
+                        >
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            Перейти к документам
+                        </button>
+                    </div>
+                    <button 
+                        onclick="document.getElementById('documentsToSignBanner').classList.add('hidden')" 
+                        class="text-yellow-600 hover:text-yellow-800 p-1"
                         aria-label="Закрыть"
                     >
                         <i data-lucide="x" class="w-5 h-5"></i>

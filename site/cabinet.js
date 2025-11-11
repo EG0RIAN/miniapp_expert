@@ -118,9 +118,6 @@ function showSection(sectionId) {
         case 'cards':
             loadPaymentMethods();
             break;
-        case 'documents':
-            loadDocuments();
-            break;
     }
 }
 
@@ -1750,146 +1747,6 @@ async function checkDocumentsStatus() {
     }
 }
 
-// Load documents
-async function loadDocuments() {
-    try {
-        console.log('🔄 Loading documents from API...');
-        const result = await apiRequest('/client/documents/');
-        console.log('📦 Documents API response:', result);
-        
-        if (!result || result.error) {
-            console.error('❌ Failed to load documents:', result?.error);
-            return;
-        }
-        
-        const signedDocuments = result.data.signed_documents || [];
-        const documentsToSign = result.data.documents_to_sign || [];
-        
-        // Show/hide banner for documents to sign
-        const banner = document.getElementById('documentsToSignBanner');
-        const bannerList = document.getElementById('documentsToSignList');
-        const signedList = document.getElementById('signedDocumentsList');
-        
-        if (documentsToSign.length > 0) {
-            if (banner) {
-                banner.classList.remove('hidden');
-            }
-            if (bannerList) {
-                bannerList.innerHTML = documentsToSign.map(doc => {
-                    const documentTypeLabels = {
-                        'privacy': 'Политика конфиденциальности',
-                        'affiliate_terms': 'Условия партнерской программы',
-                        'cabinet_terms': 'Условия использования личного кабинета',
-                        'subscription_terms': 'Условия подписки',
-                    };
-                    const label = documentTypeLabels[doc.document_type] || doc.title;
-                    const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
-                    
-                    return `
-                        <div class="bg-white rounded-xl p-4 border border-yellow-300 mb-2">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="font-semibold text-gray-900">${label}</h4>
-                                    ${hasNewVersion ? `
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            Подписана версия ${doc.signed_version}, доступна версия ${doc.current_version}
-                                        </p>
-                                    ` : `
-                                        <p class="text-sm text-gray-600 mt-1">Требуется подпись</p>
-                                    `}
-                                </div>
-                                <button 
-                                    onclick="signDocument('${doc.document_type}')" 
-                                    class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm"
-                                >
-                                    Подписать
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        } else {
-            if (banner) {
-                banner.classList.add('hidden');
-            }
-        }
-        
-        // Show signed documents
-        if (signedList) {
-            if (signedDocuments.length === 0 && documentsToSign.length === 0) {
-                signedList.innerHTML = `
-                    <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
-                        <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                        <p class="text-gray-600">У вас нет подписанных документов</p>
-                    </div>
-                `;
-            } else {
-                signedList.innerHTML = signedDocuments.map(doc => {
-                    const documentTypeLabels = {
-                        'privacy': 'Политика конфиденциальности',
-                        'affiliate_terms': 'Условия партнерской программы',
-                        'cabinet_terms': 'Условия использования личного кабинета',
-                        'subscription_terms': 'Условия подписки',
-                    };
-                    const label = documentTypeLabels[doc.document_type] || doc.title;
-                    const signedDate = doc.signed_at ? new Date(doc.signed_at).toLocaleDateString('ru-RU', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }) : '';
-                    
-                    const docUrls = {
-                        'privacy': '/privacy.html',
-                        'affiliate_terms': '/affiliate-terms.html',
-                        'cabinet_terms': '/cabinet-terms.html',
-                        'subscription_terms': '/subscription-terms.html',
-                    };
-                    const docUrl = docUrls[doc.document_type] || '#';
-                    
-                    return `
-                        <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold text-lg">${label}</h3>
-                                        <p class="text-sm text-gray-600">Версия ${doc.current_version} · Подписано ${signedDate}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <a 
-                                        href="${docUrl}" 
-                                        target="_blank"
-                                        class="text-primary hover:text-primary/80 font-semibold text-sm flex items-center gap-2"
-                                    >
-                                        <span>Открыть</span>
-                                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-        
-        // Re-initialize icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-        
-        console.log('✅ Documents loaded successfully');
-    } catch (error) {
-        console.error('❌ Error in loadDocuments:', error);
-        const signedList = document.getElementById('signedDocumentsList');
-        if (signedList) {
-            signedList.innerHTML = '<div class="text-center py-12 text-gray-500">Ошибка загрузки документов</div>';
-        }
-    }
-}
 
 // Sign document
 async function signDocument(documentType) {
@@ -1965,7 +1822,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Check hash for section
         const hash = window.location.hash.replace('#', '');
-        if (hash && ['products', 'subscriptions', 'payments', 'profile', 'partners', 'cards', 'documents'].includes(hash)) {
+        if (hash && ['products', 'subscriptions', 'payments', 'profile', 'partners', 'cards'].includes(hash)) {
             showSection(hash);
         } else {
             showSection('products');
