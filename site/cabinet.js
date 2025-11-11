@@ -522,23 +522,55 @@ async function loadProducts() {
         // Render products from API
         // Filter out subscriptions (they should be shown in subscriptions section)
         const oneTimeProducts = products.filter(p => {
-            const productType = p.product?.product_type || p.product_type;
+            const productType = p.product?.product_type || p.product_type || null;
+            console.log('🔍 Filtering product (one-time):', {
+                id: p.id,
+                hasProduct: !!p.product,
+                productType: productType,
+                productName: p.product?.name || p.name || 'N/A',
+                isOneTime: productType !== 'subscription'
+            });
             return productType !== 'subscription';
         });
         
         console.log('📦 One-time products (excluding subscriptions):', oneTimeProducts.length);
+        console.log('📦 All products before filtering (one-time):', products.map(p => ({
+            id: p.id,
+            productType: p.product?.product_type || p.product_type || 'unknown',
+            productName: p.product?.name || p.name || 'N/A'
+        })));
+        
+        // Check if user has only subscriptions
+        const hasSubscriptions = products.some(p => {
+            const productType = p.product?.product_type || p.product_type || null;
+            return productType === 'subscription';
+        });
         
         if (oneTimeProducts.length === 0) {
-            container.innerHTML = `
-                <div class="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
-                    <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                    <p class="text-lg font-semibold mb-2">У вас пока нет продуктов</p>
-                    <p class="text-sm mb-4">Закажите первый продукт и он появится здесь</p>
-                    <a href="/real-estate-solution.html" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
-                        Заказать продукт
-                    </a>
-                </div>
-            `;
+            // If user has subscriptions but no one-time products, show message with link to subscriptions
+            if (hasSubscriptions) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
+                        <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p class="text-lg font-semibold mb-2">У вас пока нет разовых продуктов</p>
+                        <p class="text-sm mb-4">У вас есть активные подписки. Перейдите в раздел "Мои подписки" для просмотра.</p>
+                        <button onclick="showSection('subscriptions')" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                            Перейти к подпискам
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
+                        <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p class="text-lg font-semibold mb-2">У вас пока нет продуктов</p>
+                        <p class="text-sm mb-4">Закажите первый продукт и он появится здесь</p>
+                        <a href="/real-estate-solution.html" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                            Заказать продукт
+                        </a>
+                    </div>
+                `;
+            }
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
@@ -702,11 +734,23 @@ async function loadSubscriptions() {
         
         // Filter subscriptions only
         const subscriptions = products.filter(p => {
-            const productType = p.product?.product_type || p.product_type;
+            const productType = p.product?.product_type || p.product_type || null;
+            console.log('🔍 Filtering product:', {
+                id: p.id,
+                hasProduct: !!p.product,
+                productType: productType,
+                productName: p.product?.name || p.name || 'N/A',
+                isSubscription: productType === 'subscription'
+            });
             return productType === 'subscription';
         });
         
         console.log('📦 Subscriptions filtered:', subscriptions.length, subscriptions);
+        console.log('📦 All products before filtering:', products.map(p => ({
+            id: p.id,
+            productType: p.product?.product_type || p.product_type || 'unknown',
+            productName: p.product?.name || p.name || 'N/A'
+        })));
         
         const container = document.getElementById('subscriptionsList');
         
@@ -2489,13 +2533,47 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Check and auto-sign required documents on first login
         await checkAndSignRequiredDocuments();
         
-        // Check hash for section
+        // Check hash for section and auto-redirect if needed
         const hash = window.location.hash.replace('#', '');
-        if (hash && ['products', 'subscriptions', 'payments', 'profile', 'partners', 'cards'].includes(hash)) {
-            showSection(hash);
-        } else {
-            showSection('products');
+        let initialSection = hash && ['products', 'subscriptions', 'payments', 'profile', 'partners', 'cards'].includes(hash) 
+            ? hash 
+            : 'products';
+        
+        // If user opens #products but has only subscriptions, automatically switch to subscriptions
+        if (initialSection === 'products') {
+            try {
+                const productsResult = await apiRequest('/client/products/');
+                if (productsResult && productsResult.data && productsResult.data.products) {
+                    const allProducts = productsResult.data.products || [];
+                    const oneTimeProducts = allProducts.filter(p => {
+                        const productType = p.product?.product_type || p.product_type || null;
+                        return productType !== 'subscription';
+                    });
+                    const hasSubscriptions = allProducts.some(p => {
+                        const productType = p.product?.product_type || p.product_type || null;
+                        return productType === 'subscription';
+                    });
+                    
+                    console.log('🔍 Checking products for auto-redirect:', {
+                        totalProducts: allProducts.length,
+                        oneTimeProducts: oneTimeProducts.length,
+                        hasSubscriptions: hasSubscriptions
+                    });
+                    
+                    // If no one-time products but has subscriptions, switch to subscriptions
+                    if (oneTimeProducts.length === 0 && hasSubscriptions) {
+                        console.log('🔄 User has only subscriptions, automatically switching to subscriptions section');
+                        initialSection = 'subscriptions';
+                        window.location.hash = 'subscriptions';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking products for auto-redirect:', error);
+                // Continue with original section if check fails
+            }
         }
+        
+        showSection(initialSection);
     } catch (error) {
         console.error('Error loading cabinet data:', error);
         notifyError('Ошибка загрузки данных. Обновите страницу.');
@@ -2504,15 +2582,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (loadingSpinner) {
             loadingSpinner.classList.add('hidden');
         }
-    }
-    
-    // Check and auto-sign required documents on first login (after UI is loaded)
-    // This is done separately to avoid blocking the UI if there's an error
-    try {
-        await checkAndSignRequiredDocuments();
-    } catch (error) {
-        console.error('Error checking required documents:', error);
-        // Don't show error to user, just log it - document signing is not critical for basic functionality
     }
     
     // Initialize Lucide icons
