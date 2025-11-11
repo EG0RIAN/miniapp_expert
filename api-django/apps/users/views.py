@@ -224,6 +224,39 @@ class ResendVerificationEmailView(views.APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class AcceptAffiliateTermsView(views.APIView):
+    """Принятие условий партнерской программы"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        
+        # Проверяем, не приняты ли уже условия
+        if user.offer_accepted_at:
+            return Response({
+                'success': False,
+                'message': 'Условия уже приняты'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Устанавливаем дату принятия условий
+            from django.utils import timezone
+            user.offer_accepted_at = timezone.now()
+            user.offer_version = '1.0'  # Можно сделать динамическим
+            user.save(update_fields=['offer_accepted_at', 'offer_version'])
+            
+            return Response({
+                'success': True,
+                'message': 'Условия партнерской программы приняты'
+            })
+        except Exception as e:
+            print(f"Error accepting affiliate terms: {e}")
+            return Response({
+                'success': False,
+                'message': 'Ошибка при принятии условий'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class VerifyEmailView(views.APIView):
     permission_classes = [AllowAny]

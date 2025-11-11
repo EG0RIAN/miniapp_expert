@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'name', 'role', 'phone', 'telegram_id',
             'email_verified', 'referral_code', 'referred_by',
-            'referrals_count', 'created_at', 'updated_at'
+            'referrals_count', 'created_at', 'updated_at', 'offer_accepted_at'
         ]
         read_only_fields = ['id', 'referral_code', 'created_at', 'updated_at']
 

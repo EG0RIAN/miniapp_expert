@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HealthView, LoginView, RegisterView, ProfileView, VerifyEmailView, RequestPasswordResetView, ResetPasswordView, ResendVerificationEmailView
+from .views import HealthView, LoginView, RegisterView, ProfileView, VerifyEmailView, RequestPasswordResetView, ResetPasswordView, ResendVerificationEmailView, AcceptAffiliateTermsView
 
 urlpatterns = [
     path('health/', HealthView.as_view(), name='health'),
@@ -8,6 +8,7 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('verify-email/', VerifyEmailView.as_view(), name='verify-email'),
     path('resend-verification/', ResendVerificationEmailView.as_view(), name='resend-verification'),
+    path('accept-affiliate-terms/', AcceptAffiliateTermsView.as_view(), name='accept-affiliate-terms'),
     path('password-reset/', RequestPasswordResetView.as_view(), name='password-reset'),
     path('password-reset/confirm/', ResetPasswordView.as_view(), name='password-reset-confirm'),
 ]

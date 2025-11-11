@@ -237,9 +237,9 @@ async function loadProfile() {
     }
 }
 
-// Update email verification status display (global banners + profile badges)
+// Update email verification status display (banners inside main container + profile badges)
 function updateEmailVerificationStatus(emailVerified) {
-    // Global banners (shown on all pages)
+    // Banners inside main container (shown on all pages)
     const verificationBanner = document.getElementById('emailVerificationBanner');
     const verifiedBanner = document.getElementById('emailVerifiedBanner');
     
@@ -247,41 +247,13 @@ function updateEmailVerificationStatus(emailVerified) {
     const verifiedBadge = document.getElementById('emailVerifiedBadge');
     const unverifiedBadge = document.getElementById('emailUnverifiedBadge');
     
-    // Get sidebar and main container for positioning
-    const sidebar = document.getElementById('desktopSidebar');
-    const mainContainer = document.getElementById('mainContainer');
-    const mobileSidebar = document.getElementById('mobileSidebar');
-    
     if (emailVerified) {
-        // Show verified banner (small), hide unverified banner
+        // Show verified banner, hide unverified banner
         if (verificationBanner) {
             verificationBanner.classList.add('hidden');
         }
         if (verifiedBanner) {
             verifiedBanner.classList.remove('hidden');
-            // Adjust positions: header (64px) + small banner (~48px) = ~112px
-            const bannerHeight = '7rem'; // 112px
-            if (sidebar) {
-                sidebar.style.top = bannerHeight;
-            }
-            if (mobileSidebar) {
-                mobileSidebar.style.top = bannerHeight;
-            }
-            if (mainContainer) {
-                mainContainer.style.paddingTop = bannerHeight;
-            }
-        } else {
-            // No banner shown
-            const normalTop = '4rem'; // header only (64px)
-            if (sidebar) {
-                sidebar.style.top = normalTop;
-            }
-            if (mobileSidebar) {
-                mobileSidebar.style.top = normalTop;
-            }
-            if (mainContainer) {
-                mainContainer.style.paddingTop = normalTop;
-            }
         }
         
         // Update profile badges if on profile page
@@ -292,32 +264,9 @@ function updateEmailVerificationStatus(emailVerified) {
             unverifiedBadge.classList.add('hidden');
         }
     } else {
-        // Show unverified banner (larger), hide verified banner
+        // Show unverified banner, hide verified banner
         if (verificationBanner) {
             verificationBanner.classList.remove('hidden');
-            // Adjust positions: header (64px) + large banner (~96px) = ~160px
-            const bannerHeight = '10rem'; // 160px
-            if (sidebar) {
-                sidebar.style.top = bannerHeight;
-            }
-            if (mobileSidebar) {
-                mobileSidebar.style.top = bannerHeight;
-            }
-            if (mainContainer) {
-                mainContainer.style.paddingTop = bannerHeight;
-            }
-        } else {
-            // No banner shown (shouldn't happen for unverified, but handle it)
-            const normalTop = '4rem';
-            if (sidebar) {
-                sidebar.style.top = normalTop;
-            }
-            if (mobileSidebar) {
-                mobileSidebar.style.top = normalTop;
-            }
-            if (mainContainer) {
-                mainContainer.style.paddingTop = normalTop;
-            }
         }
         if (verifiedBanner) {
             verifiedBanner.classList.add('hidden');
@@ -853,6 +802,51 @@ function formatAmountRub(amount) {
 async function loadPartnersData() {
     try {
         console.log('🔄 Loading partners data from API...');
+        
+        // First, check if user has accepted affiliate terms
+        const profileResult = await apiRequest('/auth/profile/');
+        if (!profileResult || profileResult.error) {
+            console.error('❌ Failed to load profile:', profileResult?.error);
+            return;
+        }
+        
+        const user = profileResult.data;
+        const hasAcceptedTerms = user.offer_accepted_at !== null && user.offer_accepted_at !== undefined;
+        
+        console.log('📋 User affiliate terms accepted:', hasAcceptedTerms);
+        
+        // Show/hide agreement form and content based on acceptance
+        const agreementForm = document.getElementById('affiliateTermsAgreement');
+        const partnersContent = document.getElementById('partnersContent');
+        
+        if (!hasAcceptedTerms) {
+            // Show agreement form, hide content
+            if (agreementForm) {
+                agreementForm.classList.remove('hidden');
+            }
+            if (partnersContent) {
+                partnersContent.classList.add('hidden');
+            }
+            
+            // Load affiliate terms content
+            await loadAffiliateTermsContent();
+            
+            // Re-initialize icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            console.log('⚠️ User has not accepted affiliate terms, showing agreement form');
+            return; // Don't load data until terms are accepted
+        } else {
+            // Hide agreement form, show content
+            if (agreementForm) {
+                agreementForm.classList.add('hidden');
+            }
+            if (partnersContent) {
+                partnersContent.classList.remove('hidden');
+            }
+        }
         
         const result = await apiRequest('/client/referrals/');
         console.log('📦 Referrals API response:', result);

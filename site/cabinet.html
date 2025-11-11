@@ -123,57 +123,6 @@
         </div>
     </header>
 
-    <!-- Email Verification Banner - Global (shown on all pages) -->
-    <div id="emailVerificationBanner" class="hidden fixed top-16 left-0 right-0 z-40 bg-yellow-50 border-b-4 border-yellow-400 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
-            <div class="flex items-start gap-3">
-                <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5"></i>
-                <div class="flex-1">
-                    <h3 class="font-semibold text-yellow-900 mb-1">Подтвердите ваш email</h3>
-                    <p class="text-sm text-yellow-700 mb-3">
-                        Для полного доступа к функциям личного кабинета необходимо подтвердить ваш email адрес. Проверьте почту и перейдите по ссылке из письма.
-                    </p>
-                    <button 
-                        id="resendVerificationBtn"
-                        onclick="resendVerificationEmail()" 
-                        class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm flex items-center gap-2"
-                    >
-                        <i data-lucide="mail" class="w-4 h-4"></i>
-                        Отправить письмо повторно
-                    </button>
-                </div>
-                <button 
-                    onclick="document.getElementById('emailVerificationBanner').classList.add('hidden')" 
-                    class="text-yellow-600 hover:text-yellow-800 p-1"
-                    aria-label="Закрыть"
-                >
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Email Verified Banner - Global (shown on all pages) -->
-    <div id="emailVerifiedBanner" class="hidden fixed top-16 left-0 right-0 z-40 bg-green-50 border-b-4 border-green-400 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-3">
-            <div class="flex items-center gap-3">
-                <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 flex-shrink-0"></i>
-                <div class="flex-1">
-                    <p class="text-sm text-green-700 font-medium">
-                        Ваш email адрес успешно подтвержден.
-                    </p>
-                </div>
-                <button 
-                    onclick="document.getElementById('emailVerifiedBanner').classList.add('hidden')" 
-                    class="text-green-600 hover:text-green-800 p-1"
-                    aria-label="Закрыть"
-                >
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Container -->
     <div class="flex pt-16" id="mainContainer" style="padding-top: 4rem;">
         <!-- Sidebar -->
@@ -234,7 +183,54 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 md:ml-64 p-4 md:p-8">
+        <main class="flex-1 md:ml-64 p-4 md:p-8" id="mainContent">
+            <!-- Email Verification Banner - Inside main container (shown on all pages) -->
+            <div id="emailVerificationBanner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-yellow-900 mb-1">Подтвердите ваш email</h3>
+                        <p class="text-sm text-yellow-700 mb-3">
+                            Для полного доступа к функциям личного кабинета необходимо подтвердить ваш email адрес. Проверьте почту и перейдите по ссылке из письма.
+                        </p>
+                        <button 
+                            id="resendVerificationBtn"
+                            onclick="resendVerificationEmail()" 
+                            class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm flex items-center gap-2"
+                        >
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            Отправить письмо повторно
+                        </button>
+                    </div>
+                    <button 
+                        onclick="document.getElementById('emailVerificationBanner').classList.add('hidden')" 
+                        class="text-yellow-600 hover:text-yellow-800 p-1"
+                        aria-label="Закрыть"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Email Verified Banner - Inside main container (shown on all pages) -->
+            <div id="emailVerifiedBanner" class="hidden mb-6 bg-green-50 border-l-4 border-green-400 rounded-xl p-3 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 flex-shrink-0"></i>
+                    <div class="flex-1">
+                        <p class="text-sm text-green-700 font-medium">
+                            Ваш email адрес успешно подтвержден.
+                        </p>
+                    </div>
+                    <button 
+                        onclick="document.getElementById('emailVerifiedBanner').classList.add('hidden')" 
+                        class="text-green-600 hover:text-green-800 p-1"
+                        aria-label="Закрыть"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
             <!-- Loading Spinner -->
             <div id="loadingSpinner" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden">
                 <div class="text-center">
@@ -433,7 +429,42 @@
                     <span>Партнерская программа</span>
                 </h1>
 
+                <!-- Affiliate Terms Agreement Form -->
+                <div id="affiliateTermsAgreement" class="hidden bg-white rounded-2xl shadow-sm p-8 mb-8 border-2 border-primary">
+                    <div class="max-w-2xl mx-auto text-center">
+                        <i data-lucide="file-text" class="w-16 h-16 text-primary mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold mb-4">Согласие с условиями партнерской программы</h2>
+                        <p class="text-gray-700 mb-6">
+                            Для участия в партнерской программе необходимо ознакомиться и принять условия программы.
+                        </p>
+                        <div class="bg-gray-50 rounded-xl p-6 mb-6 text-left max-h-96 overflow-y-auto">
+                            <div id="affiliateTermsContent" class="prose prose-sm max-w-none">
+                                <p class="text-gray-600">Загрузка условий...</p>
+                            </div>
+                        </div>
+                        <label class="flex items-start justify-center gap-3 mb-6 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="affiliateTermsCheckbox"
+                                class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary mt-1"
+                            >
+                            <span class="text-sm text-gray-700">
+                                Я ознакомился и принимаю <a href="/affiliate-terms.html" target="_blank" class="text-primary hover:underline font-semibold">условия партнерской программы</a>
+                            </span>
+                        </label>
+                        <button 
+                            onclick="acceptAffiliateTerms()" 
+                            id="acceptAffiliateTermsBtn"
+                            class="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-lg flex items-center gap-2 mx-auto"
+                        >
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                            Принять условия и начать
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Partners Stats -->
+                <div id="partnersContent" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-gradient-to-br from-primary to-secondary text-white rounded-2xl shadow-sm p-6">
                         <div class="text-sm opacity-90 mb-2">Рефералы</div>
