@@ -3,11 +3,23 @@ from .models import Product, UserProduct
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'price', 'currency', 'product_type', 'subscription_terms', 'is_active', 'created_at')
+    list_display = ('name', 'slug', 'price', 'currency', 'product_type', 'has_app_url', 'has_admin_url', 'subscription_terms', 'is_active', 'created_at')
     list_filter = ('product_type', 'is_active', 'created_at')
     search_fields = ('name', 'slug', 'description')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created_at', 'updated_at')
+    
+    def has_app_url(self, obj):
+        """Проверка наличия URL приложения"""
+        return '✅' if obj.app_url else '❌'
+    has_app_url.short_description = 'Приложение'
+    has_app_url.boolean = True
+    
+    def has_admin_url(self, obj):
+        """Проверка наличия URL админки"""
+        return '✅' if obj.admin_url else '❌'
+    has_admin_url.short_description = 'Админка'
+    has_admin_url.boolean = True
     fieldsets = (
         ('Основная информация', {
             'fields': ('name', 'slug', 'description', 'price', 'currency', 'product_type', 'subscription_period', 'is_active')
