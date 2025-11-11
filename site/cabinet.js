@@ -1895,17 +1895,6 @@ async function signDocument(documentType) {
         if (documentType === 'affiliate_terms') {
             await loadPartnersData();
         }
-        
-        // If we're on profile page, reload documents in profile
-        const signedList = document.getElementById('signedDocumentsList');
-        if (signedList) {
-            // Reload documents to show newly signed document
-            const result = await apiRequest('/client/documents/');
-            if (result && result.data) {
-                const signedDocuments = result.data.signed_documents || [];
-                await loadSignedDocumentsInProfile(signedDocuments);
-            }
-        }
     } catch (error) {
         console.error('Error signing document:', error);
         notifyError('Ошибка при подписании документа');
