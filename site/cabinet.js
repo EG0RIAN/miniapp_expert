@@ -1064,14 +1064,8 @@ async function loadAffiliateTermsContent() {
                 const title = document.title || 'Условия партнерской программы';
                 
                 // Показываем HTML контент (уже отформатированный)
-                contentEl.innerHTML = `
-                    <div class="prose prose-sm max-w-none">
-                        <h3 class="text-lg font-bold mb-4 text-gray-900">${title}</h3>
-                        <div class="text-sm text-gray-700 leading-relaxed">
-                            ${content}
-                        </div>
-                    </div>
-                `;
+                // Контент уже содержит HTML с классами Tailwind, поэтому просто вставляем его
+                contentEl.innerHTML = content;
                 console.log('✅ Affiliate terms loaded successfully');
             } else {
                 throw new Error('Document content not found');
