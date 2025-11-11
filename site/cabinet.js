@@ -1725,6 +1725,9 @@ async function deleteCard(methodId) {
     }
 }
 
+// Store documents to sign globally for access in functions
+let globalDocumentsToSign = [];
+
 // Check documents status (for banner on all pages)
 async function checkDocumentsStatus() {
     try {
@@ -1735,6 +1738,9 @@ async function checkDocumentsStatus() {
         
         const documentsToSign = result.data.documents_to_sign || [];
         const signedDocuments = result.data.signed_documents || [];
+        
+        // Store globally for use in other functions
+        globalDocumentsToSign = documentsToSign;
         
         // Show/hide banner if there are documents to sign
         const banner = document.getElementById('documentsToSignBanner');
@@ -1780,7 +1786,7 @@ async function checkDocumentsStatus() {
                                         </a>
                                     </div>
                                     <button 
-                                        onclick="signDocument('${doc.document_type}', false, ${doc.id || 'null'})" 
+                                        onclick="signDocument('${doc.document_type}', false, ${doc.id ? `'${doc.id}'` : 'null'})" 
                                         class="bg-yellow-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-yellow-700 transition text-xs ml-3 flex-shrink-0"
                                     >
                                         Подписать
@@ -1883,14 +1889,28 @@ async function loadSignedDocumentsInProfile(signedDocuments) {
 
 // Sign document
 async function signDocument(documentType, skipConfirm = false, documentId = null) {
-    if (!skipConfirm && !confirm('Вы уверены, что хотите подписать этот документ?')) {
-        return false;
+    if (!skipConfirm) {
+        const confirmed = await new Promise((resolve) => {
+            showModal({
+                title: 'Подписать документ',
+                message: 'Вы уверены, что хотите подписать этот документ?',
+                type: 'confirm',
+                confirmText: 'Подписать',
+                cancelText: 'Отмена',
+                onConfirm: () => resolve(true),
+                onCancel: () => resolve(false)
+            });
+        });
+        
+        if (!confirmed) {
+            return false;
+        }
     }
     
     try {
         const body = {};
         // If documentId is provided (for subscription_terms with different documents per product), send it in body
-        if (documentId) {
+        if (documentId && documentId !== 'null') {
             body.document_id = documentId;
         }
         
@@ -1919,6 +1939,156 @@ async function signDocument(documentType, skipConfirm = false, documentId = null
         console.error('Error signing document:', error);
         notifyError('Ошибка при подписании документа');
         return false;
+    }
+}
+
+// Show documents modal for viewing all documents
+function showDocumentsModal() {
+    if (!globalDocumentsToSign || globalDocumentsToSign.length === 0) {
+        notifyWarning('Нет документов для просмотра');
+        return;
+    }
+    
+    const documentTypeLabels = {
+        'privacy': 'Политика конфиденциальности',
+        'affiliate_terms': 'Условия партнерской программы',
+        'cabinet_terms': 'Условия использования личного кабинета',
+        'subscription_terms': 'Условия подписки',
+    };
+    
+    const documentsHtml = globalDocumentsToSign.map(doc => {
+        const label = documentTypeLabels[doc.document_type] || doc.title;
+        const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
+        const docUrl = doc.slug ? `/document/${doc.slug}.html` : (
+            doc.document_type === 'privacy' ? '/privacy.html' :
+            doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
+            doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
+            doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
+        );
+        
+        return `
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900 mb-2">${label}</h4>
+                        ${hasNewVersion ? `
+                            <p class="text-xs text-gray-600 mb-2">
+                                Подписана версия ${doc.signed_version}, доступна версия ${doc.current_version}
+                            </p>
+                        ` : `
+                            <p class="text-xs text-gray-600 mb-2">Требуется подпись</p>
+                        `}
+                        <a 
+                            href="${docUrl}" 
+                            target="_blank"
+                            class="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold text-sm"
+                        >
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                            <span>Открыть полный текст документа</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    showModal({
+        title: 'Документы для подписания',
+        html: `
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                ${documentsHtml}
+            </div>
+        `,
+        type: 'info',
+        confirmText: 'Закрыть',
+        cancelText: '',
+        onConfirm: () => {
+            // Just close the modal
+        },
+        onCancel: null
+    });
+    
+    // Re-initialize icons
+    if (typeof lucide !== 'undefined') {
+        setTimeout(() => lucide.createIcons(), 100);
+    }
+}
+
+// Sign all documents
+async function signAllDocuments() {
+    if (!globalDocumentsToSign || globalDocumentsToSign.length === 0) {
+        notifyWarning('Нет документов для подписания');
+        return;
+    }
+    
+    const confirmed = await new Promise((resolve) => {
+        showModal({
+            title: 'Подписать все документы',
+            message: `Вы уверены, что хотите подписать все ${globalDocumentsToSign.length} документ(ов)?`,
+            type: 'confirm',
+            confirmText: 'Подписать все',
+            cancelText: 'Отмена',
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false)
+        });
+    });
+    
+    if (!confirmed) {
+        return;
+    }
+    
+    try {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        // Show loading notification
+        if (typeof notifyInfo === 'function') {
+            notifyInfo('Подписание документов...');
+        }
+        
+        // Sign all documents sequentially
+        for (const doc of globalDocumentsToSign) {
+            try {
+                const body = {};
+                if (doc.id) {
+                    body.document_id = doc.id;
+                }
+                
+                const result = await apiRequest(`/client/documents/accept/${doc.document_type}/`, {
+                    method: 'POST',
+                    body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
+                });
+                
+                if (result && !result.error) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                    console.error('Error signing document:', doc.document_type, result?.error);
+                }
+            } catch (error) {
+                errorCount++;
+                console.error('Error signing document:', doc.document_type, error);
+            }
+        }
+        
+        // Reload documents status
+        await checkDocumentsStatus();
+        
+        // Reload partners data if affiliate_terms was signed
+        const hasAffiliateTerms = globalDocumentsToSign.some(doc => doc.document_type === 'affiliate_terms');
+        if (hasAffiliateTerms) {
+            await loadPartnersData();
+        }
+        
+        // Show result notification
+        if (errorCount === 0) {
+            notifySuccess(`Все документы успешно подписаны (${successCount})`);
+        } else {
+            notifyWarning(`Подписано: ${successCount}, ошибок: ${errorCount}`);
+        }
+    } catch (error) {
+        console.error('Error signing all documents:', error);
+        notifyError('Ошибка при подписании документов');
     }
 }
 

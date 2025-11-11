@@ -251,13 +251,22 @@
                         <div id="documentsToSignList" class="space-y-2 mb-3">
                             <!-- Список документов для подписи -->
                         </div>
-                        <button 
-                            onclick="showSection('profile')" 
-                            class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm flex items-center gap-2"
-                        >
-                            <i data-lucide="file-text" class="w-4 h-4"></i>
-                            Перейти к документам
-                        </button>
+                        <div class="flex flex-wrap gap-2">
+                            <button 
+                                onclick="showDocumentsModal()" 
+                                class="bg-white text-yellow-700 border-2 border-yellow-600 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-50 transition text-sm flex items-center gap-2"
+                            >
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                Просмотреть документы
+                            </button>
+                            <button 
+                                onclick="signAllDocuments()" 
+                                class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm flex items-center gap-2"
+                            >
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                Подписать все
+                            </button>
+                        </div>
                     </div>
                     <button 
                         onclick="document.getElementById('documentsToSignBanner').classList.add('hidden')" 
