@@ -284,23 +284,34 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Ensure all modal functions are globally available
-(function() {
-    'use strict';
-    if (typeof window !== 'undefined') {
-        window.showModal = showModal;
-        window.closeModal = closeModal;
-        window.confirmModal = confirmModal;
-        window.promptModal = promptModal;
-        
-        // Log registration (only in development)
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('Modal functions registered globally:', {
-                showModal: typeof window.showModal,
-                closeModal: typeof window.closeModal,
-                confirmModal: typeof window.confirmModal,
-                promptModal: typeof window.promptModal
-            });
+// Ensure all modal functions are globally available immediately
+if (typeof window !== 'undefined') {
+    // Register functions immediately when script loads
+    window.showModal = showModal;
+    window.closeModal = closeModal;
+    window.confirmModal = confirmModal;
+    window.promptModal = promptModal;
+    
+    // Also register in global scope for compatibility
+    if (typeof globalThis !== 'undefined') {
+        globalThis.showModal = showModal;
+        globalThis.closeModal = closeModal;
+    }
+    
+    // Dispatch event that modal is ready (for other scripts to listen)
+    if (typeof document !== 'undefined' && document.createEvent) {
+        try {
+            const event = new Event('modalReady');
+            window.dispatchEvent(event);
+        } catch (e) {
+            // Fallback for older browsers
+            try {
+                const event = document.createEvent('Event');
+                event.initEvent('modalReady', true, true);
+                window.dispatchEvent(event);
+            } catch (e2) {
+                // Ignore if events not supported
+            }
         }
     }
-})();
+}

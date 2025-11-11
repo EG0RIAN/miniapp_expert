@@ -2009,16 +2009,34 @@ function manageSubscriptionFromButton(button) {
             return;
         }
         
-        // Check if modal functions are available
-        if (typeof showModal !== 'function') {
-            console.error('showModal function is not defined');
-            console.error('Please check that modal.js is loaded before cabinet.js');
-            if (typeof notifyError === 'function') {
-                notifyError('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
-            } else {
-                alert('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
-            }
+        // Check if modal functions are available - wait if needed
+        if (typeof showModal !== 'function' && typeof window.showModal !== 'function') {
+            console.warn('showModal not immediately available, waiting...');
+            // Wait for modal.js to load (max 2 seconds)
+            let waitCount = 0;
+            const checkModal = setInterval(() => {
+                waitCount++;
+                if (typeof showModal === 'function' || typeof window.showModal === 'function') {
+                    clearInterval(checkModal);
+                    console.log('showModal loaded, continuing...');
+                    // Use window.showModal if available
+                    const modalFn = window.showModal || showModal;
+                    if (modalFn) {
+                        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
+                    }
+                } else if (waitCount >= 20) {
+                    clearInterval(checkModal);
+                    console.error('showModal still not available after 2 seconds');
+                    // Silently fail - don't show error to user
+                    return;
+                }
+            }, 100);
             return;
+        }
+        
+        // Use window.showModal if available, otherwise use global showModal
+        if (typeof window.showModal === 'function' && typeof showModal !== 'function') {
+            window.showModal = window.showModal;
         }
         
         if (typeof manageSubscription !== 'function') {
@@ -2055,29 +2073,28 @@ async function manageSubscription(subscriptionId, productName, price, period, st
             return;
         }
         
-        // Check if showModal is available - wait for it to load if needed
-        if (typeof showModal !== 'function') {
-            console.error('showModal function is not defined, waiting for modal.js to load...');
-            // Wait for modal.js to load
+        // Check if showModal is available - use window.showModal if available
+        const modalFunction = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
+        
+        if (!modalFunction || typeof modalFunction !== 'function') {
+            console.warn('showModal not available, waiting...');
+            // Wait briefly for modal.js to load
             let attempts = 0;
             const maxAttempts = 10;
             const checkModal = setInterval(() => {
                 attempts++;
-                if (typeof showModal === 'function') {
+                const fn = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
+                if (fn && typeof fn === 'function') {
                     clearInterval(checkModal);
-                    console.log('showModal function loaded, continuing...');
-                    // Retry after a short delay
+                    console.log('showModal loaded, retrying...');
                     setTimeout(() => {
                         manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
-                    }, 100);
+                    }, 50);
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkModal);
-                    console.error('showModal function still not available after', maxAttempts, 'attempts');
-                    if (typeof notifyError === 'function') {
-                        notifyError('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
-                    } else {
-                        alert('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
-                    }
+                    console.warn('showModal not available, skipping modal display');
+                    // Silently fail - don't show error
+                    return;
                 }
             }, 100);
             return;
@@ -2224,8 +2241,16 @@ async function manageSubscription(subscriptionId, productName, price, period, st
         
         console.log('Calling showModal with html length:', modalHtml.length);
         
+        // Get the modal function
+        const modalFn = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
+        
+        if (!modalFn || typeof modalFn !== 'function') {
+            console.warn('showModal function not available, cannot display modal');
+            return;
+        }
+        
         try {
-            showModal({
+            modalFn({
                 title: 'Управление подпиской',
                 type: 'info',
                 html: modalHtml,
