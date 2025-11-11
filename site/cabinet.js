@@ -1641,7 +1641,7 @@ async function loadPaymentMethods() {
                             ${isDefault ? `
                                 <span class="bg-primary text-white px-3 py-1 rounded-lg text-sm font-semibold">
                                     Основная
-                                </span>
+                        </span>
                             ` : ''}
                             ${!isDefault ? `
                                 <button 
@@ -1906,7 +1906,7 @@ async function signDocument(documentType, skipConfirm = false) {
 
 // Show document acceptance modal
 async function showDocumentAcceptanceModal(documentType, documentTitle, documentUrl) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
         const documentTypeLabels = {
             'privacy': 'Политика конфиденциальности',
             'affiliate_terms': 'Условия партнерской программы',
@@ -1915,8 +1915,9 @@ async function showDocumentAcceptanceModal(documentType, documentTitle, document
         };
         
         const title = documentTypeLabels[documentType] || documentTitle;
-        const checkboxId = `docAcceptCheckbox_${documentType}`;
-        let checkboxChecked = false;
+        const checkboxId = `docAcceptCheckbox_${documentType}_${Date.now()}`;
+        const acceptBtnId = `docAcceptBtn_${documentType}_${Date.now()}`;
+        const modalId = `docModal_${documentType}_${Date.now()}`;
         
         const modalHtml = `
             <div class="bg-white rounded-2xl shadow-xl max-w-2xl mx-auto p-8">
@@ -1945,7 +1946,6 @@ async function showDocumentAcceptanceModal(documentType, documentTitle, document
                         type="checkbox" 
                         id="${checkboxId}"
                         class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary mt-1"
-                        onchange="document.getElementById('${checkboxId}').checked ? window.docAcceptCheckboxChecked = true : window.docAcceptCheckboxChecked = false"
                     >
                     <span class="text-sm text-gray-700">
                         Я ознакомился и принимаю <a href="${documentUrl}" target="_blank" class="text-primary hover:underline font-semibold">${title.toLowerCase()}</a>
@@ -1954,15 +1954,13 @@ async function showDocumentAcceptanceModal(documentType, documentTitle, document
                 
                 <div class="flex gap-3 justify-center">
                     <button 
-                        id="docAcceptBtn_${documentType}"
-                        onclick="window.docAcceptResolve(true)"
+                        id="${acceptBtnId}"
                         class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled
                     >
                         Принять
                     </button>
                     <button 
-                        onclick="window.docAcceptResolve(false)"
                         class="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 transition"
                     >
                         Отмена
@@ -1973,7 +1971,7 @@ async function showDocumentAcceptanceModal(documentType, documentTitle, document
         
         // Create modal
         const modalContainer = document.createElement('div');
-        modalContainer.id = `docModal_${documentType}`;
+        modalContainer.id = modalId;
         modalContainer.className = 'fixed inset-0 z-[10000] bg-black bg-opacity-50 flex items-center justify-center p-4';
         modalContainer.innerHTML = modalHtml;
         document.body.appendChild(modalContainer);
@@ -1983,33 +1981,53 @@ async function showDocumentAcceptanceModal(documentType, documentTitle, document
             lucide.createIcons();
         }
         
-        // Checkbox handler
+        // Get elements
         const checkbox = document.getElementById(checkboxId);
-        const acceptBtn = document.getElementById(`docAcceptBtn_${documentType}`);
+        const acceptBtn = document.getElementById(acceptBtnId);
+        const cancelBtn = modalContainer.querySelector('button:last-child');
         
+        // Checkbox handler
         if (checkbox && acceptBtn) {
             checkbox.addEventListener('change', function() {
                 acceptBtn.disabled = !this.checked;
             });
         }
         
-        // Resolve handler
-        window.docAcceptResolve = async (accepted) => {
-            if (accepted && checkbox && checkbox.checked) {
-                // Sign document
-                const signed = await signDocument(documentType, true);
-                if (signed) {
-                    modalContainer.remove();
-                    resolve(true);
-                } else {
-                    // Don't close modal on error
-                    resolve(false);
+        // Accept button handler
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', async function() {
+                if (checkbox && checkbox.checked) {
+                    acceptBtn.disabled = true;
+                    acceptBtn.textContent = 'Обработка...';
+                    
+                    // Sign document
+                    const signed = await signDocument(documentType, true);
+                    if (signed) {
+                        modalContainer.remove();
+                        resolve(true);
+                    } else {
+                        acceptBtn.disabled = false;
+                        acceptBtn.textContent = 'Принять';
+                    }
                 }
-            } else if (!accepted) {
+            });
+        }
+        
+        // Cancel button handler
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                modalContainer.remove();
+                resolve(false);
+            });
+        }
+        
+        // Close on backdrop click
+        modalContainer.addEventListener('click', function(e) {
+            if (e.target === modalContainer) {
                 modalContainer.remove();
                 resolve(false);
             }
-        };
+        });
     });
 }
 
