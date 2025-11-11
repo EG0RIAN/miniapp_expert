@@ -11,13 +11,13 @@ class ProductAdmin(admin.ModelAdmin):
     
     def has_app_url(self, obj):
         """Проверка наличия URL приложения"""
-        return '✅' if obj.app_url else '❌'
+        return bool(obj.app_url)
     has_app_url.short_description = 'Приложение'
     has_app_url.boolean = True
     
     def has_admin_url(self, obj):
         """Проверка наличия URL админки"""
-        return '✅' if obj.admin_url else '❌'
+        return bool(obj.admin_url)
     has_admin_url.short_description = 'Админка'
     has_admin_url.boolean = True
     fieldsets = (
