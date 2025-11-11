@@ -701,7 +701,8 @@
                                 <i data-lucide="trending-up" class="w-6 h-6 text-primary"></i>
                                 <span>История начислений</span>
                             </h2>
-                            <div class="overflow-x-auto">
+                            <!-- Desktop Table -->
+                            <div class="overflow-x-auto hidden md:block">
                                 <table class="w-full" id="commissionsTable">
                                     <thead class="bg-gray-50">
                                         <tr>
@@ -722,6 +723,12 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <!-- Mobile Cards -->
+                            <div id="commissionsMobileList" class="md:hidden space-y-4">
+                                <div class="text-center p-8 text-gray-500">
+                                    Загрузка истории начислений...
+                                </div>
                             </div>
                             <div id="commissionsEmpty" class="hidden text-center p-8 text-gray-500">
                                 <i data-lucide="trending-up" class="w-12 h-12 mx-auto mb-2 text-gray-300"></i>
@@ -853,7 +860,7 @@
 
     <script src="notification.js?v=2"></script>
     <script src="modal.js?v=5"></script>
-    <script src="cabinet.js?v=8"></script>
+    <script src="cabinet.js?v=9"></script>
     
     <!-- Initialize Lucide Icons -->
     <script>
