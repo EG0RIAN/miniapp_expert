@@ -334,7 +334,7 @@
             
             try {
                 // Check if user is authenticated
-                const token = localStorage.getItem('accessToken');
+                const token = localStorage.getItem('userToken') || localStorage.getItem('authToken') || localStorage.getItem('accessToken');
                 if (!token) {
                     // User not authenticated, use checkbox agreement
                     return true;
@@ -431,7 +431,7 @@
                         
                         // Sign document
                         try {
-                            const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
+                            const token = localStorage.getItem('userToken') || localStorage.getItem('authToken') || localStorage.getItem('accessToken');
                             if (!token) {
                                 notifyError('Необходима авторизация для подписания документа');
                                 resolve(false);
