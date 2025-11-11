@@ -2115,70 +2115,83 @@ async function manageSubscription(subscriptionId, productName, price, period, st
             normalizedPrice
         });
         
-        showModal({
-            title: 'Управление подпиской',
-            type: 'info',
-            html: `
-                <div class="space-y-4 mt-4" id="${modalId}">
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <h4 class="font-semibold text-lg mb-3">${escapedProductName}</h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Стоимость:</span>
-                                <span class="font-semibold">${priceFormatted}/${periodText}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Начало подписки:</span>
-                                <span class="font-semibold">${startDateFormatted}</span>
-                            </div>
-                            ${endDateFormatted !== '-' ? `
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Следующий платеж:</span>
-                                    <span class="font-semibold text-green-600">${endDateFormatted}</span>
-                                </div>
-                            ` : ''}
-                        </div>
+        // Build HTML content safely
+        const endDateHtml = endDateFormatted !== '-' ? `
+            <div class="flex justify-between">
+                <span class="text-gray-600">Следующий платеж:</span>
+                <span class="font-semibold text-green-600">${endDateFormatted}</span>
+            </div>
+        ` : '';
+        
+        const modalHtml = `<div class="space-y-4 mt-4" id="${modalId}">
+            <div class="bg-gray-50 rounded-xl p-4">
+                <h4 class="font-semibold text-lg mb-3">${escapedProductName}</h4>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Стоимость:</span>
+                        <span class="font-semibold">${priceFormatted}/${periodText}</span>
                     </div>
-                    <div class="space-y-2">
-                        <button 
-                            id="${cancelButtonId}"
-                            type="button"
-                            data-subscription-id="${subscriptionId}"
-                            data-product-name="${normalizedProductName}"
-                            class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold subscription-cancel-btn"
-                        >
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="x-circle" class="w-5 h-5"></i>
-                                <span>Отменить подписку</span>
-                            </div>
-                            <div class="text-xs text-red-600 mt-1">Подписка будет отменена после окончания текущего периода</div>
-                        </button>
-                        <button 
-                            id="${historyButtonId}"
-                            type="button"
-                            data-subscription-id="${subscriptionId}"
-                            class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold subscription-history-btn"
-                        >
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="history" class="w-5 h-5"></i>
-                                <span>История платежей</span>
-                            </div>
-                        </button>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Начало подписки:</span>
+                        <span class="font-semibold">${startDateFormatted}</span>
                     </div>
+                    ${endDateHtml}
                 </div>
-            `,
-            confirmText: 'Закрыть',
-            onConfirm: () => {
-                if (typeof closeModal === 'function') {
-                    closeModal();
+            </div>
+            <div class="space-y-2">
+                <button 
+                    id="${cancelButtonId}"
+                    type="button"
+                    data-subscription-id="${subscriptionId}"
+                    data-product-name="${normalizedProductName}"
+                    class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold subscription-cancel-btn"
+                >
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        <span>Отменить подписку</span>
+                    </div>
+                    <div class="text-xs text-red-600 mt-1">Подписка будет отменена после окончания текущего периода</div>
+                </button>
+                <button 
+                    id="${historyButtonId}"
+                    type="button"
+                    data-subscription-id="${subscriptionId}"
+                    class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold subscription-history-btn"
+                >
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="history" class="w-5 h-5"></i>
+                        <span>История платежей</span>
+                    </div>
+                </button>
+            </div>
+        </div>`;
+        
+        console.log('Calling showModal with html length:', modalHtml.length);
+        
+        try {
+            showModal({
+                title: 'Управление подпиской',
+                type: 'info',
+                html: modalHtml,
+                confirmText: 'Закрыть',
+                onConfirm: () => {
+                    console.log('Modal close button clicked');
+                    if (typeof closeModal === 'function') {
+                        closeModal();
+                    }
+                },
+                onCancel: () => {
+                    if (typeof closeModal === 'function') {
+                        closeModal();
+                    }
                 }
-            },
-            onCancel: () => {
-                if (typeof closeModal === 'function') {
-                    closeModal();
-                }
-            }
-        });
+            });
+            console.log('showModal called successfully');
+        } catch (modalError) {
+            console.error('Error calling showModal:', modalError);
+            console.error('Modal error stack:', modalError.stack);
+            throw modalError;
+        }
         
         // Store subscription data for event handlers
         window._subscriptionModalData = window._subscriptionModalData || {};
