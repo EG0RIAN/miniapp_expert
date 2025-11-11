@@ -1910,14 +1910,19 @@ async function signDocument(documentType, skipConfirm = false, documentId = null
     try {
         const body = {};
         // If documentId is provided (for subscription_terms with different documents per product), send it in body
-        if (documentId && documentId !== 'null') {
-            body.document_id = documentId;
+        if (documentId && documentId !== 'null' && documentId !== null) {
+            body.document_id = documentId.toString();
         }
         
-        const result = await apiRequest(`/client/documents/accept/${documentType}/`, {
+        const requestOptions = {
             method: 'POST',
-            body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
-        });
+        };
+        
+        if (Object.keys(body).length > 0) {
+            requestOptions.body = JSON.stringify(body);
+        }
+        
+        const result = await apiRequest(`/client/documents/accept/${documentType}/`, requestOptions);
         
         if (!result || result.error) {
             notifyError(result?.data?.message || 'Ошибка при подписании документа');
