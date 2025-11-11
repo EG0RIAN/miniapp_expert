@@ -325,6 +325,153 @@
             }
         }
 
+        // Check and sign subscription terms if needed
+        async function checkAndSignSubscriptionTerms() {
+            // Only check if product is subscription
+            if (preOrderData?.product?.product_type !== 'subscription') {
+                return true; // Not a subscription, no need to sign
+            }
+            
+            try {
+                // Check if user is authenticated
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    // User not authenticated, use checkbox agreement
+                    return true;
+                }
+                
+                // Check document status
+                const response = await fetch('/api/client/documents/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    credentials: 'same-origin',
+                });
+                
+                if (!response.ok) {
+                    // If API fails, use checkbox agreement
+                    return true;
+                }
+                
+                const result = await response.json();
+                if (!result.success) {
+                    return true;
+                }
+                
+                const documentsToSign = result.data.documents_to_sign || [];
+                const subscriptionTermsDoc = documentsToSign.find(doc => doc.document_type === 'subscription_terms' && !doc.is_signed);
+                
+                if (!subscriptionTermsDoc) {
+                    // Document already signed or not required
+                    return true;
+                }
+                
+                // Show modal for signing
+                return await showSubscriptionTermsModal(subscriptionTermsDoc);
+            } catch (error) {
+                console.error('Error checking subscription terms:', error);
+                // On error, allow to proceed with checkbox
+                return true;
+            }
+        }
+        
+        // Show modal for subscription terms signing
+        async function showSubscriptionTermsModal(doc) {
+            return new Promise((resolve) => {
+                const docUrl = doc.slug ? `/document/${doc.slug}.html` : '/subscription-terms.html';
+                
+                const modalHtml = `
+                    <div class="space-y-4">
+                        <div class="text-center">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Условия подписки</h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Для оформления подписки необходимо ознакомиться и принять условия.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <a 
+                                href="${docUrl}" 
+                                target="_blank"
+                                class="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold text-sm"
+                            >
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                                <span>Открыть полный текст документа</span>
+                            </a>
+                        </div>
+                        
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="subscriptionTermsModalCheckbox"
+                                class="mt-1 w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                            >
+                            <span class="text-sm text-gray-700">
+                                Я ознакомился и принимаю условия <strong>подписки</strong>
+                            </span>
+                        </label>
+                    </div>
+                `;
+                
+                showModal({
+                    title: 'Принятие условий подписки',
+                    html: modalHtml,
+                    type: 'info',
+                    confirmText: 'Принять и продолжить',
+                    cancelText: 'Отмена',
+                    onConfirm: async () => {
+                        const checkbox = document.getElementById('subscriptionTermsModalCheckbox');
+                        if (!checkbox || !checkbox.checked) {
+                            notifyError('Пожалуйста, подтвердите согласие с условиями подписки');
+                            resolve(false);
+                            return;
+                        }
+                        
+                        // Sign document
+                        try {
+                            const token = localStorage.getItem('accessToken');
+                            const signResponse = await fetch(`/api/client/documents/accept/subscription_terms/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Authorization': `Bearer ${token}`,
+                                },
+                                credentials: 'same-origin',
+                            });
+                            
+                            if (signResponse.ok) {
+                                const signResult = await signResponse.json();
+                                if (signResult.success) {
+                                    notifySuccess('Условия подписки приняты');
+                                    resolve(true);
+                                } else {
+                                    notifyError(signResult.message || 'Ошибка при подписании документа');
+                                    resolve(false);
+                                }
+                            } else {
+                                notifyError('Ошибка при подписании документа');
+                                resolve(false);
+                            }
+                        } catch (error) {
+                            console.error('Error signing subscription terms:', error);
+                            notifyError('Ошибка при подписании документа');
+                            resolve(false);
+                        }
+                    },
+                    onCancel: () => {
+                        resolve(false);
+                    }
+                });
+                
+                // Re-initialize icons
+                if (typeof lucide !== 'undefined') {
+                    setTimeout(() => lucide.createIcons(), 100);
+                }
+            });
+        }
+        
         // Process payment
         async function processPayment() {
             try {
@@ -346,6 +493,14 @@
                     return;
                 }
                 
+                // Check and sign subscription terms if needed (for authenticated users)
+                const subscriptionTermsSigned = await checkAndSignSubscriptionTerms();
+                if (!subscriptionTermsSigned) {
+                    // User cancelled signing, stop payment
+                    return;
+                }
+                
+                // For non-authenticated users or if API check failed, use checkbox
                 if (preOrderData?.product?.product_type === 'subscription' && !subscriptionAgree) {
                     notifyWarning('Для продолжения необходимо согласиться с условиями подписки');
                     document.getElementById('subscriptionAgree').scrollIntoView({ behavior: 'smooth', block: 'center' });

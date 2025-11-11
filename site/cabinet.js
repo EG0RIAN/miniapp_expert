@@ -110,7 +110,7 @@ function showSection(sectionId) {
             loadPayments();
             break;
         case 'profile':
-            loadProfile();
+    loadProfile();
             break;
         case 'partners':
             loadPartnersData();
@@ -217,9 +217,9 @@ async function loadProfile() {
         if (user.created_at && memberSinceEl) {
             try {
                 const date = new Date(user.created_at);
-                const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-                ];
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
                 const memberSinceText = monthNames[date.getMonth()] + ' ' + date.getFullYear();
                 memberSinceEl.textContent = memberSinceText; // From API
                 console.log('✅ Updated memberSince to:', memberSinceText);
@@ -538,8 +538,8 @@ async function loadProducts() {
                             </a>
                             <a href="#" class="border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm">
                                 Админка
-                            </a>
-                        </div>
+                    </a>
+                </div>
                         ${isSubscription && product.status === 'active' ? `
                             <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${renewalPrice}" 
                                class="block bg-gradient-to-r from-secondary to-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:shadow-xl transition flex items-center justify-center gap-2 mt-2">
@@ -547,8 +547,8 @@ async function loadProducts() {
                                 <span>Продлить подписку</span>
                             </a>
                         ` : ''}
-                    </div>
-                </div>
+            </div>
+        </div>
             `;
         }).join('');
         
@@ -582,7 +582,7 @@ async function loadSubscriptions() {
         const result = await apiRequest('/client/products/');
         if (!result || result.error) {
             console.error('Failed to load subscriptions:', result?.error);
-            const container = document.getElementById('subscriptionsList');
+    const container = document.getElementById('subscriptionsList');
             if (container) {
                 container.innerHTML = `
                     <div class="col-span-2 text-center py-12 text-red-500">
@@ -594,8 +594,8 @@ async function loadSubscriptions() {
                     lucide.createIcons();
                 }
             }
-            return;
-        }
+        return;
+    }
         
         // API returns {success: true, products: [...]}
         const products = (result.data && result.data.products) ? result.data.products : (Array.isArray(result.data) ? result.data : []);
@@ -640,13 +640,13 @@ async function loadSubscriptions() {
                         <span class="${statusClass} px-3 py-1 rounded-full text-xs font-bold">
                             ${statusText}
                         </span>
-                    </div>
+            </div>
                     ${productDescription ? `<p class="text-gray-600 mb-4">${productDescription.substring(0, 150)}${productDescription.length > 150 ? '...' : ''}</p>` : ''}
                     <div class="space-y-2 mb-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Стоимость:</span>
                             <span class="font-bold">${formatAmountRub(price)}/${periodText || 'мес'}</span>
-                        </div>
+        </div>
                         ${sub.start_date ? `
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Начало подписки:</span>
@@ -1871,9 +1871,9 @@ async function loadSignedDocumentsInProfile(signedDocuments) {
 
 
 // Sign document
-async function signDocument(documentType) {
-    if (!confirm('Вы уверены, что хотите подписать этот документ?')) {
-        return;
+async function signDocument(documentType, skipConfirm = false) {
+    if (!skipConfirm && !confirm('Вы уверены, что хотите подписать этот документ?')) {
+        return false;
     }
     
     try {
@@ -1883,7 +1883,7 @@ async function signDocument(documentType) {
         
         if (!result || result.error) {
             notifyError(result?.data?.message || 'Ошибка при подписании документа');
-            return;
+            return false;
         }
         
         notifySuccess('Документ успешно подписан');
@@ -1895,9 +1895,172 @@ async function signDocument(documentType) {
         if (documentType === 'affiliate_terms') {
             await loadPartnersData();
         }
+        
+        return true;
     } catch (error) {
         console.error('Error signing document:', error);
         notifyError('Ошибка при подписании документа');
+        return false;
+    }
+}
+
+// Show document acceptance modal
+async function showDocumentAcceptanceModal(documentType, documentTitle, documentUrl) {
+    return new Promise((resolve) => {
+        const documentTypeLabels = {
+            'privacy': 'Политика конфиденциальности',
+            'affiliate_terms': 'Условия партнерской программы',
+            'cabinet_terms': 'Условия использования личного кабинета',
+            'subscription_terms': 'Условия подписки',
+        };
+        
+        const title = documentTypeLabels[documentType] || documentTitle;
+        const checkboxId = `docAcceptCheckbox_${documentType}`;
+        let checkboxChecked = false;
+        
+        const modalHtml = `
+            <div class="bg-white rounded-2xl shadow-xl max-w-2xl mx-auto p-8">
+                <div class="text-center mb-6">
+                    <i data-lucide="file-text" class="w-16 h-16 text-primary mx-auto mb-4"></i>
+                    <h2 class="text-2xl font-bold mb-2">${title}</h2>
+                    <p class="text-gray-700">
+                        Для продолжения необходимо ознакомиться и принять условия.
+                    </p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-6 mb-6 text-left max-h-96 overflow-y-auto border border-gray-200">
+                    <div class="prose prose-sm max-w-none">
+                        <p class="text-sm text-gray-700 mb-4">
+                            Пожалуйста, ознакомьтесь с полным текстом документа, нажав на ссылку ниже.
+                        </p>
+                        <a href="${documentUrl}" target="_blank" class="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold text-sm">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                            <span>Открыть полный текст документа</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <label class="flex items-start justify-center gap-3 mb-6 cursor-pointer">
+                    <input 
+                        type="checkbox" 
+                        id="${checkboxId}"
+                        class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary mt-1"
+                        onchange="document.getElementById('${checkboxId}').checked ? window.docAcceptCheckboxChecked = true : window.docAcceptCheckboxChecked = false"
+                    >
+                    <span class="text-sm text-gray-700">
+                        Я ознакомился и принимаю <a href="${documentUrl}" target="_blank" class="text-primary hover:underline font-semibold">${title.toLowerCase()}</a>
+                    </span>
+                </label>
+                
+                <div class="flex gap-3 justify-center">
+                    <button 
+                        id="docAcceptBtn_${documentType}"
+                        onclick="window.docAcceptResolve(true)"
+                        class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled
+                    >
+                        Принять
+                    </button>
+                    <button 
+                        onclick="window.docAcceptResolve(false)"
+                        class="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-300 transition"
+                    >
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Create modal
+        const modalContainer = document.createElement('div');
+        modalContainer.id = `docModal_${documentType}`;
+        modalContainer.className = 'fixed inset-0 z-[10000] bg-black bg-opacity-50 flex items-center justify-center p-4';
+        modalContainer.innerHTML = modalHtml;
+        document.body.appendChild(modalContainer);
+        
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Checkbox handler
+        const checkbox = document.getElementById(checkboxId);
+        const acceptBtn = document.getElementById(`docAcceptBtn_${documentType}`);
+        
+        if (checkbox && acceptBtn) {
+            checkbox.addEventListener('change', function() {
+                acceptBtn.disabled = !this.checked;
+            });
+        }
+        
+        // Resolve handler
+        window.docAcceptResolve = async (accepted) => {
+            if (accepted && checkbox && checkbox.checked) {
+                // Sign document
+                const signed = await signDocument(documentType, true);
+                if (signed) {
+                    modalContainer.remove();
+                    resolve(true);
+                } else {
+                    // Don't close modal on error
+                    resolve(false);
+                }
+            } else if (!accepted) {
+                modalContainer.remove();
+                resolve(false);
+            }
+        };
+    });
+}
+
+// Check and sign required documents on first login
+async function checkAndSignRequiredDocuments() {
+    try {
+        const result = await apiRequest('/client/documents/');
+        if (!result || result.error) {
+            return;
+        }
+        
+        const documentsToSign = result.data.documents_to_sign || [];
+        const documentUrls = {
+            'privacy': '/privacy.html',
+            'cabinet_terms': '/cabinet-terms.html',
+            'affiliate_terms': '/affiliate-terms.html',
+            'subscription_terms': '/subscription-terms.html',
+        };
+        
+        // Check for privacy policy (required on first login)
+        const privacyDoc = documentsToSign.find(doc => doc.document_type === 'privacy');
+        if (privacyDoc) {
+            const accepted = await showDocumentAcceptanceModal(
+                'privacy',
+                'Политика конфиденциальности',
+                documentUrls['privacy'] || `/document/${privacyDoc.slug || 'privacy'}.html`
+            );
+            if (!accepted) {
+                // User cancelled, but we can continue (document will remain unsigned)
+                console.log('Privacy policy acceptance cancelled');
+            }
+        }
+        
+        // Check for cabinet terms (required on first login)
+        const cabinetTermsDoc = documentsToSign.find(doc => doc.document_type === 'cabinet_terms');
+        if (cabinetTermsDoc) {
+            const accepted = await showDocumentAcceptanceModal(
+                'cabinet_terms',
+                'Условия использования личного кабинета',
+                documentUrls['cabinet_terms'] || `/document/${cabinetTermsDoc.slug || 'cabinet-terms'}.html`
+            );
+            if (!accepted) {
+                // User cancelled, but we can continue (document will remain unsigned)
+                console.log('Cabinet terms acceptance cancelled');
+            }
+        }
+        
+        // Reload documents status after signing
+        await checkDocumentsStatus();
+    } catch (error) {
+        console.error('Error checking required documents:', error);
     }
 }
 
@@ -1940,6 +2103,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Check documents status (loads banner on all pages and documents in profile)
         await checkDocumentsStatus();
+        
+        // Check and auto-sign required documents on first login
+        await checkAndAutoSignRequiredDocuments();
         
         // Check hash for section
         const hash = window.location.hash.replace('#', '');
