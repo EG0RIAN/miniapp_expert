@@ -1934,10 +1934,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             loadProducts(),
             loadSubscriptions(),
             loadPayments(),
-            loadPartnersData(),
-            checkDocumentsStatus() // Check documents status for badge
+            loadPartnersData()
         ]);
         console.log('All sections loaded');
+        
+        // Check documents status (loads banner on all pages and documents in profile)
+        await checkDocumentsStatus();
         
         // Check hash for section
         const hash = window.location.hash.replace('#', '');
