@@ -807,6 +807,19 @@ async function loadSubscriptions() {
                 }
             }
             
+            // Get app URL from user product (individual for each user)
+            // Get admin URL from product (common for all users)
+            const appUrl = sub.app_url || null;
+            const adminUrl = sub.product?.admin_url || sub.admin_url || null;
+            
+            // Determine button classes and behavior
+            const appButtonClass = appUrl 
+                ? 'bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-sm cursor-pointer' 
+                : 'bg-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
+            const adminButtonClass = adminUrl 
+                ? 'border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm cursor-pointer' 
+                : 'border-2 border-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
+            
             return `
                 <div class="bg-white rounded-2xl shadow-sm p-6 border-2 ${sub.status === 'active' ? 'border-green-500/20' : 'border-gray-200'}">
                     <div class="flex items-center justify-between mb-4">
@@ -857,6 +870,26 @@ async function loadSubscriptions() {
                         ` : ''}
                     </div>
                     ${sub.status === 'active' ? `
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            ${appUrl ? `
+                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
+                                    Приложение
+                                </a>
+                            ` : `
+                                <span class="${appButtonClass}" title="URL приложения не указан">
+                                    Приложение
+                                </span>
+                            `}
+                            ${adminUrl ? `
+                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
+                                    Админка
+                                </a>
+                            ` : `
+                                <span class="${adminButtonClass}" title="URL админки не указан">
+                                    Админка
+                                </span>
+                            `}
+                        </div>
                         <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-gradient-to-r from-secondary to-blue-600 text-white py-2 rounded-xl font-semibold hover:shadow-xl transition text-center mb-2">
                             Продлить подписку
@@ -865,11 +898,51 @@ async function loadSubscriptions() {
                             Управлять подпиской
                         </button>
                     ` : sub.status === 'expired' ? `
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            ${appUrl ? `
+                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
+                                    Приложение
+                                </a>
+                            ` : `
+                                <span class="${appButtonClass}" title="URL приложения не указан">
+                                    Приложение
+                                </span>
+                            `}
+                            ${adminUrl ? `
+                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
+                                    Админка
+                                </a>
+                            ` : `
+                                <span class="${adminButtonClass}" title="URL админки не указан">
+                                    Админка
+                                </span>
+                            `}
+                        </div>
                         <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
                             Восстановить подписку за ${formatAmountRub(price)}
                         </a>
                     ` : `
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            ${appUrl ? `
+                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
+                                    Приложение
+                                </a>
+                            ` : `
+                                <span class="${appButtonClass}" title="URL приложения не указан">
+                                    Приложение
+                                </span>
+                            `}
+                            ${adminUrl ? `
+                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
+                                    Админка
+                                </a>
+                            ` : `
+                                <span class="${adminButtonClass}" title="URL админки не указан">
+                                    Админка
+                                </span>
+                            `}
+                        </div>
                         <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
                             Подключить за ${formatAmountRub(price)}
