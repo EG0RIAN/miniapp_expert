@@ -237,21 +237,46 @@ async function loadProfile() {
     }
 }
 
-// Update email verification status display
+// Update email verification status display (global banners + profile badges)
 function updateEmailVerificationStatus(emailVerified) {
+    // Global banners (shown on all pages)
     const verificationBanner = document.getElementById('emailVerificationBanner');
     const verifiedBanner = document.getElementById('emailVerifiedBanner');
+    
+    // Profile page badges (only on profile page)
     const verifiedBadge = document.getElementById('emailVerifiedBadge');
     const unverifiedBadge = document.getElementById('emailUnverifiedBadge');
     
+    // Get sidebar and main container for positioning
+    const sidebar = document.querySelector('aside.w-64.bg-white.border-r');
+    const mainContainer = document.getElementById('mainContainer');
+    const mainContent = document.getElementById('mainContent');
+    
     if (emailVerified) {
-        // Show verified banner and badge
+        // Show verified banner (small), hide unverified banner
         if (verificationBanner) {
             verificationBanner.classList.add('hidden');
         }
         if (verifiedBanner) {
             verifiedBanner.classList.remove('hidden');
+            // Adjust positions: header (64px) + small banner (~48px) = ~112px
+            if (sidebar) {
+                sidebar.style.top = '7rem'; // 112px
+            }
+            if (mainContainer) {
+                mainContainer.style.paddingTop = '7rem';
+            }
+        } else {
+            // No banner shown
+            if (sidebar) {
+                sidebar.style.top = '4rem'; // header only (64px)
+            }
+            if (mainContainer) {
+                mainContainer.style.paddingTop = '4rem';
+            }
         }
+        
+        // Update profile badges if on profile page
         if (verifiedBadge) {
             verifiedBadge.classList.remove('hidden');
         }
@@ -259,13 +284,30 @@ function updateEmailVerificationStatus(emailVerified) {
             unverifiedBadge.classList.add('hidden');
         }
     } else {
-        // Show unverified banner and badge
+        // Show unverified banner (larger), hide verified banner
         if (verificationBanner) {
             verificationBanner.classList.remove('hidden');
+            // Adjust positions: header (64px) + large banner (~96px) = ~160px
+            if (sidebar) {
+                sidebar.style.top = '10rem'; // 160px
+            }
+            if (mainContainer) {
+                mainContainer.style.paddingTop = '10rem';
+            }
+        } else {
+            // No banner shown (shouldn't happen for unverified, but handle it)
+            if (sidebar) {
+                sidebar.style.top = '4rem';
+            }
+            if (mainContainer) {
+                mainContainer.style.paddingTop = '4rem';
+            }
         }
         if (verifiedBanner) {
             verifiedBanner.classList.add('hidden');
         }
+        
+        // Update profile badges if on profile page
         if (verifiedBadge) {
             verifiedBadge.classList.add('hidden');
         }
@@ -1359,6 +1401,24 @@ async function requestReceipt(paymentId, buttonElement = null) {
     }
 }
 
+// Load email verification status - called on all pages
+async function loadEmailVerificationStatus() {
+    try {
+        const result = await apiRequest('/auth/profile/');
+        if (!result || result.error) {
+            console.error('Failed to load email verification status:', result?.error);
+            return;
+        }
+        
+        const user = result.data;
+        if (user && typeof user.email_verified !== 'undefined') {
+            updateEmailVerificationStatus(user.email_verified);
+        }
+    } catch (error) {
+        console.error('Error loading email verification status:', error);
+    }
+}
+
 // Initialize - Load all data from API
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Cabinet page loaded, initializing...');
@@ -1368,6 +1428,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Auth check failed, redirecting to login');
         return;
     }
+    
+    // Load email verification status on all pages
+    await loadEmailVerificationStatus();
     
     console.log('Auth check passed, loading data...');
     
