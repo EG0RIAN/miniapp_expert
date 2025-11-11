@@ -31,3 +31,38 @@ class AvailableProductsView(views.APIView):
             'products': serializer.data
         })
 
+
+class CancelSubscriptionView(views.APIView):
+    """Отмена подписки"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, subscription_id):
+        try:
+            user_product = UserProduct.objects.get(
+                id=subscription_id,
+                user=request.user,
+                product__product_type='subscription'
+            )
+        except UserProduct.DoesNotExist:
+            return Response(
+                {'success': False, 'message': 'Подписка не найдена'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Проверяем, что подписка активна
+        if user_product.status != 'active':
+            return Response(
+                {'success': False, 'message': 'Подписка не активна'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Отменяем подписку - меняем статус на cancelled
+        # Подписка будет действовать до конца текущего периода (end_date)
+        user_product.status = 'cancelled'
+        user_product.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Подписка отменена. Она будет действовать до окончания текущего периода оплаты.'
+        })
+

@@ -890,11 +890,10 @@ async function loadSubscriptions() {
                                 </span>
                             `}
                         </div>
-                        <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
-                           class="block w-full bg-gradient-to-r from-secondary to-blue-600 text-white py-2 rounded-xl font-semibold hover:shadow-xl transition text-center mb-2">
-                            Продлить подписку
-                        </a>
-                        <button class="w-full border-2 border-gray-300 py-2 rounded-xl font-semibold hover:bg-gray-50 transition text-gray-700">
+                        <button 
+                            onclick="manageSubscription('${sub.id}', '${productName}', '${price}', '${subscriptionPeriod}', '${sub.start_date || ''}', '${sub.end_date || ''}')" 
+                            class="w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition"
+                        >
                             Управлять подпиской
                         </button>
                     ` : sub.status === 'expired' ? `
@@ -1960,6 +1959,123 @@ async function loadPaymentMethods() {
         if (cardsList) {
             cardsList.innerHTML = '<div class="text-center py-12 text-gray-500">Ошибка загрузки карт</div>';
         }
+    }
+}
+
+// Manage subscription - show modal with options
+async function manageSubscription(subscriptionId, productName, price, period, startDate, endDate) {
+    const periodText = period === 'monthly' ? 'месяц' : period === 'yearly' ? 'год' : 'месяц';
+    const startDateFormatted = startDate ? new Date(startDate).toLocaleDateString('ru-RU') : '-';
+    const endDateFormatted = endDate ? new Date(endDate).toLocaleDateString('ru-RU') : '-';
+    
+    showModal({
+        title: 'Управление подпиской',
+        type: 'info',
+        html: `
+            <div class="space-y-4 mt-4">
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <h4 class="font-semibold text-lg mb-3">${productName}</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Стоимость:</span>
+                            <span class="font-semibold">${formatAmountRub(price)}/${periodText}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Начало подписки:</span>
+                            <span class="font-semibold">${startDateFormatted}</span>
+                        </div>
+                        ${endDateFormatted !== '-' ? `
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Следующий платеж:</span>
+                                <span class="font-semibold text-green-600">${endDateFormatted}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <button 
+                        onclick="cancelSubscription('${subscriptionId}', '${productName}')" 
+                        class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold"
+                    >
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i>
+                            <span>Отменить подписку</span>
+                        </div>
+                        <div class="text-xs text-red-600 mt-1">Подписка будет отменена после окончания текущего периода</div>
+                    </button>
+                    <button 
+                        onclick="viewSubscriptionHistory('${subscriptionId}')" 
+                        class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition font-semibold"
+                    >
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="history" class="w-5 h-5"></i>
+                            <span>История платежей</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        `,
+        confirmText: 'Закрыть',
+        onConfirm: () => closeModal(),
+        onCancel: () => closeModal()
+    });
+    
+    // Re-initialize icons
+    if (typeof lucide !== 'undefined') {
+        setTimeout(() => lucide.createIcons(), 100);
+    }
+}
+
+// Cancel subscription
+async function cancelSubscription(subscriptionId, productName) {
+    closeModal();
+    
+    const confirmed = await new Promise((resolve) => {
+        showModal({
+            title: 'Отменить подписку?',
+            message: `Вы уверены, что хотите отменить подписку "${productName}"? Подписка будет отменена после окончания текущего периода оплаты.`,
+            type: 'warning',
+            confirmText: 'Отменить подписку',
+            cancelText: 'Нет, оставить',
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false)
+        });
+    });
+    
+    if (!confirmed) {
+        return;
+    }
+    
+    try {
+        const result = await apiRequest(`/client/subscriptions/${subscriptionId}/cancel/`, {
+            method: 'POST'
+        });
+        
+        if (!result || result.error) {
+            notifyError(result?.data?.message || 'Ошибка отмены подписки');
+            return;
+        }
+        
+        notifySuccess('Подписка будет отменена после окончания текущего периода');
+        
+        // Reload subscriptions
+        await loadSubscriptions();
+    } catch (error) {
+        console.error('Error cancelling subscription:', error);
+        notifyError('Ошибка отмены подписки');
+    }
+}
+
+// View subscription history
+function viewSubscriptionHistory(subscriptionId) {
+    closeModal();
+    // Switch to payments section and filter by subscription
+    showSection('payments');
+    // TODO: Add filtering by subscription ID in payments list
+    if (typeof notifyInfo === 'function') {
+        notifyInfo('Переход в раздел истории платежей');
+    } else {
+        notifySuccess('Переход в раздел истории платежей');
     }
 }
 
