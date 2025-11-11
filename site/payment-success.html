@@ -6,6 +6,7 @@
     <title>Оплата успешна! | MiniAppExpert</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -37,7 +38,10 @@
                     </svg>
                 </div>
 
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">✅ Оплата успешна!</h1>
+                <h1 class="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                    <i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>
+                    <span>Оплата успешна!</span>
+                </h1>
                 <p class="text-gray-600 mb-8 text-lg">Ваш заказ принят в обработку</p>
 
                 <!-- Order Info -->
@@ -56,38 +60,44 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Статус:</span>
-                            <span class="font-semibold text-green-600">✅ Оплачено</span>
+                            <span class="font-semibold text-green-600 flex items-center gap-2">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                <span>Оплачено</span>
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 <!-- What's Next -->
                 <div class="bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary rounded-2xl p-6 mb-8 text-left">
-                    <h2 class="font-bold text-lg mb-4">📬 Что дальше?</h2>
+                    <h2 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i data-lucide="mail" class="w-5 h-5 text-primary"></i>
+                        <span>Что дальше?</span>
+                    </h2>
                     <div class="space-y-3 text-sm">
                         <div class="flex items-start space-x-3">
-                            <span class="text-2xl">⏱️</span>
+                            <i data-lucide="clock" class="w-6 h-6 text-primary flex-shrink-0 mt-0.5"></i>
                             <div>
                                 <div class="font-semibold mb-1">Через 15 минут</div>
                                 <div class="text-gray-600">Мы отправим на ваш email данные для входа в приложение и админ-панель</div>
                             </div>
                         </div>
                         <div class="flex items-start space-x-3">
-                            <span class="text-2xl">📧</span>
+                            <i data-lucide="mail" class="w-6 h-6 text-secondary flex-shrink-0 mt-0.5"></i>
                             <div>
                                 <div class="font-semibold mb-1">Проверьте почту</div>
                                 <div class="text-gray-600">Письмо придет на <span class="font-mono text-primary" id="userEmail">your@email.com</span></div>
                             </div>
                         </div>
                         <div class="flex items-start space-x-3">
-                            <span class="text-2xl">👤</span>
+                            <i data-lucide="user" class="w-6 h-6 text-primary flex-shrink-0 mt-0.5"></i>
                             <div>
                                 <div class="font-semibold mb-1">Войдите в личный кабинет</div>
                                 <div class="text-gray-600">Все данные дублируются в вашем ЛК</div>
                             </div>
                         </div>
                         <div class="flex items-start space-x-3">
-                            <span class="text-2xl">💬</span>
+                            <i data-lucide="message-circle" class="w-6 h-6 text-secondary flex-shrink-0 mt-0.5"></i>
                             <div>
                                 <div class="font-semibold mb-1">Поддержка 24/7</div>
                                 <div class="text-gray-600">Мы всегда на связи в Telegram</div>
@@ -98,11 +108,13 @@
 
                 <!-- Actions -->
                 <div class="space-y-3">
-                    <a href="/cabinet.html" class="block w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition">
-                        👤 Перейти в личный кабинет
+                    <a href="/cabinet.html" class="block w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition flex items-center justify-center gap-2">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                        <span>Перейти в личный кабинет</span>
                     </a>
-                    <a href="/" class="block w-full border-2 border-gray-300 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 transition">
-                        🏠 Вернуться на главную
+                    <a href="/" class="block w-full border-2 border-gray-300 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        <span>Вернуться на главную</span>
                     </a>
                 </div>
 
@@ -145,6 +157,15 @@
                     status: 'active'
                 });
                 localStorage.setItem('userProducts', JSON.stringify(products));
+            }
+        });
+    </script>
+    
+    <!-- Initialize Lucide Icons -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
             }
         });
     </script>

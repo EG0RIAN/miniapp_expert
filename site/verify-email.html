@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Подтверждение email | MiniAppExpert</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="notification.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-2xl mx-auto px-6 py-12">
+        <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div id="loading" class="mb-6">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
+                <p class="mt-4 text-gray-600">Подтверждение email...</p>
+            </div>
+            
+            <div id="success" class="hidden">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-10 h-10 text-green-600"></i>
+                </div>
+                <h1 class="text-2xl font-bold mb-4 text-green-600">Email успешно подтвержден!</h1>
+                <p class="text-gray-700 mb-6">Ваш email адрес был успешно подтвержден. Теперь вы можете войти в личный кабинет.</p>
+                <a href="/login.html" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                    Войти в личный кабинет
+                </a>
+            </div>
+            
+            <div id="error" class="hidden">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="x-circle" class="w-10 h-10 text-red-600"></i>
+                </div>
+                <h1 class="text-2xl font-bold mb-4 text-red-600">Ошибка подтверждения</h1>
+                <p class="text-gray-700 mb-6" id="errorMessage">Не удалось подтвердить email адрес. Ссылка может быть недействительной или истекшей.</p>
+                <a href="/login.html" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                    Вернуться к входу
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Verify email on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const email = urlParams.get('email');
+            
+            if (!token || !email) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = 'Неверная ссылка подтверждения. Пожалуйста, проверьте ссылку из письма.';
+                return;
+            }
+            
+            // Verify email via API
+            fetch('/api/auth/verify-email/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    token: token,
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').classList.add('hidden');
+                
+                if (data.success) {
+                    document.getElementById('success').classList.remove('hidden');
+                    if (typeof notifySuccess !== 'undefined') {
+                        notifySuccess('Email успешно подтвержден!');
+                    }
+                } else {
+                    document.getElementById('error').classList.remove('hidden');
+                    if (data.message) {
+                        document.getElementById('errorMessage').textContent = data.message;
+                    }
+                    if (typeof notifyError !== 'undefined') {
+                        notifyError(data.message || 'Ошибка подтверждения email');
+                    }
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                console.error('Verification error:', error);
+                if (typeof notifyError !== 'undefined') {
+                    notifyError('Ошибка при подтверждении email');
+                }
+            });
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
+

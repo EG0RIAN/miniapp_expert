@@ -3,15 +3,10 @@ module.exports = {
   content: [
     "./index.html",
     "./real-estate-solution.html",
-    "./admin-login.html",
-    "./admin.html",
-    "./admin-modals.html",
     "./login.html",
     "./cabinet.html",
     "./privacy.html",
     "./product-manage.html",
-    "./admin.js",
-    "./admin-crud.js",
     "./cabinet.js",
   ],
   safelist: [

@@ -93,7 +93,7 @@
                         <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
                         <span class="ml-2 text-sm text-gray-600">Запомнить меня</span>
                     </label>
-                    <a href="#" class="text-sm text-primary hover:text-primary/80 font-semibold">Забыли пароль?</a>
+                    <a href="/request-password-reset.html" class="text-sm text-primary hover:text-primary/80 font-semibold">Забыли пароль?</a>
                 </div>
 
                 <button 
@@ -190,6 +190,8 @@
         </div>
     </div>
 
+    <script src="notification.js"></script>
+    <script src="modal.js"></script>
     <script>
         function switchTab(tab) {
             if (tab === 'login') {
@@ -220,29 +222,85 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
+            if (!email || !password) {
+                notifyError('Пожалуйста, заполните email и пароль');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Вход...';
+            
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('/api/auth/login/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ email, password })
                 });
                 
+                // Check if response is ok
+                if (!response.ok) {
+                    // Try to parse error response
+                    let errorMessage = 'Ошибка входа';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorData.detail || errorData.error || errorMessage;
+                        // Translate common error messages
+                        if (errorMessage === 'Invalid email or password' || errorMessage.includes('Invalid')) {
+                            errorMessage = 'Неверный email или пароль';
+                        } else if (errorMessage === 'Missing credentials') {
+                            errorMessage = 'Email и пароль обязательны для заполнения';
+                        } else if (errorMessage === 'User account is disabled') {
+                            errorMessage = 'Учетная запись отключена';
+                        }
+                    } catch (e) {
+                        // If response is not JSON, use status text
+                        if (response.status === 403) {
+                            errorMessage = 'Доступ запрещен. Обновите страницу и попробуйте снова.';
+                        } else if (response.status === 401) {
+                            errorMessage = 'Неверный email или пароль';
+                        } else if (response.status === 400) {
+                            errorMessage = 'Некорректные данные. Проверьте правильность заполнения формы.';
+                        } else if (response.status === 500) {
+                            errorMessage = 'Ошибка сервера. Попробуйте позже.';
+                        } else {
+                            errorMessage = `Ошибка ${response.status}: ${response.statusText}`;
+                        }
+                    }
+                    notifyError(errorMessage);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
+                
                 const data = await response.json();
                 
-                if (response.ok && data.token) {
+                if (data.success && data.token) {
                     localStorage.setItem('userAuth', 'true');
                     localStorage.setItem('userToken', data.token);
                     localStorage.setItem('userEmail', email);
                     localStorage.setItem('userName', data.user?.name || email);
                     
-                    alert('✅ Вход выполнен успешно!');
-                    window.location.href = '/cabinet.html';
+                    notifySuccess('Вход выполнен успешно!');
+                    setTimeout(() => {
+                        window.location.href = '/cabinet.html';
+                    }, 1000);
                 } else {
-                    alert('❌ ' + (data.message || 'Ошибка входа. Проверьте email и пароль.'));
+                    notifyError(data.message || 'Ошибка входа. Проверьте email и пароль.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('❌ Ошибка подключения к серверу');
+                notifyError('Ошибка подключения к серверу: ' + error.message + '\n\nПроверьте подключение к интернету и попробуйте снова.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         }
 
@@ -256,36 +314,91 @@
             const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
             
             if (password !== passwordConfirm) {
-                alert('❌ Пароли не совпадают');
+                notifyError('Пароли не совпадают');
                 return;
             }
             
             if (password.length < 6) {
-                alert('❌ Пароль должен содержать минимум 6 символов');
+                notifyError('Пароль должен содержать минимум 6 символов');
                 return;
             }
             
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Регистрация...';
+            
             try {
-                const response = await fetch('/api/auth/register', {
+                const response = await fetch('/api/auth/register/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, name })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ email, password, name, phone })
                 });
+                
+                // Check if response is ok
+                if (!response.ok) {
+                    // Try to parse error response
+                    let errorMessage = 'Ошибка регистрации';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorData.detail || errorData.error || errorMessage;
+                    } catch (e) {
+                        // If response is not JSON, use status text
+                        if (response.status === 403) {
+                            errorMessage = 'Доступ запрещен. Обновите страницу и попробуйте снова.';
+                        } else if (response.status === 400) {
+                            errorMessage = 'Некорректные данные. Проверьте правильность заполнения формы.';
+                        } else if (response.status === 500) {
+                            errorMessage = 'Ошибка сервера. Попробуйте позже.';
+                        } else {
+                            errorMessage = `Ошибка ${response.status}: ${response.statusText}`;
+                        }
+                    }
+                    notifyError(errorMessage);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
                 
                 const data = await response.json();
                 
-                if (response.ok && data.success) {
-                    alert('✅ Регистрация успешна!\n\nПроверьте email для подтверждения регистрации.\n\nПосле подтверждения вы сможете войти в личный кабинет.');
-                    switchTab('login');
-                    document.getElementById('loginEmail').value = email;
+                if (data.success) {
+                    // Auto-login after registration
+                    if (data.token) {
+                        localStorage.setItem('userAuth', 'true');
+                        localStorage.setItem('userToken', data.token);
+                        localStorage.setItem('userEmail', email);
+                        localStorage.setItem('userName', data.user?.name || name);
+                        
+                        notifySuccess('Регистрация успешна!\n\nДобро пожаловать в MiniAppExpert!');
+                        setTimeout(() => {
+                            window.location.href = '/cabinet.html';
+                        }, 1500);
+                    } else {
+                        notifySuccess('Регистрация успешна!\n\nПроверьте email для подтверждения регистрации.\n\nПосле подтверждения вы сможете войти в личный кабинет.');
+                        setTimeout(() => {
+                            switchTab('login');
+                            document.getElementById('loginEmail').value = email;
+                        }, 2000);
+                    }
                 } else {
-                    alert('❌ ' + (data.error || 'Ошибка регистрации'));
+                    notifyError(data.message || data.error || 'Ошибка регистрации');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                alert('❌ Ошибка подключения к серверу');
+                notifyError('Ошибка подключения к серверу: ' + error.message + '\n\nПроверьте подключение к интернету и попробуйте снова.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         }
+
 
         // Check if already logged in
         if (localStorage.getItem('userAuth') === 'true') {

@@ -10,8 +10,6 @@ const criticalCSS = fs.readFileSync('./dist/critical.css', 'utf8');
 const htmlFiles = [
     'index.html',
     'real-estate-solution.html',
-    'admin-login.html',
-    'admin.html',
     'login.html',
     'cabinet.html',
     'privacy.html',

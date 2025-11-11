@@ -19,19 +19,34 @@ async function apiRequest(endpoint, options = {}) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const url = `${API_BASE_URL}${endpoint}`;
+        console.log('API Request:', url, { headers, ...options });
+        
+        const response = await fetch(url, {
             ...options,
             headers,
         });
         
+        console.log('API Response status:', response.status, response.statusText);
+        
         if (response.status === 401) {
             // Token expired or invalid
+            console.error('Unauthorized - redirecting to login');
             logout();
             return null;
         }
         
+        if (!response.ok) {
+            console.error('API Error:', response.status, response.statusText);
+            const errorText = await response.text();
+            console.error('API Error body:', errorText);
+            return { error: { status: response.status, message: errorText } };
+        }
+        
         const data = await response.json();
-        return { response, data };
+        console.log('API Response data:', data);
+        // API returns data directly, not wrapped in 'data' field
+        return { response, data: data };
     } catch (error) {
         console.error('API request error:', error);
         return { error };
@@ -52,13 +67,11 @@ function checkAuth() {
 
 // Logout
 function logout() {
-    if (confirm('Вы уверены, что хотите выйти?')) {
         localStorage.removeItem('userAuth');
-        localStorage.removeItem('userToken');
+    localStorage.removeItem('userToken');
         localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
+    localStorage.removeItem('userName');
         window.location.href = '/login.html';
-    }
 }
 
 // Show section
@@ -105,70 +118,223 @@ function showSection(sectionId) {
     }
 }
 
-// Load user profile
+// Load user profile - ONLY from API, never from localStorage
 async function loadProfile() {
     try {
+        console.log('🔄 Loading profile from API...');
+        
+        // Clear any localStorage data that might be displayed
+        // We ONLY use API data, never localStorage for profile display
+        console.log('🧹 Clearing localStorage profile data (using API only)');
+        
         const result = await apiRequest('/auth/profile/');
+        console.log('📦 Profile API response:', result);
+        
         if (!result || result.error) {
-            console.error('Failed to load profile:', result?.error);
+            console.error('❌ Failed to load profile:', result?.error);
             // Show error but don't block
-            if (document.getElementById('userName')) {
-                document.getElementById('userName').textContent = 'Ошибка загрузки';
+            const userNameEl = document.getElementById('userName');
+            const userEmailEl = document.getElementById('userEmail');
+            if (userNameEl) {
+                userNameEl.textContent = 'Ошибка загрузки';
+            }
+            if (userEmailEl) {
+                userEmailEl.textContent = 'Ошибка';
             }
             return;
         }
         
         const user = result.data;
+        console.log('👤 User data from API:', user);
         
-        // Update header
+        if (!user) {
+            console.error('❌ No user data in response');
+            return;
+        }
+        
+        // Extract data from API response - NEVER use localStorage
         const userName = user.name || user.email?.split('@')[0] || 'Клиент';
         const userEmail = user.email || '';
+        const userPhone = user.phone || '';
         const userInitial = userName.charAt(0).toUpperCase();
+        const emailVerified = user.email_verified || false;
         
-        if (document.getElementById('userName')) {
-            document.getElementById('userName').textContent = userName;
-        }
-        if (document.getElementById('userEmail')) {
-            document.getElementById('userEmail').textContent = userEmail;
-        }
-        if (document.getElementById('userInitial')) {
-            document.getElementById('userInitial').textContent = userInitial;
-        }
+        console.log('✅ Updating profile from API:', { userName, userEmail, userPhone, userInitial, emailVerified });
         
-        // Update profile form
-        if (document.getElementById('profileName')) {
-            document.getElementById('profileName').value = user.name || '';
+        // Update email verification status
+        updateEmailVerificationStatus(emailVerified);
+        
+        // Force update header immediately - OVERWRITE any existing values
+        const userNameEl = document.getElementById('userName');
+        const userEmailEl = document.getElementById('userEmail');
+        const userInitialEl = document.getElementById('userInitial');
+        
+        if (userNameEl) {
+            userNameEl.textContent = userName; // Force update from API
+            console.log('✅ Updated userName to:', userName);
         }
-        if (document.getElementById('profileEmail')) {
-            document.getElementById('profileEmail').value = userEmail;
+        if (userEmailEl) {
+            userEmailEl.textContent = userEmail; // Force update from API
+            console.log('✅ Updated userEmail to:', userEmail);
         }
-        if (document.getElementById('profilePhone')) {
-            document.getElementById('profilePhone').value = user.phone || '';
-        }
-        if (document.getElementById('profileDisplayName')) {
-            document.getElementById('profileDisplayName').textContent = userName;
-        }
-        if (document.getElementById('profileDisplayEmail')) {
-            document.getElementById('profileDisplayEmail').textContent = userEmail;
-        }
-        if (document.getElementById('profileInitial')) {
-            document.getElementById('profileInitial').textContent = userInitial;
+        if (userInitialEl) {
+            userInitialEl.textContent = userInitial; // Force update from API
+            console.log('✅ Updated userInitial to:', userInitial);
         }
         
-        // Update member since
-        if (user.created_at && document.getElementById('memberSince')) {
-            const date = new Date(user.created_at);
-            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-            ];
-            document.getElementById('memberSince').textContent = 
-                monthNames[date.getMonth()] + ' ' + date.getFullYear();
+        // Update profile form fields - ONLY from API
+        const profileNameEl = document.getElementById('profileName');
+        const profileEmailEl = document.getElementById('profileEmail');
+        const profilePhoneEl = document.getElementById('profilePhone');
+        const profileDisplayNameEl = document.getElementById('profileDisplayName');
+        const profileDisplayEmailEl = document.getElementById('profileDisplayEmail');
+        const profileInitialEl = document.getElementById('profileInitial');
+        
+        if (profileNameEl) {
+            profileNameEl.value = user.name || ''; // From API
+        }
+        if (profileEmailEl) {
+            profileEmailEl.value = userEmail; // From API
+        }
+        if (profilePhoneEl) {
+            profilePhoneEl.value = userPhone; // From API
+        }
+        if (profileDisplayNameEl) {
+            profileDisplayNameEl.textContent = userName; // From API
+        }
+        if (profileDisplayEmailEl) {
+            profileDisplayEmailEl.textContent = userEmail; // From API
+        }
+        if (profileInitialEl) {
+            profileInitialEl.textContent = userInitial; // From API
+        }
+        
+        // Update member since - ONLY from API
+        const memberSinceEl = document.getElementById('memberSince');
+        if (user.created_at && memberSinceEl) {
+            try {
+                const date = new Date(user.created_at);
+                const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+                ];
+                const memberSinceText = monthNames[date.getMonth()] + ' ' + date.getFullYear();
+                memberSinceEl.textContent = memberSinceText; // From API
+                console.log('✅ Updated memberSince to:', memberSinceText);
+            } catch (e) {
+                console.error('❌ Error parsing created_at:', e);
+                memberSinceEl.textContent = '—';
+            }
+        } else if (memberSinceEl) {
+            memberSinceEl.textContent = '—';
         }
         
         // Update statistics from dashboard
         await loadDashboardStats();
+        
+        console.log('✅ Profile loaded successfully from API');
     } catch (error) {
-        console.error('Error in loadProfile:', error);
+        console.error('❌ Error in loadProfile:', error);
+    }
+}
+
+// Update email verification status display
+function updateEmailVerificationStatus(emailVerified) {
+    const verificationBanner = document.getElementById('emailVerificationBanner');
+    const verifiedBanner = document.getElementById('emailVerifiedBanner');
+    const verifiedBadge = document.getElementById('emailVerifiedBadge');
+    const unverifiedBadge = document.getElementById('emailUnverifiedBadge');
+    
+    if (emailVerified) {
+        // Show verified banner and badge
+        if (verificationBanner) {
+            verificationBanner.classList.add('hidden');
+        }
+        if (verifiedBanner) {
+            verifiedBanner.classList.remove('hidden');
+        }
+        if (verifiedBadge) {
+            verifiedBadge.classList.remove('hidden');
+        }
+        if (unverifiedBadge) {
+            unverifiedBadge.classList.add('hidden');
+        }
+    } else {
+        // Show unverified banner and badge
+        if (verificationBanner) {
+            verificationBanner.classList.remove('hidden');
+        }
+        if (verifiedBanner) {
+            verifiedBanner.classList.add('hidden');
+        }
+        if (verifiedBadge) {
+            verifiedBadge.classList.add('hidden');
+        }
+        if (unverifiedBadge) {
+            unverifiedBadge.classList.remove('hidden');
+        }
+    }
+    
+    // Re-initialize Lucide icons after showing/hiding elements
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// Resend verification email
+async function resendVerificationEmail() {
+    const btn = document.getElementById('resendVerificationBtn');
+    if (!btn) return;
+    
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Отправка...';
+    
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    try {
+        const result = await apiRequest('/auth/resend-verification/', {
+            method: 'POST',
+        });
+        
+        if (!result || result.error) {
+            notifyError(result?.data?.message || 'Ошибка при отправке письма');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            return;
+        }
+        
+        if (result.data.success) {
+            notifySuccess('Письмо с подтверждением отправлено на ваш email. Пожалуйста, проверьте почту.');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        } else {
+            let errorMessage = result.data.message || 'Ошибка при отправке письма';
+            if (result.data.error_code === 'EMAIL_SEND_FAILED') {
+                errorMessage = 'Не удалось отправить письмо. Попробуйте позже или обратитесь в поддержку.';
+            }
+            notifyError(errorMessage);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+    } catch (error) {
+        console.error('Error resending verification email:', error);
+        notifyError('Ошибка при отправке письма. Попробуйте позже.');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     }
 }
 
@@ -219,15 +385,15 @@ async function saveProfile() {
     });
     
     if (!result || result.error) {
-        alert('❌ Ошибка сохранения профиля');
+        notifyError('Ошибка сохранения профиля');
         return;
     }
     
     if (result.response.ok) {
-        alert('✅ Профиль сохранен!');
+        notifySuccess('Профиль сохранен!');
         loadProfile();
     } else {
-        alert('❌ ' + (result.data.message || 'Ошибка сохранения'));
+        notifyError(result.data.message || 'Ошибка сохранения');
     }
 }
 
@@ -238,17 +404,17 @@ async function changePassword() {
     const confirmPassword = document.getElementById('confirmPassword').value;
     
     if (newPassword !== confirmPassword) {
-        alert('❌ Новые пароли не совпадают');
+        notifyError('Новые пароли не совпадают');
         return;
     }
     
     if (newPassword.length < 6) {
-        alert('❌ Пароль должен содержать минимум 6 символов');
+        notifyError('Пароль должен содержать минимум 6 символов');
         return;
     }
     
     // Note: Password change endpoint needs to be implemented in Django
-    alert('⚠️ Изменение пароля временно недоступно. Обратитесь в поддержку.');
+    notifyWarning('Изменение пароля временно недоступно. Обратитесь в поддержку.');
     
     // Clear password fields
     document.getElementById('currentPassword').value = '';
@@ -259,22 +425,41 @@ async function changePassword() {
 // Load products
 async function loadProducts() {
     try {
+        console.log('Loading products from API...');
         const result = await apiRequest('/client/products/');
+        console.log('API response:', result);
+        
         if (!result || result.error) {
             console.error('Failed to load products:', result?.error);
             showProductsError();
             return;
         }
         
-        const products = result.data.products || result.data || [];
-        const container = document.getElementById('productsList');
+        // Check response structure - API returns {success: true, products: [...]}
+        let products = [];
+        if (result && result.data) {
+            if (result.data.success && Array.isArray(result.data.products)) {
+                products = result.data.products;
+            } else if (Array.isArray(result.data.products)) {
+                products = result.data.products;
+            } else if (Array.isArray(result.data)) {
+                products = result.data;
+            }
+        }
+        
+        console.log('Products loaded:', products.length, products);
+        
+    const container = document.getElementById('productsList');
         
         if (!container) {
             console.error('Products container not found');
             return;
         }
         
-        if (products.length === 0) {
+        // Clear container first
+        container.innerHTML = '';
+    
+    if (products.length === 0) {
             container.innerHTML = `
                 <div class="col-span-2 text-center py-12 text-gray-500">
                     <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
@@ -288,10 +473,12 @@ async function loadProducts() {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
-            return;
-        }
-        
-        container.innerHTML = products.map(product => {
+        return;
+    }
+    
+        // Render products from API
+        const productsHTML = products.map(product => {
+            console.log('Rendering product:', product);
             const statusClass = product.status === 'active' ? 'bg-green-500' : 
                                product.status === 'expired' ? 'bg-gray-500' : 'bg-yellow-500';
             const statusText = product.status === 'active' ? 'Активно' : 
@@ -300,23 +487,23 @@ async function loadProducts() {
                               product.status === 'cancelled' ? 'Отменено' : 'Неизвестно';
             const startDate = product.start_date ? new Date(product.start_date).toLocaleDateString('ru-RU') : '-';
             const endDate = product.end_date ? new Date(product.end_date).toLocaleDateString('ru-RU') : null;
-            const productName = product.product?.name || 'Продукт';
-            const productDescription = product.product?.description || '';
-            const renewalPrice = product.renewal_price || product.product?.price || 0;
-            const isSubscription = product.product?.product_type === 'subscription';
+            const productName = product.product?.name || product.name || 'Продукт';
+            const productDescription = product.product?.description || product.description || '';
+            const renewalPrice = product.renewal_price || product.product?.price || product.price || 0;
+            const isSubscription = product.product?.product_type === 'subscription' || product.product_type === 'subscription';
             
             return `
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-primary/20 card-hover">
-                    <div class="h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
+            <div class="h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
                         <i data-lucide="package" class="w-16 h-16 text-primary"></i>
-                        <div class="absolute top-4 right-4">
+                <div class="absolute top-4 right-4">
                             <span class="${statusClass} text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
                                 <i data-lucide="check-circle" class="w-3 h-3"></i>
                                 <span>${statusText}</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="p-6">
+                    </span>
+                </div>
+            </div>
+            <div class="p-6">
                         <h3 class="text-xl font-bold mb-2">${productName}</h3>
                         ${productDescription ? `<p class="text-gray-600 mb-2 text-sm">${productDescription.substring(0, 100)}${productDescription.length > 100 ? '...' : ''}</p>` : ''}
                         <p class="text-gray-600 mb-2 text-sm">Дата запуска: ${startDate}</p>
@@ -341,9 +528,13 @@ async function loadProducts() {
             `;
         }).join('');
         
+        container.innerHTML = productsHTML;
+        
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+        
+        console.log('Products rendered:', products.length);
     } catch (error) {
         console.error('Error in loadProducts:', error);
         showProductsError();
@@ -382,13 +573,14 @@ async function loadSubscriptions() {
             return;
         }
         
-        const products = result.data.products || result.data || [];
+        // API returns {success: true, products: [...]}
+        const products = (result.data && result.data.products) ? result.data.products : (Array.isArray(result.data) ? result.data : []);
         const subscriptions = products.filter(p => p.product?.product_type === 'subscription');
-        const container = document.getElementById('subscriptionsList');
+    const container = document.getElementById('subscriptionsList');
         
         if (!container) {
-            return;
-        }
+        return;
+    }
         
         if (subscriptions.length === 0) {
             container.innerHTML = `
@@ -486,8 +678,9 @@ async function loadPayments() {
             return;
         }
         
-        const payments = result.data.payments || result.data || [];
-        const total = result.data.total_amount || 0;
+        // API returns {success: true, payments: [...], total_amount: ...}
+        const payments = (result.data && result.data.payments) ? result.data.payments : (Array.isArray(result.data) ? result.data : []);
+        const total = (result.data && result.data.total_amount !== undefined) ? result.data.total_amount : 0;
         const tbody = document.getElementById('paymentsTableBody');
         
         if (!tbody) {
@@ -497,12 +690,9 @@ async function loadPayments() {
         
         if (payments.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500">Платежей пока нет</td></tr>`;
-            if (document.getElementById('paymentsTotal')) {
-                document.getElementById('paymentsTotal').textContent = '0 ₽';
-            }
             return;
         }
-        
+
         tbody.innerHTML = payments.map(payment => {
             const statusClass = payment.status === 'success' || payment.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : 
                                payment.status === 'failed' || payment.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 
@@ -526,12 +716,35 @@ async function loadPayments() {
                                'Оплата заказа';
             const amount = payment.amount || 0;
             const currency = payment.currency || 'RUB';
-            const receiptBtn = payment.receipt_url ? 
-                `<a href="${payment.receipt_url}" target="_blank" class="text-secondary hover:text-secondary/80 font-semibold text-sm flex items-center gap-1">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    <span>Скачать</span>
-                </a>` : 
-                '<span class="text-gray-400 text-sm">—</span>';
+            // Кнопка для получения/скачивания чека
+            const paymentId = payment.id || payment.payment_id;
+            const hasReceipt = payment.receipt_url;
+            const isSuccess = payment.status === 'success' || payment.status === 'CONFIRMED';
+            
+            let receiptBtn = '<span class="text-gray-400 text-sm">—</span>';
+            
+            if (hasReceipt) {
+                // Если есть URL чека, показываем кнопку скачивания
+                receiptBtn = `
+                    <a href="${payment.receipt_url}" target="_blank" 
+                       class="text-secondary hover:text-secondary/80 font-semibold text-sm flex items-center gap-1 transition"
+                       title="Скачать чек">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        <span>Чек</span>
+                    </a>
+                `;
+            } else if (isSuccess && paymentId) {
+                // Если платеж успешен, но чека нет, показываем кнопку для запроса чека
+                receiptBtn = `
+                    <button onclick="requestReceipt('${paymentId}', this)" 
+                            class="text-primary hover:text-primary/80 font-semibold text-sm flex items-center gap-1 transition receipt-btn"
+                            data-payment-id="${paymentId}"
+                            title="Получить чек">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Получить</span>
+                    </button>
+                `;
+            }
             const method = payment.method || payment.order?.payment_method || '';
             const methodText = method === 'card' ? '💳 Карта' : 
                               method === 'mit' ? '💳 Автосписание' :
@@ -553,11 +766,7 @@ async function loadPayments() {
                 </tr>
             `;
         }).join('');
-        
-        if (document.getElementById('paymentsTotal')) {
-            document.getElementById('paymentsTotal').textContent = formatAmountRub(total);
-        }
-        
+
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
@@ -582,68 +791,121 @@ function formatAmountRub(amount) {
     }
 }
 
-// Load partners data
+// Load partners data - ONLY from API
 async function loadPartnersData() {
     try {
+        console.log('🔄 Loading partners data from API...');
+        
         const result = await apiRequest('/client/referrals/');
+        console.log('📦 Referrals API response:', result);
+        
         if (!result || result.error) {
-            console.error('Failed to load referrals:', result?.error);
+            console.error('❌ Failed to load referrals:', result?.error);
+            
             // Set defaults
-            if (document.getElementById('totalReferrals')) {
-                document.getElementById('totalReferrals').textContent = '0';
+            const totalReferralsEl = document.getElementById('totalReferrals');
+            const totalEarnedEl = document.getElementById('totalEarned');
+            const availableBalanceEl = document.getElementById('availableBalance');
+            const withdrawBalanceEl = document.getElementById('withdrawBalance');
+            const conversionRateEl = document.getElementById('conversionRate');
+            const referralLinkEl = document.getElementById('referralLink');
+            
+            if (totalReferralsEl) {
+                totalReferralsEl.textContent = '0';
             }
-            if (document.getElementById('totalEarned')) {
-                document.getElementById('totalEarned').textContent = '0 ₽';
+            if (totalEarnedEl) {
+                totalEarnedEl.textContent = '0 ₽';
             }
-            if (document.getElementById('availableBalance')) {
-                document.getElementById('availableBalance').textContent = '0 ₽';
+            if (availableBalanceEl) {
+                availableBalanceEl.textContent = '0 ₽';
             }
-            if (document.getElementById('withdrawBalance')) {
-                document.getElementById('withdrawBalance').textContent = '0 ₽';
+            if (withdrawBalanceEl) {
+                withdrawBalanceEl.textContent = '0 ₽';
             }
-            if (document.getElementById('conversionRate')) {
-                document.getElementById('conversionRate').textContent = '0%';
+            if (conversionRateEl) {
+                conversionRateEl.textContent = '0%';
             }
-            if (document.getElementById('referralLink')) {
-                // Try to get referral code from profile
+            
+            // Try to get referral link from profile if referrals API fails
+            if (referralLinkEl && !referralLinkEl.value) {
+                console.log('⚠️ Trying to get referral link from profile...');
                 const profileResult = await apiRequest('/auth/profile/');
                 if (profileResult && profileResult.data && profileResult.data.referral_code) {
-                    document.getElementById('referralLink').value = `https://miniapp.expert/?ref=${profileResult.data.referral_code}`;
+                    const referralLink = `https://miniapp.expert/?ref=${profileResult.data.referral_code}`;
+                    referralLinkEl.value = referralLink;
+                    console.log('✅ Loaded referral link from profile:', referralLink);
                 }
             }
             return;
         }
         
         const data = result.data;
+        console.log('👤 Referrals data from API:', data);
+        
         const stats = data.stats || {};
         const referrals = data.referrals || [];
+        const referralLink = data.referral_link || '';
+        const commissionRate = data.commission_rate || 20.00; // Default 20%
         
-        // Update stats
-        if (document.getElementById('totalReferrals')) {
-            document.getElementById('totalReferrals').textContent = stats.total_referrals || 0;
+        console.log('📊 Stats from API:', stats);
+        console.log('🔗 Referral link from API:', referralLink);
+        console.log('👥 Referrals from API:', referrals.length);
+        console.log('💰 Commission rate from API:', commissionRate + '%');
+        
+        // Update stats - FORCE update from API
+        const totalReferralsEl = document.getElementById('totalReferrals');
+        const totalEarnedEl = document.getElementById('totalEarned');
+        const availableBalanceEl = document.getElementById('availableBalance');
+        const withdrawBalanceEl = document.getElementById('withdrawBalance');
+        const conversionRateEl = document.getElementById('conversionRate');
+        const referralLinkEl = document.getElementById('referralLink');
+        const commissionRateTextEl = document.getElementById('commissionRateText');
+        const commissionRateDisplayEl = document.getElementById('commissionRateDisplay');
+        
+        if (totalReferralsEl) {
+            totalReferralsEl.textContent = stats.total_referrals || 0;
+            console.log('✅ Updated totalReferrals to:', stats.total_referrals || 0);
         }
-        if (document.getElementById('totalEarned')) {
-            document.getElementById('totalEarned').textContent = formatAmountRub(stats.total_earned || 0);
+        if (totalEarnedEl) {
+            totalEarnedEl.textContent = formatAmountRub(stats.total_earned || 0);
+            console.log('✅ Updated totalEarned to:', stats.total_earned || 0);
         }
-        if (document.getElementById('availableBalance')) {
-            document.getElementById('availableBalance').textContent = formatAmountRub(stats.available_balance || 0);
+        if (availableBalanceEl) {
+            availableBalanceEl.textContent = formatAmountRub(stats.available_balance || 0);
+            console.log('✅ Updated availableBalance to:', stats.available_balance || 0);
         }
-        if (document.getElementById('withdrawBalance')) {
-            document.getElementById('withdrawBalance').textContent = formatAmountRub(stats.available_balance || 0);
+        if (withdrawBalanceEl) {
+            withdrawBalanceEl.textContent = formatAmountRub(stats.available_balance || 0);
+            console.log('✅ Updated withdrawBalance to:', stats.available_balance || 0);
         }
         
+        // Calculate conversion rate
         const conversionRate = stats.total_referrals > 0 && stats.active_referrals > 0 ? 
             ((stats.active_referrals / stats.total_referrals) * 100).toFixed(0) : 0;
-        if (document.getElementById('conversionRate')) {
-            document.getElementById('conversionRate').textContent = conversionRate + '%';
+        if (conversionRateEl) {
+            conversionRateEl.textContent = conversionRate + '%';
+            console.log('✅ Updated conversionRate to:', conversionRate + '%');
         }
         
-        // Update referral link
-        if (document.getElementById('referralLink')) {
-            document.getElementById('referralLink').value = data.referral_link || '';
+        // Update referral link - FORCE update from API
+        if (referralLinkEl) {
+            referralLinkEl.value = referralLink;
+            console.log('✅ Updated referralLink to:', referralLink);
+        } else {
+            console.error('❌ Referral link element not found');
         }
         
-        // Update referrals table
+        // Update commission rate - FROM API
+        if (commissionRateTextEl) {
+            commissionRateTextEl.textContent = `${commissionRate}% от каждой покупки`;
+            console.log('✅ Updated commissionRateText to:', commissionRate + '%');
+        }
+        if (commissionRateDisplayEl) {
+            commissionRateDisplayEl.textContent = commissionRate + '%';
+            console.log('✅ Updated commissionRateDisplay to:', commissionRate + '%');
+        }
+        
+        // Update referrals table - ONLY from API
         const tbody = document.getElementById('referralsTableBody');
         if (tbody) {
             if (referrals.length === 0) {
@@ -654,7 +916,9 @@ async function loadPartnersData() {
                         </td>
                     </tr>
                 `;
+                console.log('✅ Updated referrals table: No referrals');
             } else {
+                console.log('✅ Rendering referrals:', referrals.length);
                 tbody.innerHTML = referrals.map(ref => {
                     const date = ref.created_at ? new Date(ref.created_at).toLocaleDateString('ru-RU', {
                         year: 'numeric',
@@ -663,16 +927,18 @@ async function loadPartnersData() {
                     }) : '-';
                     const statusClass = ref.status === 'active' ? 'bg-green-100 text-green-700' : 
                                        ref.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                       ref.status === 'inactive' ? 'bg-gray-100 text-gray-600' :
+                                       ref.status === 'cancelled' ? 'bg-red-100 text-red-700' :
                                        'bg-gray-100 text-gray-600';
                     const statusText = ref.status === 'active' ? 'Активен' : 
                                       ref.status === 'pending' ? 'Ожидает' :
                                       ref.status === 'inactive' ? 'Неактивен' :
-                                      ref.status === 'cancelled' ? 'Отменен' : 'Неизвестно';
+                                      ref.status === 'cancelled' ? 'Отменен' : 
+                                      'Неизвестно';
                     const referredUserName = ref.referred_user?.name || ref.referred_user?.email?.split('@')[0] || 'Пользователь';
                     const referredUserEmail = ref.referred_user?.email || '';
                     const totalEarned = ref.total_earned || 0;
                     const paidOut = ref.paid_out || 0;
-                    const available = totalEarned - paidOut;
                     
                     return `
                         <tr class="border-b border-gray-100 hover:bg-gray-50">
@@ -693,13 +959,23 @@ async function loadPartnersData() {
                         </tr>
                     `;
                 }).join('');
+                console.log('✅ Updated referrals table:', referrals.length, 'referrals');
             }
+        } else {
+            console.error('❌ Referrals table body not found');
         }
         
         // Load payout history
         await loadPayoutHistory();
+        
+        // Initialize icons after updating HTML
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        console.log('✅ Partners data loaded successfully from API');
     } catch (error) {
-        console.error('Error in loadPartnersData:', error);
+        console.error('❌ Error in loadPartnersData:', error);
     }
 }
 
@@ -775,35 +1051,148 @@ async function loadPayoutHistory() {
     }
 }
 
-// Copy referral link
-function copyReferralLink() {
-    const link = document.getElementById('referralLink');
-    link.select();
+// Copy referral link - get from API if not set
+async function copyReferralLink() {
+    const linkEl = document.getElementById('referralLink');
+    if (!linkEl) {
+        notifyError('Ссылка не найдена');
+        return;
+    }
+    
+    let link = linkEl.value;
+    
+    // If link is empty, try to load from API
+    if (!link) {
+        console.log('⚠️ Referral link is empty, loading from API...');
+        const result = await apiRequest('/client/referrals/');
+        if (result && result.data && result.data.referral_link) {
+            link = result.data.referral_link;
+            linkEl.value = link;
+            console.log('✅ Loaded referral link from API:', link);
+        } else {
+            // Try profile as fallback
+            const profileResult = await apiRequest('/auth/profile/');
+            if (profileResult && profileResult.data && profileResult.data.referral_code) {
+                link = `https://miniapp.expert/?ref=${profileResult.data.referral_code}`;
+                linkEl.value = link;
+                console.log('✅ Loaded referral link from profile:', link);
+            }
+        }
+    }
+    
+    if (!link) {
+        notifyError('Не удалось получить реферальную ссылку');
+        return;
+    }
+    
+    // Copy to clipboard
+    linkEl.select();
+    linkEl.setSelectionRange(0, 99999); // For mobile devices
+    try {
     document.execCommand('copy');
-    alert('✅ Ссылка скопирована!');
+        notifySuccess('Скопировано');
+        console.log('✅ Referral link copied:', link);
+    } catch (err) {
+        // Fallback: use Clipboard API
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(link).then(() => {
+                notifySuccess('Скопировано');
+                console.log('✅ Referral link copied (Clipboard API):', link);
+            }).catch(() => {
+                notifyError('Не удалось скопировать ссылку');
+                console.error('❌ Failed to copy referral link');
+            });
+        } else {
+            notifyError('Не удалось скопировать ссылку');
+            console.error('❌ Clipboard API not available');
+        }
+    }
 }
 
-// Share to Telegram
-function shareToTelegram() {
-    const link = document.getElementById('referralLink').value;
+// Share to Telegram - get link from API if not set
+async function shareToTelegram() {
+    const linkEl = document.getElementById('referralLink');
+    if (!linkEl) {
+        notifyError('Ссылка не найдена');
+        return;
+    }
+    
+    let link = linkEl.value;
+    
+    // If link is empty, load from API
+    if (!link) {
+        const result = await apiRequest('/client/referrals/');
+        if (result && result.data && result.data.referral_link) {
+            link = result.data.referral_link;
+            linkEl.value = link;
+        }
+    }
+    
+    if (!link) {
+        notifyError('Не удалось получить реферальную ссылку');
+        return;
+    }
+    
     const text = '🚀 Создай своё Telegram Mini App вместе с MiniAppExpert!\n\n' +
                  '💰 Специальное предложение для тебя: используй мою реферальную ссылку и получи бонус!\n\n';
     const url = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 }
 
-// Share to WhatsApp
-function shareToWhatsApp() {
-    const link = document.getElementById('referralLink').value;
+// Share to WhatsApp - get link from API if not set
+async function shareToWhatsApp() {
+    const linkEl = document.getElementById('referralLink');
+    if (!linkEl) {
+        notifyError('Ссылка не найдена');
+        return;
+    }
+    
+    let link = linkEl.value;
+    
+    // If link is empty, load from API
+    if (!link) {
+        const result = await apiRequest('/client/referrals/');
+        if (result && result.data && result.data.referral_link) {
+            link = result.data.referral_link;
+            linkEl.value = link;
+        }
+    }
+    
+    if (!link) {
+        notifyError('Не удалось получить реферальную ссылку');
+        return;
+    }
+    
     const text = '🚀 Создай своё Telegram Mini App вместе с MiniAppExpert!\n\n' +
                  '💰 Специальное предложение: используй мою реферальную ссылку!\n\n' + link;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 }
 
-// Share by Email
-function shareByEmail() {
-    const link = document.getElementById('referralLink').value;
+// Share by Email - get link from API if not set
+async function shareByEmail() {
+    const linkEl = document.getElementById('referralLink');
+    if (!linkEl) {
+        notifyError('Ссылка не найдена');
+        return;
+    }
+    
+    let link = linkEl.value;
+    
+    // If link is empty, load from API
+    if (!link) {
+        const result = await apiRequest('/client/referrals/');
+        if (result && result.data && result.data.referral_link) {
+            link = result.data.referral_link;
+            linkEl.value = link;
+        }
+    }
+    
+    if (!link) {
+        notifyError('Не удалось получить реферальную ссылку');
+        return;
+    }
+    
     const subject = 'Создай своё Telegram Mini App!';
     const body = 'Привет!\n\n' +
                  'Я пользуюсь MiniAppExpert для создания Telegram Mini Apps и очень доволен!\n\n' +
@@ -813,36 +1202,67 @@ function shareByEmail() {
 }
 
 // Open withdraw modal
-function openWithdrawModal() {
+async function openWithdrawModal() {
     const balance = parseFloat(document.getElementById('availableBalance').textContent.replace(/[^\d.]/g, '')) || 0;
     
     if (balance === 0) {
-        alert('⚠️ Недостаточно средств для вывода.\n\nПригласите клиентов, чтобы начать зарабатывать!');
+        notifyWarning('Недостаточно средств для вывода.\n\nПригласите клиентов, чтобы начать зарабатывать!');
         return;
     }
     
-    const amount = prompt(`Доступно: ${formatAmountRub(balance)}\n\nВведите сумму для вывода:`);
-    if (!amount) return;
+    // Show amount input modal
+    const amount = await promptModal(
+        `Доступно: ${formatAmountRub(balance)}`,
+        '',
+        'Введите сумму для вывода',
+        'number'
+    );
+    
+    if (!amount || amount === null) return;
     
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0 || amountNum > balance) {
-        alert('❌ Неверная сумма');
+        notifyError('Неверная сумма');
         return;
     }
     
-    const method = prompt('Выберите способ вывода:\n\n' +
-                          '1. Банковская карта\n' +
-                          '2. ЮMoney\n' +
-                          '3. Qiwi\n' +
-                          '4. PayPal\n\n' +
-                          'Введите номер (1-4):');
+    // Show method selection modal
+    showModal({
+        title: 'Выберите способ вывода',
+        message: 'Как вы хотите получить средства?',
+        type: 'info',
+        html: `
+            <div class="space-y-2 mt-4">
+                <button onclick="selectPaymentMethod('card')" class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition">
+                    <div class="font-semibold">💳 Банковская карта</div>
+                </button>
+                <button onclick="selectPaymentMethod('yoomoney')" class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition">
+                    <div class="font-semibold">💵 ЮMoney</div>
+                </button>
+                <button onclick="selectPaymentMethod('qiwi')" class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition">
+                    <div class="font-semibold">💸 Qiwi</div>
+                </button>
+                <button onclick="selectPaymentMethod('paypal')" class="w-full text-left px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition">
+                    <div class="font-semibold">💳 PayPal</div>
+                </button>
+            </div>
+        `,
+        confirmText: 'Отмена',
+        onConfirm: () => closeModal(),
+        onCancel: () => closeModal()
+    });
     
-    if (!method || method < 1 || method > 4) {
-        return;
+    // Store amount for method selection
+    window._pendingPayoutAmount = amountNum;
+}
+
+// Select payment method (called from modal buttons)
+function selectPaymentMethod(method) {
+    closeModal();
+    if (window._pendingPayoutAmount) {
+        requestPayout(window._pendingPayoutAmount, method);
+        window._pendingPayoutAmount = null;
     }
-    
-    const methods = ['card', 'yoomoney', 'qiwi', 'paypal'];
-    requestPayout(amountNum, methods[method - 1]);
 }
 
 // Request payout
@@ -853,23 +1273,103 @@ async function requestPayout(amount, method) {
     });
     
     if (!result || result.error) {
-        alert('❌ Ошибка создания заявки на вывод');
+        notifyError('Ошибка создания заявки на вывод');
         return;
     }
     
     if (result.response.ok) {
-        alert(`✅ Заявка на вывод ${formatAmountRub(amount)} через ${method} создана!\n\n` +
-              'Средства поступят в течение 1-3 рабочих дней.');
-        loadPartnersData();
+        notifySuccess(`Заявка на вывод ${formatAmountRub(amount)} через ${method} создана!\n\nСредства поступят в течение 1-3 рабочих дней.`);
+        await loadPartnersData();
     } else {
-        alert('❌ ' + (result.data.message || 'Ошибка создания заявки'));
+        notifyError(result.data?.message || 'Ошибка создания заявки');
+    }
+}
+
+// Request receipt for payment
+async function requestReceipt(paymentId, buttonElement = null) {
+    try {
+        console.log('Requesting receipt for payment:', paymentId);
+        
+        // Получаем кнопку из параметра или из DOM по data-атрибуту
+        let button = buttonElement;
+        if (!button && paymentId) {
+            // Ищем кнопку по data-payment-id
+            button = document.querySelector(`button[data-payment-id="${paymentId}"]`);
+        }
+        
+        // Сохраняем оригинальный HTML для восстановления
+        let originalHTML = null;
+        if (button) {
+            originalHTML = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Загрузка...</span>';
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        const result = await apiRequest(`/client/payments/${paymentId}/receipt/`);
+        
+        if (!result || result.error) {
+            notifyError('Ошибка получения чека');
+            if (button && originalHTML) {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+            return;
+        }
+        
+        if (result.data && result.data.receipt_url) {
+            // Открываем чек в новой вкладке
+            window.open(result.data.receipt_url, '_blank');
+            notifySuccess('Чек открыт в новой вкладке');
+            
+            // Перезагружаем список платежей, чтобы обновить кнопку
+            await loadPayments();
+        } else {
+            notifyWarning(result.data?.message || 'Чек еще не доступен. Чек будет отправлен на ваш email после обработки платежа.');
+            if (button && originalHTML) {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error requesting receipt:', error);
+        notifyError('Ошибка получения чека');
+        // Восстанавливаем кнопку при ошибке
+        if (buttonElement) {
+            const button = buttonElement;
+            button.disabled = false;
+            // Восстанавливаем через поиск по data-атрибуту, если нужно
+            if (paymentId) {
+                const btn = document.querySelector(`button[data-payment-id="${paymentId}"]`);
+                if (btn) {
+                    btn.disabled = false;
+                    // Просто перезагружаем платежи, чтобы восстановить кнопку
+                    await loadPayments();
+                }
+            }
+        }
     }
 }
 
 // Initialize - Load all data from API
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Cabinet page loaded, initializing...');
+    
     // Check auth
-    if (!checkAuth()) return;
+    if (!checkAuth()) {
+        console.log('Auth check failed, redirecting to login');
+        return;
+    }
+    
+    console.log('Auth check passed, loading data...');
     
     // Show loading spinner
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -878,16 +1378,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     try {
-        // Load profile first (this also loads dashboard stats)
+        // Load profile FIRST and IMMEDIATELY (before other data)
+        console.log('Loading profile...');
         await loadProfile();
+        console.log('Profile loaded');
         
-        // Pre-load all sections data in parallel
+        // Pre-load all sections data in parallel (but profile is already loaded)
+        console.log('Loading other sections...');
         await Promise.all([
             loadProducts(),
             loadSubscriptions(),
             loadPayments(),
             loadPartnersData()
         ]);
+        console.log('All sections loaded');
         
         // Check hash for section
         const hash = window.location.hash.replace('#', '');
@@ -898,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } catch (error) {
         console.error('Error loading cabinet data:', error);
-        alert('❌ Ошибка загрузки данных. Обновите страницу.');
+        notifyError('Ошибка загрузки данных. Обновите страницу.');
     } finally {
         // Hide loading spinner
         if (loadingSpinner) {
@@ -917,4 +1421,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             lucide.createIcons();
         }
     }, 1000);
+    
+    console.log('Cabinet initialization complete');
 });

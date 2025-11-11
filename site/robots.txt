@@ -4,11 +4,9 @@
 User-agent: *
 Allow: /
 
-# Запрещаем индексацию административных страниц
-Disallow: /admin.html
-Disallow: /admin-login.html
-Disallow: /admin-*.html
-Disallow: /admin*.js
+# Запрещаем индексацию административных страниц (Django Admin)
+Disallow: /admin/
+Disallow: /admin/login/
 
 # Запрещаем индексацию личного кабинета
 Disallow: /cabinet.html

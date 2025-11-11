@@ -2,45 +2,97 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Личный кабинет | MiniAppExpert</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Styles - используем тот же стиль что и на главной странице -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#10B981',
-                        secondary: '#0088CC',
-                    }
+                        primary: '#10B981',      // Mint Accent
+                        secondary: '#0088CC',    // TG Blue
+                        mint: {
+                            50: '#ECFDF5',
+                            100: '#D1FAE5',
+                            500: '#10B981',
+                            600: '#059669',
+                        },
+                        tgblue: {
+                            500: '#0088CC',
+                            600: '#006699',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-in',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px rgba(0, 0, 0, 0.05)',
+                        'medium': '0 4px 25px rgba(0, 0, 0, 0.08)',
+                    },
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #10B981 0%, #0088CC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #10B981 0%, #0088CC 100%);
+        }
+        
         .sidebar-active {
             background: #ECFDF5;
             color: #10B981;
             border-left: 4px solid #10B981;
         }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
-        <div class="flex items-center justify-between px-6 py-4">
+    <header class="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 shadow-sm">
+        <div class="flex items-center justify-between px-4 md:px-6 py-4">
             <div class="flex items-center space-x-4">
                 <a href="/" class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-                        </svg>
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                        <i data-lucide="zap" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
                         <div class="text-lg font-bold text-gray-900">MiniAppExpert</div>
@@ -50,23 +102,22 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <a href="/" target="_blank" class="text-sm text-gray-600 hover:text-primary transition">
-                    🌐 На сайт
+                <a href="/" target="_blank" class="text-sm text-gray-600 hover:text-primary transition flex items-center gap-2">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                    <span class="hidden md:inline">На сайт</span>
                 </a>
-                <div class="h-8 w-px bg-gray-200"></div>
+                <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
                 <div class="flex items-center space-x-3">
                     <div class="text-right hidden md:block">
-                        <div class="text-sm font-semibold" id="userName">Клиент</div>
-                        <div class="text-xs text-gray-500" id="userEmail">email</div>
+                        <div class="text-sm font-semibold" id="userName">Загрузка...</div>
+                        <div class="text-xs text-gray-500" id="userEmail">...</div>
                     </div>
                     <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold">
-                        <span id="userInitial">K</span>
+                        <span id="userInitial">U</span>
                     </div>
                 </div>
-                <button onclick="logout()" class="text-red-600 hover:text-red-700 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
+                <button onclick="logout()" class="text-red-600 hover:text-red-700 transition p-2" aria-label="Выход">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
@@ -75,33 +126,72 @@
     <!-- Main Container -->
     <div class="flex pt-16">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 fixed left-0 top-16 bottom-0 overflow-y-auto">
+        <aside class="w-64 bg-white border-r border-gray-200 fixed left-0 top-16 bottom-0 overflow-y-auto hidden md:block">
             <nav class="p-4 space-y-2">
-                <a href="#products" onclick="showSection('products')" class="sidebar-link sidebar-active flex items-center space-x-3 px-4 py-3 rounded-xl transition" data-section="products">
-                    <span class="text-xl">📱</span>
+                <a href="#products" onclick="showSection('products'); return false;" class="sidebar-link sidebar-active flex items-center space-x-3 px-4 py-3 rounded-xl transition" data-section="products">
+                    <i data-lucide="package" class="w-5 h-5"></i>
                     <span class="font-semibold">Мои продукты</span>
                 </a>
-                <a href="#subscriptions" onclick="showSection('subscriptions')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="subscriptions">
-                    <span class="text-xl">🔄</span>
+                <a href="#subscriptions" onclick="showSection('subscriptions'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="subscriptions">
+                    <i data-lucide="repeat" class="w-5 h-5"></i>
                     <span class="font-semibold">Мои подписки</span>
                 </a>
-                <a href="#payments" onclick="showSection('payments')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="payments">
-                    <span class="text-xl">💳</span>
+                <a href="#payments" onclick="showSection('payments'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="payments">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
                     <span class="font-semibold">История платежей</span>
                 </a>
-                <a href="#profile" onclick="showSection('profile')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="profile">
-                    <span class="text-xl">👤</span>
+                <a href="#profile" onclick="showSection('profile'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="profile">
+                    <i data-lucide="user" class="w-5 h-5"></i>
                     <span class="font-semibold">Профиль</span>
                 </a>
-                <a href="#partners" onclick="showSection('partners')" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
-                    <span class="text-xl">🤝</span>
+                <a href="#partners" onclick="showSection('partners'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="font-semibold">Партнерская программа</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="md:hidden fixed top-20 left-4 z-40 bg-white p-2 rounded-lg shadow-md border border-gray-200">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Mobile Sidebar -->
+        <aside id="mobileSidebar" class="md:hidden fixed inset-0 z-50 bg-white transform -translate-x-full transition-transform duration-300 pt-16">
+            <nav class="p-4 space-y-2">
+                <a href="#products" onclick="showSection('products'); closeMobileMenu(); return false;" class="sidebar-link sidebar-active flex items-center space-x-3 px-4 py-3 rounded-xl transition" data-section="products">
+                    <i data-lucide="package" class="w-5 h-5"></i>
+                    <span class="font-semibold">Мои продукты</span>
+                </a>
+                <a href="#subscriptions" onclick="showSection('subscriptions'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="subscriptions">
+                    <i data-lucide="repeat" class="w-5 h-5"></i>
+                    <span class="font-semibold">Мои подписки</span>
+                </a>
+                <a href="#payments" onclick="showSection('payments'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="payments">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                    <span class="font-semibold">История платежей</span>
+                </a>
+                <a href="#profile" onclick="showSection('profile'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="profile">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span class="font-semibold">Профиль</span>
+                </a>
+                <a href="#partners" onclick="showSection('partners'); closeMobileMenu(); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="partners">
+                    <i data-lucide="users" class="w-5 h-5"></i>
                     <span class="font-semibold">Партнерская программа</span>
                 </a>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 ml-64 p-8">
+        <main class="flex-1 md:ml-64 p-4 md:p-8">
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                    <p class="mt-4 text-gray-600">Загрузка...</p>
+                </div>
+            </div>
+
             <!-- Products Section -->
             <section id="section-products" class="cabinet-section">
                 <div class="flex items-center justify-between mb-8">
@@ -113,31 +203,9 @@
 
                 <!-- Products Grid -->
                 <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Demo product -->
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-primary/20">
-                        <div class="h-40 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative">
-                            <span class="text-6xl">🏢</span>
-                            <div class="absolute top-4 right-4">
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                                    ✅ Активно
-                                </span>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Mini App для недвижимости</h3>
-                            <p class="text-gray-600 mb-4 text-sm">Дата запуска: 15.10.2025</p>
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <a href="https://t.me/YourAgencyBot/app" target="_blank" class="bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-sm">
-                                    Приложение
-                                </a>
-                                <a href="#" onclick="openAdminPanel(); return false;" class="border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm">
-                                    Админка
-                                </a>
-                            </div>
-                            <a href="/product-manage.html" class="block bg-gradient-to-r from-secondary to-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:shadow-xl transition">
-                                ⚙️ Управление продуктом
-                            </a>
-                        </div>
+                    <div class="col-span-2 text-center py-12 text-gray-500">
+                        <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p>Загрузка продуктов...</p>
                     </div>
                 </div>
             </section>
@@ -146,53 +214,10 @@
             <section id="section-subscriptions" class="cabinet-section hidden">
                 <h1 class="text-3xl font-bold mb-8">Мои подписки</h1>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Active subscription -->
-                    <div class="bg-white rounded-2xl shadow-sm p-6 border-2 border-green-500/20">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold">Базовая поддержка</h3>
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                                Активна
-                            </span>
-                        </div>
-                        <p class="text-gray-600 mb-4">Техническая поддержка и обновления</p>
-                        <div class="space-y-2 mb-4">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Стоимость:</span>
-                                <span class="font-bold">5 000₽/мес</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Следующий платеж:</span>
-                                <span class="font-bold">15.11.2025</span>
-                            </div>
-                        </div>
-                        <button class="w-full border-2 border-gray-300 py-2 rounded-xl font-semibold hover:bg-gray-50 transition">
-                            Управлять подпиской
-                        </button>
-                    </div>
-
-                    <!-- Available subscription -->
-                    <div class="bg-white rounded-2xl shadow-sm p-6 border-2 border-gray-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold">Премиум поддержка</h3>
-                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold">
-                                Доступна
-                            </span>
-                        </div>
-                        <p class="text-gray-600 mb-4">Приоритетная поддержка 24/7 + доработки</p>
-                        <div class="space-y-2 mb-4">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Стоимость:</span>
-                                <span class="font-bold">15 000₽/мес</span>
-                            </div>
-                        </div>
-                        <a href="/payment.html?product=Премиум подписка&price=15000" class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
-                            💳 Подключить за 15 000 ₽
-                        </a>
-                        <div class="text-center mt-2">
-                            <img src="https://acdn.tinkoff.ru/static/documents/logo.svg" alt="T-Bank" class="h-4 inline-block mr-1">
-                            <span class="text-xs text-gray-500">Рассрочка 0-0-12</span>
-                        </div>
+                <div id="subscriptionsList" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="col-span-2 text-center py-12 text-gray-500">
+                        <i data-lucide="repeat" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p>Загрузка подписок...</p>
                     </div>
                 </div>
             </section>
@@ -223,14 +248,6 @@
                         </table>
                     </div>
                 </div>
-
-                <!-- Total -->
-                <div class="mt-6 bg-gradient-to-r from-mint-50 to-blue-50 rounded-2xl p-6">
-                    <div class="flex items-center justify-between">
-                        <span class="text-lg font-semibold text-gray-700">Всего потрачено:</span>
-                        <span id="paymentsTotal" class="text-3xl font-bold text-primary">0 ₽</span>
-                    </div>
-                </div>
             </section>
 
             <!-- Profile Section -->
@@ -240,6 +257,40 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Profile Info -->
                     <div class="lg:col-span-2 space-y-6">
+                        <!-- Email Verification Banner -->
+                        <div id="emailVerificationBanner" class="hidden bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4 mb-6">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-yellow-900 mb-1">Подтвердите ваш email</h3>
+                                    <p class="text-sm text-yellow-700 mb-3">
+                                        Для полного доступа к функциям личного кабинета необходимо подтвердить ваш email адрес.
+                                    </p>
+                                    <button 
+                                        id="resendVerificationBtn"
+                                        onclick="resendVerificationEmail()" 
+                                        class="bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-yellow-700 transition text-sm flex items-center gap-2"
+                                    >
+                                        <i data-lucide="mail" class="w-4 h-4"></i>
+                                        Отправить письмо повторно
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Verified Banner -->
+                        <div id="emailVerifiedBanner" class="hidden bg-green-50 border-l-4 border-green-400 rounded-xl p-4 mb-6">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="check-circle-2" class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"></i>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-green-900 mb-1">Email подтвержден</h3>
+                                    <p class="text-sm text-green-700">
+                                        Ваш email адрес успешно подтвержден.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="bg-white rounded-2xl shadow-sm p-6">
                             <h2 class="text-xl font-bold mb-6">Личные данные</h2>
                             <div class="space-y-4">
@@ -248,11 +299,25 @@
                                     <input 
                                         type="text" 
                                         id="profileName"
-                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
                                     >
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Email
+                                        <span id="emailVerifiedBadge" class="ml-2 hidden">
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold">
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                                Подтвержден
+                                            </span>
+                                        </span>
+                                        <span id="emailUnverifiedBadge" class="ml-2 hidden">
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-semibold">
+                                                <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                                                Не подтвержден
+                                            </span>
+                                        </span>
+                                    </label>
                                     <input 
                                         type="email" 
                                         id="profileEmail"
@@ -266,7 +331,7 @@
                                     <input 
                                         type="tel" 
                                         id="profilePhone"
-                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
                                     >
                                 </div>
                                 <button onclick="saveProfile()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
@@ -282,24 +347,27 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Текущий пароль</label>
                                     <input 
                                         type="password" 
-                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                        id="currentPassword"
+                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
                                     >
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Новый пароль</label>
                                     <input 
                                         type="password" 
-                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                        id="newPassword"
+                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
                                     >
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Повторите новый пароль</label>
                                     <input 
                                         type="password" 
-                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                        id="confirmPassword"
+                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
                                     >
                                 </div>
-                                <button class="bg-secondary text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition">
+                                <button onclick="changePassword()" class="bg-secondary text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition">
                                     Изменить пароль
                                 </button>
                             </div>
@@ -310,13 +378,13 @@
                     <div class="space-y-6">
                         <div class="bg-gradient-to-br from-primary to-secondary text-white rounded-2xl shadow-xl p-8 text-center">
                             <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-4" style="color: #10B981;">
-                                <span id="profileInitial">K</span>
+                                <span id="profileInitial">U</span>
                             </div>
-                            <h3 class="text-2xl font-bold mb-2" id="profileDisplayName">Клиент</h3>
-                            <p class="text-white/80 mb-4" id="profileDisplayEmail">email</p>
+                            <h3 class="text-2xl font-bold mb-2" id="profileDisplayName">Загрузка...</h3>
+                            <p class="text-white/80 mb-4" id="profileDisplayEmail">...</p>
                             <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
                                 <div class="text-sm text-white/90 mb-1">Клиент с</div>
-                                <div class="text-lg font-bold" id="memberSince">Октябрь 2025</div>
+                                <div class="text-lg font-bold" id="memberSince">...</div>
                             </div>
                         </div>
 
@@ -325,15 +393,15 @@
                             <div class="space-y-3">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Продуктов:</span>
-                                    <span class="font-bold text-primary">1</span>
+                                    <span class="font-bold text-primary" id="statsProducts">0</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Подписок:</span>
-                                    <span class="font-bold text-secondary">1</span>
+                                    <span class="font-bold text-secondary" id="statsSubscriptions">0</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Платежей:</span>
-                                    <span class="font-bold">2</span>
+                                    <span class="font-bold" id="statsPayments">0</span>
                                 </div>
                             </div>
                         </div>
@@ -343,7 +411,10 @@
 
             <!-- Partners Section -->
             <section id="section-partners" class="cabinet-section hidden">
-                <h1 class="text-3xl font-bold mb-8">🤝 Партнерская программа</h1>
+                <h1 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                    <i data-lucide="users" class="w-8 h-8 text-primary"></i>
+                    <span>Партнерская программа</span>
+                </h1>
 
                 <!-- Partners Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -369,8 +440,8 @@
                     <!-- Referral Link -->
                     <div class="lg:col-span-2 space-y-6">
                         <div class="bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary rounded-2xl p-8">
-                            <h2 class="text-2xl font-bold mb-2">💰 Зарабатывайте с MiniAppExpert!</h2>
-                            <p class="text-gray-700 mb-6">Приглашайте клиентов и получайте <span class="font-bold text-primary">20% от каждой покупки</span> навсегда!</p>
+                            <h2 class="text-2xl font-bold mb-2">Зарабатывайте с MiniAppExpert!</h2>
+                            <p class="text-gray-700 mb-6">Приглашайте клиентов и получайте <span class="font-bold text-primary" id="commissionRateText">20% от каждой покупки</span> навсегда!</p>
                             
                             <div class="bg-white rounded-xl p-6 mb-6">
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Ваша реферальная ссылка</label>
@@ -378,26 +449,31 @@
                                     <input 
                                         type="text" 
                                         id="referralLink" 
-                                        value="https://miniapp.expert/?ref=USER123"
+                                        value=""
                                         readonly
                                         class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 bg-gray-50 font-mono text-sm"
+                                        placeholder="Загрузка..."
                                     >
-                                    <button onclick="copyReferralLink()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
-                                        📋 Копировать
+                                    <button onclick="copyReferralLink()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition flex items-center gap-2">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                        <span class="hidden md:inline">Копировать</span>
                                     </button>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-2">Отправьте эту ссылку друзьям и партнерам</p>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <button onclick="shareToTelegram()" class="bg-secondary text-white px-4 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition">
-                                    📱 Telegram
+                                <button onclick="shareToTelegram()" class="bg-secondary text-white px-4 py-3 rounded-xl font-semibold hover:bg-secondary/90 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                    <span>Telegram</span>
                                 </button>
-                                <button onclick="shareToWhatsApp()" class="bg-green-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-green-700 transition">
-                                    💬 WhatsApp
+                                <button onclick="shareToWhatsApp()" class="bg-green-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <span>WhatsApp</span>
                                 </button>
-                                <button onclick="shareByEmail()" class="bg-gray-700 text-white px-4 py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
-                                    ✉️ Email
+                                <button onclick="shareByEmail()" class="bg-gray-700 text-white px-4 py-3 rounded-xl font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                    <span>Email</span>
                                 </button>
                             </div>
                         </div>
@@ -418,7 +494,7 @@
                                     <tbody id="referralsTableBody">
                                         <tr>
                                             <td colspan="4" class="text-center p-8 text-gray-500">
-                                                Пока нет рефералов. Поделитесь ссылкой!
+                                                Загрузка рефералов...
                                             </td>
                                         </tr>
                                     </tbody>
@@ -431,7 +507,7 @@
                             <h2 class="text-xl font-bold mb-6">История выплат</h2>
                             <div class="space-y-4" id="withdrawalHistory">
                                 <div class="text-center p-8 text-gray-500">
-                                    История выплат пуста
+                                    Загрузка истории выплат...
                                 </div>
                             </div>
                         </div>
@@ -442,12 +518,12 @@
                         <!-- Commission Info -->
                         <div class="bg-white rounded-2xl shadow-sm p-6">
                             <h3 class="font-bold mb-4 flex items-center">
-                                <span class="text-2xl mr-2">💎</span>
-                                Условия программы
+                                <i data-lucide="gift" class="w-5 h-5 text-primary mr-2"></i>
+                                <span>Условия программы</span>
                             </h3>
                             <div class="space-y-4">
                                 <div class="border-l-4 border-primary pl-4">
-                                    <div class="text-2xl font-bold text-primary mb-1">20%</div>
+                                    <div class="text-2xl font-bold text-primary mb-1" id="commissionRateDisplay">20%</div>
                                     <div class="text-sm text-gray-600">Комиссия с каждой покупки</div>
                                 </div>
                                 <div class="border-l-4 border-secondary pl-4">
@@ -459,6 +535,13 @@
                                     <div class="text-sm text-gray-600">Минимум для вывода</div>
                                 </div>
                             </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <a href="/affiliate-terms.html" target="_blank" class="text-sm text-primary hover:text-primary/80 font-semibold flex items-center gap-2">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                    <span>Полные условия программы</span>
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
                         </div>
 
                         <!-- Withdrawal Button -->
@@ -469,7 +552,7 @@
                                 <div class="text-2xl font-bold text-primary" id="withdrawBalance">0 ₽</div>
                             </div>
                             <button onclick="openWithdrawModal()" class="w-full bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
-                                💸 Вывести средства
+                                Вывести средства
                             </button>
                         </div>
 
@@ -478,49 +561,33 @@
                             <h3 class="font-bold mb-4">Как это работает?</h3>
                             <div class="space-y-4 text-sm">
                                 <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">1️⃣</span>
+                                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</div>
                                     <div>
                                         <div class="font-semibold mb-1">Поделитесь ссылкой</div>
                                         <div class="text-gray-600">Отправьте вашу реферальную ссылку друзьям и коллегам</div>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">2️⃣</span>
+                                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</div>
                                     <div>
                                         <div class="font-semibold mb-1">Они покупают</div>
                                         <div class="text-gray-600">Когда клиент делает заказ по вашей ссылке</div>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">3️⃣</span>
+                                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</div>
                                     <div>
                                         <div class="font-semibold mb-1">Вы получаете 20%</div>
                                         <div class="text-gray-600">От каждой покупки реферала на ваш счет</div>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">
-                                    <span class="text-2xl">4️⃣</span>
+                                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">4</div>
                                     <div>
                                         <div class="font-semibold mb-1">Выводите деньги</div>
                                         <div class="text-gray-600">На карту или кошелек без комиссии</div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Marketing Materials -->
-                        <div class="bg-white rounded-2xl shadow-sm p-6">
-                            <h3 class="font-bold mb-4">📦 Материалы для продвижения</h3>
-                            <div class="space-y-3">
-                                <button class="w-full bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-xl text-sm font-semibold transition">
-                                    📄 Презентация (PDF)
-                                </button>
-                                <button class="w-full bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-xl text-sm font-semibold transition">
-                                    🎨 Баннеры для соцсетей
-                                </button>
-                                <button class="w-full bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-xl text-sm font-semibold transition">
-                                    ✍️ Готовые тексты
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -529,7 +596,34 @@
         </main>
     </div>
 
-    <script src="cabinet.js"></script>
+    <script src="notification.js?v=2"></script>
+    <script src="modal.js?v=2"></script>
+    <script src="cabinet.js?v=5"></script>
+    
+    <!-- Initialize Lucide Icons -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileSidebar = document.getElementById('mobileSidebar');
+            
+            if (mobileMenuBtn && mobileSidebar) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileSidebar.classList.toggle('-translate-x-full');
+                });
+            }
+        });
+        
+        function closeMobileMenu() {
+            const mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                mobileSidebar.classList.add('-translate-x-full');
+            }
+        }
+    </script>
 </body>
 </html>
-

@@ -1,0 +1,74 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: miniapp_postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-miniapp}
+      - POSTGRES_USER=${POSTGRES_USER:-miniuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-minipass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-miniuser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api-django
+      dockerfile: Dockerfile
+    container_name: miniapp_api
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG:-False}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,miniapp.expert}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-miniuser}:${POSTGRES_PASSWORD:-minipass}@postgres:5432/${POSTGRES_DB:-miniapp}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=${POSTGRES_DB:-miniapp}
+      - DB_USER=${POSTGRES_USER:-miniuser}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-minipass}
+      - TBANK_TERMINAL_KEY=${TBANK_TERMINAL_KEY}
+      - TBANK_PASSWORD=${TBANK_PASSWORD}
+      - TBANK_API_URL=${TBANK_API_URL:-https://securepay.tinkoff.ru/v2}
+      - APP_BASE_URL=${APP_BASE_URL:-https://miniapp.expert}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-https://miniapp.expert}
+      - API_BASE_URL=${API_BASE_URL:-https://miniapp.expert}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-465}
+      - SMTP_USE_TLS=${SMTP_USE_TLS:-True}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - MAIL_FROM=${MAIL_FROM:-MiniAppExpert <no-reply@miniapp.expert>}
+      - MAGIC_SECRET=${MAGIC_SECRET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://miniapp.expert,http://localhost:3000}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./api-django:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    restart: unless-stopped
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn miniapp_api.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/auth/login/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+

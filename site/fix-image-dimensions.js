@@ -20,8 +20,6 @@ function getImageDimensions(imagePath) {
 const htmlFiles = [
     'index.html',
     'real-estate-solution.html',
-    'admin-login.html',
-    'admin.html',
     'login.html',
     'cabinet.html',
     'privacy.html',

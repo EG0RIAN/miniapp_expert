@@ -7,6 +7,9 @@
     <title>Оплата | MiniAppExpert</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="notification.js"></script>
+    <script src="modal.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -48,7 +51,10 @@
             <!-- Order Summary -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-2xl shadow-lg p-8">
-                    <h1 class="text-2xl font-bold mb-6">💳 Оплата заказа</h1>
+                    <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-6 h-6"></i>
+                        Оплата заказа
+                    </h1>
 
                     <!-- Order Details -->
                     <div class="bg-gray-50 rounded-xl p-6 mb-6">
@@ -62,71 +68,6 @@
                                 <span class="text-gray-600">Запуск:</span>
                                 <span class="font-semibold">15 минут</span>
                             </div>
-                            <div class="flex justify-between border-t pt-3">
-                                <span class="text-gray-600">Компания:</span>
-                                <span class="font-semibold" id="companyName">-</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Email:</span>
-                                <span class="font-semibold" id="companyEmail">-</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Method -->
-                    <div class="mb-6">
-                        <h2 class="font-bold mb-4">Способ оплаты:</h2>
-                        <div class="space-y-3">
-                            <label class="flex items-center p-4 border-2 border-primary rounded-xl cursor-pointer bg-primary/5">
-                                <input type="radio" name="paymentMethod" value="full" checked class="mr-3">
-                                <div class="flex-1">
-                                    <div class="font-semibold">💳 Оплата картой</div>
-                                    <div class="text-sm text-gray-600">Полная оплата сейчас</div>
-                                </div>
-                                <div class="text-xl font-bold text-primary" id="fullPrice">150 000 ₽</div>
-                            </label>
-                            
-                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-secondary hover:bg-secondary/5 transition">
-                                <input type="radio" name="paymentMethod" value="installment" class="mr-3">
-                                <div class="flex-1">
-                                    <div class="font-semibold flex items-center">
-                                        <img src="https://acdn.tinkoff.ru/static/documents/logo.svg" alt="T-Bank" class="h-5 mr-2">
-                                        Рассрочка 0-0-12
-                                    </div>
-                                    <div class="text-sm text-gray-600">Без переплат, одобрение за 1 минуту</div>
-                                </div>
-                                <div>
-                                    <div class="text-xl font-bold text-secondary" id="installmentMonthly">12 500 ₽</div>
-                                    <div class="text-xs text-gray-500">/ месяц</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Installment Options -->
-                    <div id="installmentOptions" class="mb-6 hidden">
-                        <h3 class="font-semibold mb-3">Выберите срок рассрочки:</h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition">
-                                <input type="radio" name="installmentPeriod" value="3" class="mr-2">
-                                <span class="font-semibold">3 месяца</span>
-                                <div class="text-secondary font-bold">50 000 ₽/мес</div>
-                            </label>
-                            <label class="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition">
-                                <input type="radio" name="installmentPeriod" value="6" class="mr-2">
-                                <span class="font-semibold">6 месяцев</span>
-                                <div class="text-secondary font-bold">25 000 ₽/мес</div>
-                            </label>
-                            <label class="p-4 border-2 border-secondary rounded-xl cursor-pointer bg-secondary/5">
-                                <input type="radio" name="installmentPeriod" value="12" checked class="mr-2">
-                                <span class="font-semibold">12 месяцев</span>
-                                <div class="text-secondary font-bold">12 500 ₽/мес</div>
-                            </label>
-                            <label class="p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition">
-                                <input type="radio" name="installmentPeriod" value="24" class="mr-2">
-                                <span class="font-semibold">24 месяца</span>
-                                <div class="text-secondary font-bold">6 250 ₽/мес</div>
-                            </label>
                         </div>
                     </div>
 
@@ -135,13 +76,19 @@
                         <h2 class="font-bold mb-4">Контактные данные:</h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold mb-2">Email для отправки данных</label>
+                                <label class="block text-sm font-semibold mb-2">Название компании / ФИО *</label>
+                                <input type="text" id="companyName" required
+                                       class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                       placeholder="Название вашей компании или ваше ФИО">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Email *</label>
                                 <input type="email" id="paymentEmail" required
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
                                        placeholder="your@email.com">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold mb-2">Телефон</label>
+                                <label class="block text-sm font-semibold mb-2">Телефон *</label>
                                 <input type="tel" id="paymentPhone" required
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
                                        placeholder="+7 (999) 123-45-67">
@@ -149,9 +96,34 @@
                         </div>
                     </div>
 
+                    <!-- Subscription Agreement -->
+                    <div class="mb-4">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="subscriptionAgree" class="w-5 h-5 text-primary rounded border-2 border-gray-300 mt-0.5 mr-3 flex-shrink-0">
+                            <div class="text-sm">
+                                <span class="text-gray-900">
+                                    Я согласен с <a href="/subscription-terms.html" target="_blank" class="text-primary font-semibold underline hover:text-primary/80">условиями подписки</a> *
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Personal Data Agreement -->
+                    <div class="mb-6">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="personalDataAgree" class="w-5 h-5 text-primary rounded border-2 border-gray-300 mt-0.5 mr-3 flex-shrink-0">
+                            <div class="text-sm">
+                                <span class="text-gray-900">
+                                    Я согласен на <a href="/privacy.html" target="_blank" class="text-primary font-semibold underline hover:text-primary/80">обработку персональных данных</a> *
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+
                     <!-- Payment Button -->
-                    <button onclick="processPayment()" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transition">
-                        💳 Перейти к оплате
+                    <button onclick="processPayment()" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transition flex items-center justify-center gap-2">
+                        <i data-lucide="credit-card" class="w-5 h-5"></i>
+                        Перейти к оплате
                     </button>
 
                     <!-- Security Info -->
@@ -177,8 +149,8 @@
                     
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Mini App</span>
-                            <span class="font-semibold">150 000 ₽</span>
+                            <span class="text-gray-600" id="productNameSummary">Подписка</span>
+                            <span class="font-semibold" id="productPriceSummary">-</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Админ-панель</span>
@@ -197,30 +169,33 @@
                     <div class="border-t pt-4 mb-6">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">К оплате:</span>
-                            <div class="text-right">
-                                <div class="text-2xl font-bold text-primary" id="totalAmount">150 000 ₽</div>
-                                <div class="text-xs text-gray-500" id="installmentInfo"></div>
-                            </div>
+                            <div class="text-2xl font-bold text-primary" id="totalAmount">-</div>
                         </div>
+                        <div class="text-xs text-gray-500 mt-2" id="subscriptionInfo"></div>
                     </div>
 
                     <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm">
-                        <div class="font-semibold text-green-700 mb-2">✅ После оплаты вы получите:</div>
-                        <ul class="text-green-600 space-y-1 text-xs">
-                            <li>• Ссылку на ваше приложение</li>
-                            <li>• Пароль для админ-панели</li>
-                            <li>• Подробную инструкцию</li>
-                            <li>• Доступ к поддержке 24/7</li>
-                        </ul>
-                    </div>
-
-                    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm">
-                        <div class="font-semibold text-blue-700 mb-2">🎁 Рассрочка 0-0-12:</div>
-                        <ul class="text-blue-600 space-y-1 text-xs">
-                            <li>• Без переплат и процентов</li>
-                            <li>• Одобрение за 1 минуту</li>
-                            <li>• Без первого взноса</li>
-                            <li>• От Т-Банк</li>
+                        <div class="font-semibold text-green-700 mb-3 flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            После оплаты вы получите:
+                        </div>
+                        <ul class="text-green-600 space-y-2 text-xs">
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="link" class="w-3 h-3 flex-shrink-0"></i>
+                                <span>Ссылку на ваше приложение</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="key" class="w-3 h-3 flex-shrink-0"></i>
+                                <span>Пароль для админ-панели</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="book-open" class="w-3 h-3 flex-shrink-0"></i>
+                                <span>Подробную инструкцию</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="headphones" class="w-3 h-3 flex-shrink-0"></i>
+                                <span>Доступ к поддержке 24/7</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -279,79 +254,61 @@
                 
                 // Fill order info
                 document.getElementById('productName').textContent = order.product;
-                document.getElementById('fullPrice').textContent = order.price.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalAmount').textContent = order.price.toLocaleString('ru-RU') + ' ₽';
                 
-                if (order.companyName) {
-                    document.getElementById('companyName').textContent = order.companyName;
-                }
-                if (order.email) {
-                    document.getElementById('companyEmail').textContent = order.email;
-                    document.getElementById('paymentEmail').value = order.email;
-                }
-                if (order.phone) {
-                    document.getElementById('paymentPhone').value = order.phone;
+                // Fill summary in right column
+                document.getElementById('productNameSummary').textContent = order.product;
+                document.getElementById('productPriceSummary').textContent = order.price.toLocaleString('ru-RU') + ' ₽';
+                
+                // Check if it's a subscription (monthly)
+                const urlParams = new URLSearchParams(window.location.search);
+                const isSubscription = urlParams.get('subscription') === 'monthly';
+                
+                if (isSubscription) {
+                    document.getElementById('subscriptionInfo').textContent = 'Ежемесячный платёж';
                 }
                 
-                // Calculate installments
-                const installment12 = Math.round(order.price / 12);
-                document.getElementById('installmentMonthly').textContent = installment12.toLocaleString('ru-RU') + ' ₽';
-                
-                // Payment method change
-                const paymentMethodInputs = document.querySelectorAll('input[name="paymentMethod"]');
-                paymentMethodInputs.forEach(input => {
-                    input.addEventListener('change', function() {
-                        const installmentOptions = document.getElementById('installmentOptions');
-                        const installmentInfo = document.getElementById('installmentInfo');
-                        
-                        if (this.value === 'installment') {
-                            installmentOptions.classList.remove('hidden');
-                            const months = document.querySelector('input[name="installmentPeriod"]:checked').value;
-                            const monthly = Math.round(order.price / months);
-                            installmentInfo.textContent = monthly.toLocaleString('ru-RU') + ' ₽ × ' + months + ' мес.';
-                        } else {
-                            installmentOptions.classList.add('hidden');
-                            installmentInfo.textContent = '';
-                        }
-                    });
-                });
-                
-                // Installment period change
-                const installmentPeriodInputs = document.querySelectorAll('input[name="installmentPeriod"]');
-                installmentPeriodInputs.forEach(input => {
-                    input.addEventListener('change', function() {
-                        const months = this.value;
-                        const monthly = Math.round(order.price / months);
-                        document.getElementById('installmentInfo').textContent = 
-                            monthly.toLocaleString('ru-RU') + ' ₽ × ' + months + ' мес.';
-                    });
-                });
+                // Don't pre-fill contact fields - user must enter manually
             } catch (error) {
                 console.error('Init error:', error);
-                alert('Ошибка инициализации страницы. Попробуйте обновить страницу.');
+                notifyError('Ошибка инициализации страницы. Попробуйте обновить страницу.');
             }
         });
 
         // Process payment - SIMPLIFIED VERSION
         async function processPayment() {
             try {
-                const email = document.getElementById('paymentEmail').value;
-                const phone = document.getElementById('paymentPhone').value;
+                const companyName = document.getElementById('companyName').value.trim();
+                const email = document.getElementById('paymentEmail').value.trim();
+                const phone = document.getElementById('paymentPhone').value.trim();
+                const subscriptionAgree = document.getElementById('subscriptionAgree').checked;
                 
-                if (!email || !phone) {
-                    alert('⚠️ Заполните все поля');
+                if (!companyName || !email || !phone) {
+                    notifyError('Заполните все обязательные поля (Компания, Email, Телефон)');
+                    return;
+                }
+                
+                const personalDataAgree = document.getElementById('personalDataAgree').checked;
+                
+                if (!subscriptionAgree) {
+                    notifyWarning('Для продолжения необходимо согласиться с условиями подписки');
+                    document.getElementById('subscriptionAgree').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                
+                if (!personalDataAgree) {
+                    notifyWarning('Для продолжения необходимо согласиться на обработку персональных данных');
+                    document.getElementById('personalDataAgree').scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 }
                 
                 const order = getOrderData();
-                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
                 
                 if (DEBUG) {
                     console.log('Processing payment...', {
                         email,
                         phone,
-                        amount: order.price,
-                        method: paymentMethod
+                        amount: order.price
                     });
                 }
                 
@@ -365,7 +322,7 @@
                     description: order.product,
                     email: email,
                     phone: phone,
-                    name: order.companyName || 'Клиент'
+                    name: companyName
                 };
                 
                 if (DEBUG) console.log('Creating payment via API:', paymentData);
@@ -392,9 +349,11 @@
                     orderId: orderId,
                     product: order.product,
                     amount: order.price,
+                    companyName: companyName,
                     email: email,
                     phone: phone,
-                    method: paymentMethod,
+                    subscriptionAgreed: true,
+                    subscriptionAgreedAt: new Date().toISOString(),
                     status: 'pending',
                     paymentId: result.paymentId,
                     paymentUrl: result.paymentUrl,
@@ -408,16 +367,16 @@
                 if (DEBUG) console.log('Order saved with pending status:', orderData);
                 
                 // Open T-Bank payment page
-                alert('💳 Переходим к оплате...\n\n' +
-                      'Номер заказа: ' + orderId + '\n' +
-                      'Сумма: ' + order.price.toLocaleString('ru-RU') + ' ₽');
+                notifyInfo('Переходим к оплате...\n\nНомер заказа: ' + orderId + '\nСумма: ' + order.price.toLocaleString('ru-RU') + ' ₽');
                 
-                // Redirect to T-Bank payment page
-                window.location.href = result.paymentUrl;
+                // Redirect to T-Bank payment page after short delay
+                setTimeout(() => {
+                    window.location.href = result.paymentUrl;
+                }, 1500);
                 
             } catch (error) {
                 console.error('Payment error:', error);
-                alert('❌ Ошибка: ' + error.message + '\n\nПопробуйте позже или свяжитесь с поддержкой.');
+                notifyError('Ошибка: ' + error.message + '\n\nПопробуйте позже или свяжитесь с поддержкой.');
             }
         }
 
@@ -438,6 +397,13 @@
             
             localStorage.setItem('orders', JSON.stringify(orders));
         }
+        
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
     </script>
 </body>
 </html>

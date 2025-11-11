@@ -25,8 +25,6 @@ function minifyJS(code) {
 
 // JS files to minify
 const jsFiles = [
-    'admin.js',
-    'admin-crud.js',
     'cabinet.js'
 ];
 

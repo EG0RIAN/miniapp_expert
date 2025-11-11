@@ -39,6 +39,7 @@
     <meta name="msapplication-TileColor" content="#10B981">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="notification.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -1667,7 +1668,7 @@
                 } else {
                     const errorText = await response.text();
                     console.error('❌ Ошибка сервера:', response.status, errorText);
-                    alert(`Произошла ошибка (${response.status}). Попробуйте еще раз.`);
+                    notifyError(`Произошла ошибка (${response.status}). Попробуйте еще раз.`);
                 }
             } catch (error) {
                 console.error('❌ Ошибка отправки:', error);
@@ -1676,9 +1677,9 @@
                 
                 // Проверяем тип ошибки
                 if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                    alert('Ошибка CORS или сети. Проверьте настройки сервера.\n\nДетали в консоли (F12)');
+                    notifyError('Ошибка CORS или сети. Проверьте настройки сервера.\n\nДетали в консоли (F12)');
                 } else {
-                    alert('Произошла ошибка. Проверьте подключение к интернету.\n\nДетали в консоли (F12)');
+                    notifyError('Произошла ошибка. Проверьте подключение к интернету.\n\nДетали в консоли (F12)');
                 }
             }
         });
