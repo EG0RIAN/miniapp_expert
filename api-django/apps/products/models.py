@@ -26,19 +26,12 @@ class Product(models.Model):
         limit_choices_to={'document_type': 'subscription_terms', 'is_active': True},
         help_text='Условия подписки для данного продукта (если продукт является подпиской)'
     )
-    app_url = models.URLField(
-        max_length=500,
-        blank=True,
-        null=True,
-        verbose_name='URL приложения',
-        help_text='Ссылка на приложение (Mini App)'
-    )
     admin_url = models.URLField(
         max_length=500,
         blank=True,
         null=True,
         verbose_name='URL админки',
-        help_text='Ссылка на админ-панель продукта'
+        help_text='Ссылка на админ-панель продукта (общий для всех пользователей)'
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -69,6 +62,13 @@ class UserProduct(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     renewal_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    app_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='URL приложения',
+        help_text='Ссылка на приложение (Mini App) для данного пользователя. Если не указана, можно задать в админке.'
+    )
     payment_method = models.ForeignKey('payments.PaymentMethod', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_products', help_text='Платежный метод для автоматического списания подписки')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

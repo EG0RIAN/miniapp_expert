@@ -11,7 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'description', 'slug', 'price', 'currency',
             'product_type', 'subscription_period', 'subscription_terms', 
-            'app_url', 'admin_url', 'is_active',
+            'admin_url', 'is_active',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -25,7 +25,7 @@ class UserProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'product', 'status',
             'start_date', 'end_date', 'renewal_price',
-            'created_at', 'updated_at'
+            'app_url', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

@@ -562,8 +562,9 @@ async function loadProducts() {
             const renewalPrice = product.renewal_price || product.product?.price || product.price || 0;
             const isSubscription = (product.product?.product_type === 'subscription') || (product.product_type === 'subscription');
             
-            // Get app and admin URLs from product
-            const appUrl = product.product?.app_url || product.app_url || null;
+            // Get app URL from user product (individual for each user)
+            // Get admin URL from product (common for all users)
+            const appUrl = product.app_url || null;
             const adminUrl = product.product?.admin_url || product.admin_url || null;
             
             // Determine button classes and behavior
