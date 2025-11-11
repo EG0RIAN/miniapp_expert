@@ -817,8 +817,21 @@
     </div>
 
     <script src="notification.js?v=2"></script>
-    <script src="modal.js?v=3"></script>
-    <script src="cabinet.js?v=6"></script>
+    <script src="modal.js?v=4" onerror="console.error('Failed to load modal.js'); alert('Ошибка загрузки modal.js. Пожалуйста, обновите страницу.');"></script>
+    <script>
+        // Verify modal.js is loaded before cabinet.js
+        if (typeof showModal === 'undefined') {
+            console.error('CRITICAL ERROR: modal.js failed to load! showModal is not defined.');
+            console.error('Please check browser console for script loading errors.');
+            document.write('<div style="padding:20px;background:red;color:white;text-align:center;font-size:18px;">Ошибка загрузки модального окна. Пожалуйста, очистите кэш браузера (Ctrl+Shift+Del) и обновите страницу.</div>');
+        } else {
+            console.log('✓ modal.js loaded successfully');
+            // Make sure functions are globally available
+            window.showModal = showModal;
+            window.closeModal = closeModal;
+        }
+    </script>
+    <script src="cabinet.js?v=7"></script>
     
     <!-- Initialize Lucide Icons -->
     <script>

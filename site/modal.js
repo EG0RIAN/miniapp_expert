@@ -16,6 +16,10 @@ function createModalContainer() {
 
 // Show modal
 function showModal(options = {}) {
+    // Ensure function is available globally
+    if (typeof window !== 'undefined') {
+        window.showModal = showModal;
+    }
     const {
         title = 'Уведомление',
         message = '',
@@ -204,6 +208,10 @@ function showModal(options = {}) {
 
 // Close modal
 function closeModal() {
+    // Ensure function is available globally
+    if (typeof window !== 'undefined') {
+        window.closeModal = closeModal;
+    }
     const container = document.getElementById('modal-container');
     if (container) {
         container.style.pointerEvents = 'none';
