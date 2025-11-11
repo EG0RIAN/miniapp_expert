@@ -16,10 +16,6 @@ function createModalContainer() {
 
 // Show modal
 function showModal(options = {}) {
-    // Ensure function is available globally
-    if (typeof window !== 'undefined') {
-        window.showModal = showModal;
-    }
     const {
         title = 'Уведомление',
         message = '',
@@ -68,40 +64,39 @@ function showModal(options = {}) {
             break;
     }
     
-    // Create modal backdrop
     const backdrop = document.createElement('div');
-    backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 transition-opacity';
-    backdrop.id = 'modal-backdrop';
+    backdrop.className = 'absolute inset-0 bg-black/50 backdrop-blur-sm';
     
-    // Create modal dialog
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 flex items-center justify-center p-4';
     dialog.id = 'modal-dialog';
+    dialog.className = 'absolute inset-0 flex items-center justify-center p-4';
     
     const modalContent = document.createElement('div');
-    modalContent.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all';
-    modalContent.style.maxHeight = '90vh';
-    modalContent.style.overflow = 'auto';
+    modalContent.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto z-10';
+    modalContent.style.transform = 'scale(0.9)';
+    modalContent.style.opacity = '0';
+    modalContent.style.transition = 'all 0.2s ease-out';
     
-    // Parse message for newlines
-    const messageLines = message.split('\n').map(line => `<div>${line}</div>`).join('');
+    // Split message into lines
+    const messageLines = message.split('\n').map(line => {
+        if (line.trim().startsWith('http://') || line.trim().startsWith('https://')) {
+            return `<a href="${line.trim()}" target="_blank" class="text-primary hover:underline">${line.trim()}</a>`;
+        }
+        return line;
+    }).join('<br>');
     
-    // Create input field for prompt type
     let inputField = '';
     if (type === 'prompt') {
         inputField = `
-        <div class="mt-4">
             <input 
                 type="${inputType}" 
                 id="modal-input" 
-                class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition"
-                placeholder="${placeholder}"
-                value="${defaultValue}"
-                autofocus
-                ${inputType === 'number' ? 'min="0" step="0.01"' : ''}
-            >
-        </div>
-    `;
+                value="${defaultValue}" 
+                placeholder="${placeholder}" 
+                class="w-full mt-4 px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none"
+                autocomplete="off"
+            />
+        `;
     }
     
     modalContent.innerHTML = `
@@ -201,35 +196,35 @@ function showModal(options = {}) {
     
     // Animate in
     setTimeout(() => {
-        modalContent.style.opacity = '1';
         modalContent.style.transform = 'scale(1)';
+        modalContent.style.opacity = '1';
     }, 10);
 }
 
 // Close modal
 function closeModal() {
-    // Ensure function is available globally
-    if (typeof window !== 'undefined') {
-        window.closeModal = closeModal;
-    }
     const container = document.getElementById('modal-container');
     if (container) {
         container.style.pointerEvents = 'none';
         const dialog = container.querySelector('#modal-dialog');
         if (dialog) {
-            const content = dialog.querySelector('div');
-            if (content) {
-                content.style.opacity = '0';
-                content.style.transform = 'scale(0.95)';
+            const modalContent = dialog.querySelector('div');
+            if (modalContent) {
+                modalContent.style.transform = 'scale(0.9)';
+                modalContent.style.opacity = '0';
+                setTimeout(() => {
+                    container.classList.add('hidden');
+                }, 200);
+            } else {
+                container.classList.add('hidden');
             }
-        }
-        setTimeout(() => {
+        } else {
             container.classList.add('hidden');
-        }, 200);
+        }
     }
 }
 
-// Promise-based confirm
+// Confirm modal (wrapper)
 function confirmModal(message, title = 'Подтверждение') {
     return new Promise((resolve) => {
         showModal({
@@ -237,22 +232,22 @@ function confirmModal(message, title = 'Подтверждение') {
             message,
             type: 'confirm',
             confirmText: 'Да',
-            cancelText: 'Отмена',
+            cancelText: 'Нет',
             onConfirm: () => resolve(true),
             onCancel: () => resolve(false)
         });
     });
 }
 
-// Promise-based prompt
+// Prompt modal (wrapper)
 function promptModal(message, defaultValue = '', placeholder = '', inputType = 'text') {
     return new Promise((resolve) => {
         showModal({
-            title: 'Ввод данных',
-            message,
+            title: message,
+            message: '',
             type: 'prompt',
-            defaultValue,
             placeholder,
+            defaultValue,
             inputType,
             confirmText: 'ОК',
             cancelText: 'Отмена',
@@ -262,17 +257,19 @@ function promptModal(message, defaultValue = '', placeholder = '', inputType = '
     });
 }
 
-// Add CSS
+// Add modal styles
 const style = document.createElement('style');
 style.textContent = `
     #modal-container {
-        transition: opacity 0.2s;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
     
-    #modal-dialog > div {
-        opacity: 0;
-        transform: scale(0.95);
-        transition: opacity 0.2s, transform 0.2s;
+    #modal-dialog {
+        z-index: 10001;
+    }
+    
+    #modal-container .bg-white {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     }
     
     @media (max-width: 640px) {
@@ -287,3 +284,23 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Ensure all modal functions are globally available
+(function() {
+    'use strict';
+    if (typeof window !== 'undefined') {
+        window.showModal = showModal;
+        window.closeModal = closeModal;
+        window.confirmModal = confirmModal;
+        window.promptModal = promptModal;
+        
+        // Log registration (only in development)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('Modal functions registered globally:', {
+                showModal: typeof window.showModal,
+                closeModal: typeof window.closeModal,
+                confirmModal: typeof window.confirmModal,
+                promptModal: typeof window.promptModal
+            });
+        }
+    }
+})();
