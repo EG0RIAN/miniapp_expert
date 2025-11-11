@@ -1973,10 +1973,20 @@ async function loadPaymentMethods() {
 function manageSubscriptionFromButton(button) {
     try {
         console.log('manageSubscriptionFromButton called', button);
+        console.log('Available functions:', {
+            showModal: typeof showModal,
+            closeModal: typeof closeModal,
+            manageSubscription: typeof manageSubscription,
+            notifyError: typeof notifyError
+        });
         
         if (!button) {
             console.error('Button element is null');
-            notifyError('Ошибка: элемент кнопки не найден');
+            if (typeof notifyError === 'function') {
+                notifyError('Ошибка: элемент кнопки не найден');
+            } else {
+                alert('Ошибка: элемент кнопки не найден');
+            }
             return;
         }
         
@@ -1991,20 +2001,45 @@ function manageSubscriptionFromButton(button) {
         
         if (!subscriptionId) {
             console.error('Subscription ID is missing');
-            notifyError('Ошибка: не указан ID подписки');
+            if (typeof notifyError === 'function') {
+                notifyError('Ошибка: не указан ID подписки');
+            } else {
+                alert('Ошибка: не указан ID подписки');
+            }
+            return;
+        }
+        
+        // Check if modal functions are available
+        if (typeof showModal !== 'function') {
+            console.error('showModal function is not defined');
+            console.error('Please check that modal.js is loaded before cabinet.js');
+            if (typeof notifyError === 'function') {
+                notifyError('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
+            } else {
+                alert('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
+            }
             return;
         }
         
         if (typeof manageSubscription !== 'function') {
             console.error('manageSubscription function is not defined');
-            notifyError('Ошибка: функция управления подпиской не найдена');
+            if (typeof notifyError === 'function') {
+                notifyError('Ошибка: функция управления подпиской не найдена');
+            } else {
+                alert('Ошибка: функция управления подпиской не найдена');
+            }
             return;
         }
         
         manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
     } catch (error) {
         console.error('Error in manageSubscriptionFromButton:', error);
-        notifyError('Ошибка при открытии окна управления подпиской: ' + error.message);
+        console.error('Error stack:', error.stack);
+        if (typeof notifyError === 'function') {
+            notifyError('Ошибка при открытии окна управления подпиской: ' + error.message);
+        } else {
+            alert('Ошибка при открытии окна управления подпиской: ' + error.message);
+        }
     }
 }
 
@@ -2020,10 +2055,31 @@ async function manageSubscription(subscriptionId, productName, price, period, st
             return;
         }
         
-        // Check if showModal is available
+        // Check if showModal is available - wait for it to load if needed
         if (typeof showModal !== 'function') {
-            console.error('showModal function is not defined');
-            notifyError('Ошибка: функция модального окна не найдена');
+            console.error('showModal function is not defined, waiting for modal.js to load...');
+            // Wait for modal.js to load
+            let attempts = 0;
+            const maxAttempts = 10;
+            const checkModal = setInterval(() => {
+                attempts++;
+                if (typeof showModal === 'function') {
+                    clearInterval(checkModal);
+                    console.log('showModal function loaded, continuing...');
+                    // Retry after a short delay
+                    setTimeout(() => {
+                        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
+                    }, 100);
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkModal);
+                    console.error('showModal function still not available after', maxAttempts, 'attempts');
+                    if (typeof notifyError === 'function') {
+                        notifyError('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
+                    } else {
+                        alert('Ошибка: функция модального окна не найдена. Пожалуйста, обновите страницу.');
+                    }
+                }
+            }, 100);
             return;
         }
         
