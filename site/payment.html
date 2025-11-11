@@ -64,25 +64,25 @@
 
                     <!-- Order Details -->
                     <div id="orderDetails" class="hidden">
-                        <div class="bg-gray-50 rounded-xl p-6 mb-6">
-                            <h2 class="font-bold mb-4">Ваш заказ:</h2>
-                            <div class="space-y-3">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Продукт:</span>
+                    <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                        <h2 class="font-bold mb-4">Ваш заказ:</h2>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Продукт:</span>
                                     <span class="font-semibold" id="productName">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600">Запуск:</span>
-                                    <span class="font-semibold">15 минут</span>
-                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Запуск:</span>
+                                <span class="font-semibold">15 минут</span>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Contact Info -->
-                        <div class="mb-6">
-                            <h2 class="font-bold mb-4">Контактные данные:</h2>
-                            <div class="space-y-4">
-                                <div>
+                    <!-- Contact Info -->
+                    <div class="mb-6">
+                        <h2 class="font-bold mb-4">Контактные данные:</h2>
+                        <div class="space-y-4">
+                            <div>
                                     <label class="block text-sm font-semibold mb-2">Название компании / ФИО *</label>
                                     <input type="text" id="companyName" required
                                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
@@ -90,18 +90,18 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold mb-2">Email *</label>
-                                    <input type="email" id="paymentEmail" required
-                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
-                                           placeholder="your@email.com">
-                                </div>
-                                <div>
+                                <input type="email" id="paymentEmail" required
+                                       class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                       placeholder="your@email.com">
+                            </div>
+                            <div>
                                     <label class="block text-sm font-semibold mb-2">Телефон *</label>
-                                    <input type="tel" id="paymentPhone" required
-                                           class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
-                                           placeholder="+7 (999) 123-45-67">
-                                </div>
+                                <input type="tel" id="paymentPhone" required
+                                       class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-primary outline-none"
+                                       placeholder="+7 (999) 123-45-67">
                             </div>
                         </div>
+                    </div>
 
                         <!-- Subscription Agreement -->
                         <div class="mb-4" id="subscriptionAgreementBlock">
@@ -194,7 +194,7 @@
             </div>
         </div>
     </div>
-
+    
     <script src="tbank-payment.js"></script>
     <script>
         // Debug mode
@@ -431,7 +431,13 @@
                         
                         // Sign document
                         try {
-                            const token = localStorage.getItem('accessToken');
+                            const token = localStorage.getItem('authToken') || localStorage.getItem('accessToken');
+                            if (!token) {
+                                notifyError('Необходима авторизация для подписания документа');
+                                resolve(false);
+                                return;
+                            }
+                            
                             const signResponse = await fetch(`/api/client/documents/accept/subscription_terms/`, {
                                 method: 'POST',
                                 headers: {
@@ -450,8 +456,9 @@
                                     notifyError(signResult.message || 'Ошибка при подписании документа');
                                     resolve(false);
                                 }
-                            } else {
-                                notifyError('Ошибка при подписании документа');
+                        } else {
+                                const errorData = await signResponse.json().catch(() => ({}));
+                                notifyError(errorData.message || 'Ошибка при подписании документа');
                                 resolve(false);
                             }
                         } catch (error) {
@@ -494,17 +501,19 @@
                 }
                 
                 // Check and sign subscription terms if needed (for authenticated users)
-                const subscriptionTermsSigned = await checkAndSignSubscriptionTerms();
-                if (!subscriptionTermsSigned) {
-                    // User cancelled signing, stop payment
-                    return;
-                }
-                
-                // For non-authenticated users or if API check failed, use checkbox
-                if (preOrderData?.product?.product_type === 'subscription' && !subscriptionAgree) {
-                    notifyWarning('Для продолжения необходимо согласиться с условиями подписки');
-                    document.getElementById('subscriptionAgree').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    return;
+                if (preOrderData?.product?.product_type === 'subscription') {
+                    const subscriptionTermsSigned = await checkAndSignSubscriptionTerms();
+                    if (!subscriptionTermsSigned) {
+                        // User cancelled subscription terms acceptance
+                        return;
+                    }
+                    
+                    // Also check UI checkbox for non-authenticated users or if API check failed
+                    if (!subscriptionAgree) {
+                        notifyWarning('Для продолжения необходимо согласиться с условиями подписки');
+                        document.getElementById('subscriptionAgree').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
                 }
                 
                 const preOrderId = getPreOrderIdFromURL();

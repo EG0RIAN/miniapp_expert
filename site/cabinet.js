@@ -837,45 +837,7 @@ async function loadPartnersData() {
         const partnersContent = document.getElementById('partnersContent');
         
         if (!hasAcceptedTerms) {
-            // Check if document needs to be signed via API
-            const docsResult = await apiRequest('/client/documents/');
-            if (docsResult && docsResult.data) {
-                const documentsToSign = docsResult.data.documents_to_sign || [];
-                const affiliateTermsDoc = documentsToSign.find(doc => 
-                    doc.document_type === 'affiliate_terms' && !doc.is_signed
-                );
-                
-                if (affiliateTermsDoc) {
-                    // Show modal for signing
-                    const signed = await showDocumentSignModal(affiliateTermsDoc);
-                    if (signed) {
-                        // Document signed, reload partners data
-                        await loadPartnersData();
-                        return;
-                    } else {
-                        // User cancelled, show agreement form as fallback
-                        if (agreementForm) {
-                            agreementForm.classList.remove('hidden');
-                        }
-                        if (partnersContent) {
-                            partnersContent.classList.add('hidden');
-                        }
-                        
-                        // Load affiliate terms content
-                        await loadAffiliateTermsContent();
-                        
-                        // Re-initialize icons
-                        if (typeof lucide !== 'undefined') {
-                            lucide.createIcons();
-                        }
-                        
-                        console.log('⚠️ User cancelled signing, showing agreement form');
-                        return;
-                    }
-                }
-            }
-            
-            // Fallback: Show agreement form
+            // Show agreement form, hide content
             if (agreementForm) {
                 agreementForm.classList.remove('hidden');
             }
@@ -2088,10 +2050,11 @@ async function checkAndSignRequiredDocuments() {
         // Check for privacy policy (required on first login)
         const privacyDoc = documentsToSign.find(doc => doc.document_type === 'privacy');
         if (privacyDoc) {
+            const docUrl = privacyDoc.slug ? `/document/${privacyDoc.slug}.html` : (documentUrls['privacy'] || '/privacy.html');
             const accepted = await showDocumentAcceptanceModal(
                 'privacy',
                 'Политика конфиденциальности',
-                documentUrls['privacy'] || `/document/${privacyDoc.slug || 'privacy'}.html`
+                docUrl
             );
             if (!accepted) {
                 // User cancelled, but we can continue (document will remain unsigned)
@@ -2102,10 +2065,11 @@ async function checkAndSignRequiredDocuments() {
         // Check for cabinet terms (required on first login)
         const cabinetTermsDoc = documentsToSign.find(doc => doc.document_type === 'cabinet_terms');
         if (cabinetTermsDoc) {
+            const docUrl = cabinetTermsDoc.slug ? `/document/${cabinetTermsDoc.slug}.html` : (documentUrls['cabinet_terms'] || '/cabinet-terms.html');
             const accepted = await showDocumentAcceptanceModal(
                 'cabinet_terms',
                 'Условия использования личного кабинета',
-                documentUrls['cabinet_terms'] || `/document/${cabinetTermsDoc.slug || 'cabinet-terms'}.html`
+                docUrl
             );
             if (!accepted) {
                 // User cancelled, but we can continue (document will remain unsigned)
@@ -2161,7 +2125,193 @@ document.addEventListener('DOMContentLoaded', async function() {
         await checkDocumentsStatus();
         
         // Check and auto-sign required documents on first login
-        await checkAndAutoSignRequiredDocuments();
+        await checkAndSignRequiredDocuments();
+        
+        // Check hash for section
+        const hash = window.location.hash.replace('#', '');
+        if (hash && ['products', 'subscriptions', 'payments', 'profile', 'partners', 'cards'].includes(hash)) {
+            showSection(hash);
+        } else {
+            showSection('products');
+        }
+    } catch (error) {
+        console.error('Error loading cabinet data:', error);
+        notifyError('Ошибка загрузки данных. Обновите страницу.');
+    } finally {
+        // Hide loading spinner
+        if (loadingSpinner) {
+            loadingSpinner.classList.add('hidden');
+        }
+    }
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    // Refresh icons periodically (for dynamic content)
+    setInterval(() => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }, 1000);
+    
+    console.log('Cabinet initialization complete');
+});
+
+        modalContainer.innerHTML = modalHtml;
+        document.body.appendChild(modalContainer);
+        
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Get elements
+        const checkbox = document.getElementById(checkboxId);
+        const acceptBtn = document.getElementById(acceptBtnId);
+        const cancelBtn = modalContainer.querySelector('button:last-child');
+        
+        // Checkbox handler
+        if (checkbox && acceptBtn) {
+            checkbox.addEventListener('change', function() {
+                acceptBtn.disabled = !this.checked;
+            });
+        }
+        
+        // Accept button handler
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', async function() {
+                if (checkbox && checkbox.checked) {
+                    acceptBtn.disabled = true;
+                    acceptBtn.textContent = 'Обработка...';
+                    
+                    // Sign document
+                    const signed = await signDocument(documentType, true);
+                    if (signed) {
+                        modalContainer.remove();
+                        resolve(true);
+                    } else {
+                        acceptBtn.disabled = false;
+                        acceptBtn.textContent = 'Принять';
+                    }
+                }
+            });
+        }
+        
+        // Cancel button handler
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                modalContainer.remove();
+                resolve(false);
+            });
+        }
+        
+        // Close on backdrop click
+        modalContainer.addEventListener('click', function(e) {
+            if (e.target === modalContainer) {
+                modalContainer.remove();
+                resolve(false);
+            }
+        });
+    });
+}
+
+// Check and sign required documents on first login
+async function checkAndSignRequiredDocuments() {
+    try {
+        const result = await apiRequest('/client/documents/');
+        if (!result || result.error) {
+            return;
+        }
+        
+        const documentsToSign = result.data.documents_to_sign || [];
+        const documentUrls = {
+            'privacy': '/privacy.html',
+            'cabinet_terms': '/cabinet-terms.html',
+            'affiliate_terms': '/affiliate-terms.html',
+            'subscription_terms': '/subscription-terms.html',
+        };
+        
+        // Check for privacy policy (required on first login)
+        const privacyDoc = documentsToSign.find(doc => doc.document_type === 'privacy');
+        if (privacyDoc) {
+            const docUrl = privacyDoc.slug ? `/document/${privacyDoc.slug}.html` : (documentUrls['privacy'] || '/privacy.html');
+            const accepted = await showDocumentAcceptanceModal(
+                'privacy',
+                'Политика конфиденциальности',
+                docUrl
+            );
+            if (!accepted) {
+                // User cancelled, but we can continue (document will remain unsigned)
+                console.log('Privacy policy acceptance cancelled');
+            }
+        }
+        
+        // Check for cabinet terms (required on first login)
+        const cabinetTermsDoc = documentsToSign.find(doc => doc.document_type === 'cabinet_terms');
+        if (cabinetTermsDoc) {
+            const docUrl = cabinetTermsDoc.slug ? `/document/${cabinetTermsDoc.slug}.html` : (documentUrls['cabinet_terms'] || '/cabinet-terms.html');
+            const accepted = await showDocumentAcceptanceModal(
+                'cabinet_terms',
+                'Условия использования личного кабинета',
+                docUrl
+            );
+            if (!accepted) {
+                // User cancelled, but we can continue (document will remain unsigned)
+                console.log('Cabinet terms acceptance cancelled');
+            }
+        }
+        
+        // Reload documents status after signing
+        await checkDocumentsStatus();
+    } catch (error) {
+        console.error('Error checking required documents:', error);
+    }
+}
+
+// Initialize - Load all data from API
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Cabinet page loaded, initializing...');
+    
+    // Check auth
+    if (!checkAuth()) {
+        console.log('Auth check failed, redirecting to login');
+        return;
+    }
+    
+    // Load email verification status on all pages
+    await loadEmailVerificationStatus();
+    
+    console.log('Auth check passed, loading data...');
+    
+    // Show loading spinner
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    if (loadingSpinner) {
+        loadingSpinner.classList.remove('hidden');
+    }
+    
+    try {
+        // Load profile FIRST and IMMEDIATELY (before other data)
+        console.log('Loading profile...');
+        await loadProfile();
+        console.log('Profile loaded');
+        
+        // Pre-load all sections data in parallel (but profile is already loaded)
+        console.log('Loading other sections...');
+        await Promise.all([
+            loadProducts(),
+            loadSubscriptions(),
+            loadPayments(),
+            loadPartnersData()
+        ]);
+        console.log('All sections loaded');
+        
+        // Check documents status (loads banner on all pages and documents in profile)
+        await checkDocumentsStatus();
+        
+        // Check and auto-sign required documents on first login
+        await checkAndSignRequiredDocuments();
         
         // Check hash for section
         const hash = window.location.hash.replace('#', '');
