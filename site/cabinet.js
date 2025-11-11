@@ -837,7 +837,45 @@ async function loadPartnersData() {
         const partnersContent = document.getElementById('partnersContent');
         
         if (!hasAcceptedTerms) {
-            // Show agreement form, hide content
+            // Check if document needs to be signed via API
+            const docsResult = await apiRequest('/client/documents/');
+            if (docsResult && docsResult.data) {
+                const documentsToSign = docsResult.data.documents_to_sign || [];
+                const affiliateTermsDoc = documentsToSign.find(doc => 
+                    doc.document_type === 'affiliate_terms' && !doc.is_signed
+                );
+                
+                if (affiliateTermsDoc) {
+                    // Show modal for signing
+                    const signed = await showDocumentSignModal(affiliateTermsDoc);
+                    if (signed) {
+                        // Document signed, reload partners data
+                        await loadPartnersData();
+                        return;
+                    } else {
+                        // User cancelled, show agreement form as fallback
+                        if (agreementForm) {
+                            agreementForm.classList.remove('hidden');
+                        }
+                        if (partnersContent) {
+                            partnersContent.classList.add('hidden');
+                        }
+                        
+                        // Load affiliate terms content
+                        await loadAffiliateTermsContent();
+                        
+                        // Re-initialize icons
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                        
+                        console.log('⚠️ User cancelled signing, showing agreement form');
+                        return;
+                    }
+                }
+            }
+            
+            // Fallback: Show agreement form
             if (agreementForm) {
                 agreementForm.classList.remove('hidden');
             }
