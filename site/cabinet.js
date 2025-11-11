@@ -1998,7 +1998,7 @@ async function manageSubscription(subscriptionId, productName, price, period, st
                 </div>
                 <div class="space-y-2">
                     <button 
-                        onclick="cancelSubscription('${escapedSubscriptionId}', '${escapedProductName.replace(/'/g, "\\'")}'); closeModal();" 
+                        onclick="closeModal(); cancelSubscription('${escapedSubscriptionId}', '${escapedProductName.replace(/'/g, "\\'")}');" 
                         class="w-full text-left px-4 py-3 border-2 border-red-200 bg-red-50 text-red-700 rounded-xl hover:border-red-300 hover:bg-red-100 transition font-semibold"
                     >
                         <div class="flex items-center gap-2">
