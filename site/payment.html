@@ -340,7 +340,14 @@
                     return true;
                 }
                 
-                // Check document status
+                // Use subscription_terms from product (specific to this product/tariff)
+                const productSubscriptionTerms = preOrderData?.product?.subscription_terms;
+                if (!productSubscriptionTerms || !productSubscriptionTerms.id) {
+                    // No specific subscription terms for this product, use checkbox agreement
+                    return true;
+                }
+                
+                // Check document status for this specific document
                 const response = await fetch('/api/client/documents/', {
                     method: 'GET',
                     headers: {
@@ -360,15 +367,20 @@
                     return true;
                 }
                 
+                // Find if this specific document needs to be signed
                 const documentsToSign = result.data.documents_to_sign || [];
-                const subscriptionTermsDoc = documentsToSign.find(doc => doc.document_type === 'subscription_terms' && !doc.is_signed);
+                const subscriptionTermsDoc = documentsToSign.find(doc => 
+                    doc.document_type === 'subscription_terms' && 
+                    doc.id === productSubscriptionTerms.id &&
+                    !doc.is_signed
+                );
                 
                 if (!subscriptionTermsDoc) {
                     // Document already signed or not required
                     return true;
                 }
                 
-                // Show modal for signing
+                // Show modal for signing with product-specific document
                 return await showSubscriptionTermsModal(subscriptionTermsDoc);
             } catch (error) {
                 console.error('Error checking subscription terms:', error);
@@ -438,13 +450,18 @@
                                 return;
                             }
                             
+                            // Use document_id from doc (for subscription_terms with different documents per product)
+                            const body = doc.id ? { document_id: doc.id } : {};
+                            
                             const signResponse = await fetch(`/api/client/documents/accept/subscription_terms/`, {
                                 method: 'POST',
                                 headers: {
+                                    'Content-Type': 'application/json',
                                     'Accept': 'application/json',
                                     'Authorization': `Bearer ${token}`,
                                 },
                                 credentials: 'same-origin',
+                                body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
                             });
                             
                             if (signResponse.ok) {

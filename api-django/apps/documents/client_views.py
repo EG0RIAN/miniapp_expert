@@ -18,8 +18,20 @@ class ClientDocumentsView(views.APIView):
         """Получить список подписанных документов и документов с новыми версиями"""
         user = request.user
         
-        # Получаем все активные опубликованные документы
-        documents = Document.objects.filter(is_active=True, is_published=True)
+        # Получаем документы, которые должны быть уникальными (privacy, cabinet_terms, affiliate_terms)
+        # Для subscription_terms не возвращаем все документы, так как они привязаны к продуктам
+        # Пользователь должен подписывать subscription_terms через продукт при оформлении подписки
+        unique_document_types = ['privacy', 'cabinet_terms', 'affiliate_terms']
+        documents = []
+        
+        for doc_type in unique_document_types:
+            doc = Document.objects.filter(
+                document_type=doc_type,
+                is_active=True,
+                is_published=True
+            ).first()
+            if doc:
+                documents.append(doc)
         
         # Получаем последние принятые версии для каждого документа
         accepted_docs = DocumentAcceptance.objects.filter(
@@ -89,21 +101,43 @@ class ClientDocumentAcceptView(views.APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request, document_type=None):
-        """Принять документ текущей версии"""
-        if not document_type:
-            return Response(
-                {'success': False, 'message': 'Document type is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        """Принять документ текущей версии
+        
+        Параметры:
+        - document_type: тип документа (из URL)
+        - document_id: ID документа (из body, опционально, для subscription_terms с разными документами)
+        """
+        user = request.user
+        
+        # Получаем document_id из body, если передан (для subscription_terms с разными документами)
+        document_id = request.data.get('document_id')
         
         try:
-            document = Document.objects.get(
-                document_type=document_type,
-                is_active=True,
-                is_published=True
-            )
-            
-            user = request.user
+            if document_id:
+                # Если передан document_id, используем его (для subscription_terms с разными документами)
+                document = Document.objects.get(
+                    id=document_id,
+                    is_active=True,
+                    is_published=True
+                )
+            elif document_type:
+                # Если передан document_type, используем его (для остальных типов документов)
+                document = Document.objects.filter(
+                    document_type=document_type,
+                    is_active=True,
+                    is_published=True
+                ).first()
+                
+                if not document:
+                    return Response(
+                        {'success': False, 'message': 'Document not found'},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+            else:
+                return Response(
+                    {'success': False, 'message': 'Document type or document_id is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             # Проверяем, не принят ли уже документ этой версии
             existing_acceptance = DocumentAcceptance.objects.filter(
@@ -133,7 +167,7 @@ class ClientDocumentAcceptView(views.APIView):
             )
             
             # Если это affiliate_terms, обновляем offer_accepted_at в User
-            if document_type == 'affiliate_terms':
+            if document.document_type == 'affiliate_terms':
                 user.offer_accepted_at = timezone.now()
                 user.offer_version = str(document.version)
                 user.save(update_fields=['offer_accepted_at', 'offer_version'])
@@ -148,6 +182,11 @@ class ClientDocumentAcceptView(views.APIView):
             return Response(
                 {'success': False, 'message': 'Document not found'},
                 status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'success': False, 'message': f'Error accepting document: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
     def _get_client_ip(self, request):

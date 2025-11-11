@@ -1745,39 +1745,50 @@ async function checkDocumentsStatus() {
                 banner.classList.remove('hidden');
             }
             if (bannerList) {
-                bannerList.innerHTML = documentsToSign.map(doc => {
-                    const documentTypeLabels = {
-                        'privacy': 'Политика конфиденциальности',
-                        'affiliate_terms': 'Условия партнерской программы',
-                        'cabinet_terms': 'Условия использования личного кабинета',
-                        'subscription_terms': 'Условия подписки',
-                    };
-                    const label = documentTypeLabels[doc.document_type] || doc.title;
-                    const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
-                    
-                    return `
-                        <div class="bg-white rounded-lg p-3 border border-yellow-300 mb-2">
-                            <div class="flex items-center justify-between">
-                                <div class="flex-1">
-                                    <h4 class="font-semibold text-gray-900 text-sm">${label}</h4>
-                                    ${hasNewVersion ? `
-                                        <p class="text-xs text-gray-600 mt-1">
-                                            Подписана версия ${doc.signed_version}, доступна версия ${doc.current_version}
-                                        </p>
-                                    ` : `
-                                        <p class="text-xs text-gray-600 mt-1">Требуется подпись</p>
-                                    `}
+                    bannerList.innerHTML = documentsToSign.map(doc => {
+                        const documentTypeLabels = {
+                            'privacy': 'Политика конфиденциальности',
+                            'affiliate_terms': 'Условия партнерской программы',
+                            'cabinet_terms': 'Условия использования личного кабинета',
+                            'subscription_terms': 'Условия подписки',
+                        };
+                        const label = documentTypeLabels[doc.document_type] || doc.title;
+                        const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
+                        // Use slug from API response for document URL
+                        const docUrl = doc.slug ? `/document/${doc.slug}.html` : (
+                            doc.document_type === 'privacy' ? '/privacy.html' :
+                            doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
+                            doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
+                            doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
+                        );
+                        
+                        return `
+                            <div class="bg-white rounded-lg p-3 border border-yellow-300 mb-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900 text-sm">${label}</h4>
+                                        ${hasNewVersion ? `
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                Подписана версия ${doc.signed_version}, доступна версия ${doc.current_version}
+                                            </p>
+                                        ` : `
+                                            <p class="text-xs text-gray-600 mt-1">Требуется подпись</p>
+                                        `}
+                                        <a href="${docUrl}" target="_blank" class="text-primary hover:text-primary/80 text-xs mt-1 inline-flex items-center gap-1">
+                                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                                            <span>Открыть документ</span>
+                                        </a>
+                                    </div>
+                                    <button 
+                                        onclick="signDocument('${doc.document_type}', false, ${doc.id || 'null'})" 
+                                        class="bg-yellow-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-yellow-700 transition text-xs ml-3 flex-shrink-0"
+                                    >
+                                        Подписать
+                                    </button>
                                 </div>
-                                <button 
-                                    onclick="signDocument('${doc.document_type}')" 
-                                    class="bg-yellow-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-yellow-700 transition text-xs ml-3 flex-shrink-0"
-                                >
-                                    Подписать
-                                </button>
                             </div>
-                        </div>
-                    `;
-                }).join('');
+                        `;
+                    }).join('');
             }
         } else {
             if (banner) {
@@ -1832,13 +1843,13 @@ async function loadSignedDocumentsInProfile(signedDocuments) {
             day: 'numeric'
         }) : '';
         
-        const docUrls = {
-            'privacy': '/privacy.html',
-            'affiliate_terms': '/affiliate-terms.html',
-            'cabinet_terms': '/cabinet-terms.html',
-            'subscription_terms': '/subscription-terms.html',
-        };
-        const docUrl = docUrls[doc.document_type] || '#';
+        // Use slug from API response, fallback to document type URL
+        const docUrl = doc.slug ? `/document/${doc.slug}.html` : (
+            doc.document_type === 'privacy' ? '/privacy.html' :
+            doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
+            doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
+            doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
+        );
         
         return `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
@@ -1871,14 +1882,21 @@ async function loadSignedDocumentsInProfile(signedDocuments) {
 
 
 // Sign document
-async function signDocument(documentType, skipConfirm = false) {
+async function signDocument(documentType, skipConfirm = false, documentId = null) {
     if (!skipConfirm && !confirm('Вы уверены, что хотите подписать этот документ?')) {
         return false;
     }
     
     try {
+        const body = {};
+        // If documentId is provided (for subscription_terms with different documents per product), send it in body
+        if (documentId) {
+            body.document_id = documentId;
+        }
+        
         const result = await apiRequest(`/client/documents/accept/${documentType}/`, {
             method: 'POST',
+            body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
         });
         
         if (!result || result.error) {

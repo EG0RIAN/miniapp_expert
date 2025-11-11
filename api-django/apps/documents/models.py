@@ -22,7 +22,6 @@ class Document(models.Model):
     document_type = models.CharField(
         max_length=50,
         choices=DOCUMENT_TYPES,
-        unique=True,
         verbose_name='Тип документа'
     )
     title = models.CharField(max_length=255, verbose_name='Заголовок')
@@ -103,16 +102,21 @@ class Document(models.Model):
     
     def get_absolute_url(self):
         """Возвращает URL документа"""
-        if self.document_type == 'privacy':
-            return '/privacy.html'
-        elif self.document_type == 'affiliate_terms':
-            return '/affiliate-terms.html'
-        elif self.document_type == 'cabinet_terms':
-            return '/cabinet-terms.html'
-        elif self.document_type == 'subscription_terms':
-            return '/subscription-terms.html'
-        else:
+        # Always use slug for document URL if available
+        if self.slug:
             return f'/document/{self.slug}.html'
+        else:
+            # Fallback to document type URL
+            if self.document_type == 'privacy':
+                return '/privacy.html'
+            elif self.document_type == 'affiliate_terms':
+                return '/affiliate-terms.html'
+            elif self.document_type == 'cabinet_terms':
+                return '/cabinet-terms.html'
+            elif self.document_type == 'subscription_terms':
+                return '/subscription-terms.html'
+            else:
+                return '/'
 
 
 class DocumentAcceptance(models.Model):
