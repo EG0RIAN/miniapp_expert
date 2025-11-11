@@ -1350,8 +1350,12 @@ async function loadCommissionsHistory() {
         if (!result || result.error) {
             console.error('❌ Failed to load commissions:', result?.error);
             const tbody = document.getElementById('commissionsTableBody');
+            const commissionsMobileList = document.getElementById('commissionsMobileList');
             if (tbody) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Ошибка загрузки истории начислений</td></tr>';
+            }
+            if (commissionsMobileList) {
+                commissionsMobileList.innerHTML = '<div class="text-center p-8 text-red-500">Ошибка загрузки истории начислений</div>';
             }
             return;
         }
@@ -2203,9 +2207,6 @@ function manageSubscriptionFromButton(button) {
                 }
             }, 100);
         }
-        return;
-        
-        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
     } catch (error) {
         console.error('Error in manageSubscriptionFromButton:', error);
         // Silently fail - don't show error to user
