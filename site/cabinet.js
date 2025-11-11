@@ -726,6 +726,18 @@ async function loadSubscriptions() {
                               subscriptionPeriod === 'yearly' ? 'год' : 
                               subscriptionPeriod === 'weekly' ? 'нед' : 'мес';
             
+            // Get subscription terms from product
+            const subscriptionTerms = sub.product?.subscription_terms;
+            let subscriptionTermsUrl = null;
+            if (subscriptionTerms) {
+                // Use slug if available, otherwise fallback to document type
+                if (subscriptionTerms.slug) {
+                    subscriptionTermsUrl = `/document/${subscriptionTerms.slug}.html`;
+                } else if (subscriptionTerms.document_type === 'subscription_terms') {
+                    subscriptionTermsUrl = '/subscription-terms.html';
+                }
+            }
+            
             return `
                 <div class="bg-white rounded-2xl shadow-sm p-6 border-2 ${sub.status === 'active' ? 'border-green-500/20' : 'border-gray-200'}">
                     <div class="flex items-center justify-between mb-4">
@@ -762,6 +774,16 @@ async function loadSubscriptions() {
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Статус:</span>
                                 <span class="font-semibold text-yellow-600">Ожидает активации</span>
+                            </div>
+                        ` : ''}
+                        ${subscriptionTermsUrl ? `
+                            <div class="pt-2 border-t border-gray-200">
+                                <a href="${subscriptionTermsUrl}" target="_blank" 
+                                   class="inline-flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-semibold">
+                                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                                    <span>Условия подписки</span>
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
                             </div>
                         ` : ''}
                     </div>
