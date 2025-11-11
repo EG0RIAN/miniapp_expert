@@ -2051,11 +2051,14 @@ async function signAllDocuments() {
             try {
                 const body = {};
                 if (doc.id) {
-                    body.document_id = doc.id;
+                    body.document_id = doc.id.toString();
                 }
                 
                 const result = await apiRequest(`/client/documents/accept/${doc.document_type}/`, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined,
                 });
                 
