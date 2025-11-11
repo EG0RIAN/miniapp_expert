@@ -449,41 +449,60 @@ async function changePassword() {
 // Load products
 async function loadProducts() {
     try {
-        console.log('Loading products from API...');
+        console.log('🔄 Loading products from API...');
         const result = await apiRequest('/client/products/');
-        console.log('API response:', result);
+        console.log('📦 API response:', result);
         
         if (!result || result.error) {
-            console.error('Failed to load products:', result?.error);
+            console.error('❌ Failed to load products:', result?.error);
             showProductsError();
             return;
         }
         
         // Check response structure - API returns {success: true, products: [...]}
+        // apiRequest wraps it in {response, data: {...}}
         let products = [];
+        
         if (result && result.data) {
+            console.log('📋 Response data structure:', {
+                hasSuccess: 'success' in result.data,
+                hasProducts: 'products' in result.data,
+                success: result.data.success,
+                productsType: Array.isArray(result.data.products),
+                productsLength: Array.isArray(result.data.products) ? result.data.products.length : 0,
+                dataType: Array.isArray(result.data),
+                dataKeys: Object.keys(result.data)
+            });
+            
             if (result.data.success && Array.isArray(result.data.products)) {
                 products = result.data.products;
+                console.log('✅ Using result.data.products:', products.length);
             } else if (Array.isArray(result.data.products)) {
                 products = result.data.products;
+                console.log('✅ Using result.data.products (no success field):', products.length);
             } else if (Array.isArray(result.data)) {
                 products = result.data;
+                console.log('✅ Using result.data as array:', products.length);
+            } else {
+                console.warn('⚠️ Unknown response structure:', result.data);
             }
+        } else {
+            console.error('❌ No data in response:', result);
         }
         
-        console.log('Products loaded:', products.length, products);
+        console.log('📦 Products loaded:', products.length, products);
         
-    const container = document.getElementById('productsList');
+        const container = document.getElementById('productsList');
         
         if (!container) {
-            console.error('Products container not found');
+            console.error('❌ Products container not found');
             return;
         }
         
         // Clear container first
         container.innerHTML = '';
     
-    if (products.length === 0) {
+        if (products.length === 0) {
             container.innerHTML = `
                 <div class="col-span-2 text-center py-12 text-gray-500">
                     <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
@@ -497,14 +516,41 @@ async function loadProducts() {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
-        return;
-    }
+            return;
+        }
     
         // Render products from API
-        const productsHTML = products.map(product => {
-            console.log('Rendering product:', product);
+        // Filter out subscriptions (they should be shown in subscriptions section)
+        const oneTimeProducts = products.filter(p => {
+            const productType = p.product?.product_type || p.product_type;
+            return productType !== 'subscription';
+        });
+        
+        console.log('📦 One-time products (excluding subscriptions):', oneTimeProducts.length);
+        
+        if (oneTimeProducts.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-2 text-center py-12 text-gray-500">
+                    <i data-lucide="package" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                    <p class="text-lg font-semibold mb-2">У вас пока нет продуктов</p>
+                    <p class="text-sm mb-4">Закажите первый продукт и он появится здесь</p>
+                    <a href="/real-estate-solution.html" class="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                        Заказать продукт
+                    </a>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            return;
+        }
+        
+        const productsHTML = oneTimeProducts.map(product => {
+            console.log('🎨 Rendering product:', product);
             const statusClass = product.status === 'active' ? 'bg-green-500' : 
-                               product.status === 'expired' ? 'bg-gray-500' : 'bg-yellow-500';
+                               product.status === 'expired' ? 'bg-gray-500' : 
+                               product.status === 'pending' ? 'bg-yellow-500' : 
+                               product.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500';
             const statusText = product.status === 'active' ? 'Активно' : 
                               product.status === 'expired' ? 'Истекло' : 
                               product.status === 'pending' ? 'Ожидает' : 
@@ -514,7 +560,7 @@ async function loadProducts() {
             const productName = product.product?.name || product.name || 'Продукт';
             const productDescription = product.product?.description || product.description || '';
             const renewalPrice = product.renewal_price || product.product?.price || product.price || 0;
-            const isSubscription = product.product?.product_type === 'subscription' || product.product_type === 'subscription';
+            const isSubscription = (product.product?.product_type === 'subscription') || (product.product_type === 'subscription');
             
             return `
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-primary/20 card-hover">
@@ -579,10 +625,13 @@ function showProductsError() {
 // Load subscriptions
 async function loadSubscriptions() {
     try {
+        console.log('🔄 Loading subscriptions from API...');
         const result = await apiRequest('/client/products/');
+        console.log('📦 Subscriptions API response:', result);
+        
         if (!result || result.error) {
-            console.error('Failed to load subscriptions:', result?.error);
-    const container = document.getElementById('subscriptionsList');
+            console.error('❌ Failed to load subscriptions:', result?.error);
+            const container = document.getElementById('subscriptionsList');
             if (container) {
                 container.innerHTML = `
                     <div class="col-span-2 text-center py-12 text-red-500">
@@ -594,17 +643,52 @@ async function loadSubscriptions() {
                     lucide.createIcons();
                 }
             }
-        return;
-    }
+            return;
+        }
         
         // API returns {success: true, products: [...]}
-        const products = (result.data && result.data.products) ? result.data.products : (Array.isArray(result.data) ? result.data : []);
-        const subscriptions = products.filter(p => p.product?.product_type === 'subscription');
-    const container = document.getElementById('subscriptionsList');
+        // apiRequest wraps it in {response, data: {...}}
+        let products = [];
+        
+        if (result && result.data) {
+            console.log('📋 Subscriptions response data structure:', {
+                hasSuccess: 'success' in result.data,
+                hasProducts: 'products' in result.data,
+                success: result.data.success,
+                productsType: Array.isArray(result.data.products),
+                productsLength: Array.isArray(result.data.products) ? result.data.products.length : 0,
+                dataType: Array.isArray(result.data),
+                dataKeys: Object.keys(result.data)
+            });
+            
+            if (result.data.success && Array.isArray(result.data.products)) {
+                products = result.data.products;
+                console.log('✅ Using result.data.products for subscriptions:', products.length);
+            } else if (Array.isArray(result.data.products)) {
+                products = result.data.products;
+                console.log('✅ Using result.data.products (no success field) for subscriptions:', products.length);
+            } else if (Array.isArray(result.data)) {
+                products = result.data;
+                console.log('✅ Using result.data as array for subscriptions:', products.length);
+            } else {
+                console.warn('⚠️ Unknown subscriptions response structure:', result.data);
+            }
+        }
+        
+        // Filter subscriptions only
+        const subscriptions = products.filter(p => {
+            const productType = p.product?.product_type || p.product_type;
+            return productType === 'subscription';
+        });
+        
+        console.log('📦 Subscriptions filtered:', subscriptions.length, subscriptions);
+        
+        const container = document.getElementById('subscriptionsList');
         
         if (!container) {
-        return;
-    }
+            console.error('❌ Subscriptions container not found');
+            return;
+        }
         
         if (subscriptions.length === 0) {
             container.innerHTML = `
@@ -624,14 +708,23 @@ async function loadSubscriptions() {
         }
         
         container.innerHTML = subscriptions.map(sub => {
-            const statusClass = sub.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
-            const statusText = sub.status === 'active' ? 'Активна' : 'Неактивна';
+            console.log('🎨 Rendering subscription:', sub);
+            const statusClass = sub.status === 'active' ? 'bg-green-100 text-green-700' : 
+                               sub.status === 'expired' ? 'bg-red-100 text-red-700' : 
+                               sub.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                               'bg-gray-100 text-gray-600';
+            const statusText = sub.status === 'active' ? 'Активна' : 
+                              sub.status === 'expired' ? 'Истекла' : 
+                              sub.status === 'pending' ? 'Ожидает' : 
+                              sub.status === 'cancelled' ? 'Отменена' : 'Неактивна';
             const nextPayment = sub.end_date ? new Date(sub.end_date).toLocaleDateString('ru-RU') : '-';
-            const price = sub.renewal_price || sub.product?.price || 0;
-            const productName = sub.product?.name || 'Подписка';
-            const productDescription = sub.product?.description || '';
-            const subscriptionPeriod = sub.product?.subscription_period || 'monthly';
-            const periodText = subscriptionPeriod === 'monthly' ? 'мес' : subscriptionPeriod === 'yearly' ? 'год' : '';
+            const price = sub.renewal_price || sub.product?.price || sub.price || 0;
+            const productName = sub.product?.name || sub.name || 'Подписка';
+            const productDescription = sub.product?.description || sub.description || '';
+            const subscriptionPeriod = sub.product?.subscription_period || sub.subscription_period || 'monthly';
+            const periodText = subscriptionPeriod === 'monthly' ? 'мес' : 
+                              subscriptionPeriod === 'yearly' ? 'год' : 
+                              subscriptionPeriod === 'weekly' ? 'нед' : 'мес';
             
             return `
                 <div class="bg-white rounded-2xl shadow-sm p-6 border-2 ${sub.status === 'active' ? 'border-green-500/20' : 'border-gray-200'}">
@@ -640,13 +733,13 @@ async function loadSubscriptions() {
                         <span class="${statusClass} px-3 py-1 rounded-full text-xs font-bold">
                             ${statusText}
                         </span>
-            </div>
-                    ${productDescription ? `<p class="text-gray-600 mb-4">${productDescription.substring(0, 150)}${productDescription.length > 150 ? '...' : ''}</p>` : ''}
+                    </div>
+                    ${productDescription ? `<p class="text-gray-600 mb-4 text-sm">${productDescription.substring(0, 150)}${productDescription.length > 150 ? '...' : ''}</p>` : ''}
                     <div class="space-y-2 mb-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Стоимость:</span>
-                            <span class="font-bold">${formatAmountRub(price)}/${periodText || 'мес'}</span>
-        </div>
+                            <span class="font-bold">${formatAmountRub(price)}/${periodText}</span>
+                        </div>
                         ${sub.start_date ? `
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Начало подписки:</span>
@@ -656,7 +749,7 @@ async function loadSubscriptions() {
                         ${sub.status === 'active' && sub.end_date ? `
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Следующий платеж:</span>
-                                <span class="font-bold">${nextPayment}</span>
+                                <span class="font-bold text-green-600">${nextPayment}</span>
                             </div>
                         ` : ''}
                         ${sub.status === 'expired' && sub.end_date ? `
@@ -665,17 +758,28 @@ async function loadSubscriptions() {
                                 <span class="font-bold text-red-600">${nextPayment}</span>
                             </div>
                         ` : ''}
+                        ${sub.status === 'pending' ? `
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Статус:</span>
+                                <span class="font-semibold text-yellow-600">Ожидает активации</span>
+                            </div>
+                        ` : ''}
                     </div>
                     ${sub.status === 'active' ? `
-                        <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}" 
+                        <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-gradient-to-r from-secondary to-blue-600 text-white py-2 rounded-xl font-semibold hover:shadow-xl transition text-center mb-2">
                             Продлить подписку
                         </a>
-                        <button class="w-full border-2 border-gray-300 py-2 rounded-xl font-semibold hover:bg-gray-50 transition">
+                        <button class="w-full border-2 border-gray-300 py-2 rounded-xl font-semibold hover:bg-gray-50 transition text-gray-700">
                             Управлять подпиской
                         </button>
+                    ` : sub.status === 'expired' ? `
+                        <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
+                           class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
+                            Восстановить подписку за ${formatAmountRub(price)}
+                        </a>
                     ` : `
-                        <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}" 
+                        <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
                             Подключить за ${formatAmountRub(price)}
                         </a>
@@ -687,8 +791,23 @@ async function loadSubscriptions() {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+        
+        console.log('✅ Subscriptions rendered:', subscriptions.length);
     } catch (error) {
-        console.error('Error in loadSubscriptions:', error);
+        console.error('❌ Error in loadSubscriptions:', error);
+        const container = document.getElementById('subscriptionsList');
+        if (container) {
+            container.innerHTML = `
+                <div class="col-span-2 text-center py-12 text-red-500">
+                    <i data-lucide="alert-circle" class="w-16 h-16 mx-auto mb-4"></i>
+                    <p class="font-semibold">Ошибка загрузки подписок</p>
+                    <p class="text-sm text-gray-600 mt-2">${error.message || 'Неизвестная ошибка'}</p>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
     }
 }
 
