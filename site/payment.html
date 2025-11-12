@@ -218,39 +218,128 @@
                 return;
             }
             
+            // Валидация UUID формата
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (!uuidRegex.test(preOrderId)) {
+                console.error('Invalid UUID format:', preOrderId);
+                showError('Неверный формат идентификатора заказа. Проверьте ссылку.');
+                return;
+            }
+            
             try {
+                console.log('Loading pre-order:', preOrderId);
                 const response = await fetch(`/api/order/pre-order/${preOrderId}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                     },
                     credentials: 'same-origin',
                 });
                 
-                if (!response.ok) {
+                console.log('Response status:', response.status, response.statusText);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                // Проверить Content-Type
+                const contentType = response.headers.get('content-type') || '';
+                const isJson = contentType.includes('application/json');
+                
+                // Получить текст ответа
+                const responseText = await response.text();
+                console.log('Response text (first 500 chars):', responseText.substring(0, 500));
+                
+                let data;
+                if (isJson) {
+                    try {
+                        data = JSON.parse(responseText);
+                } catch (e) {
+                        console.error('Failed to parse JSON response:', e);
+                        showError('Ошибка обработки ответа сервера. Сервер вернул невалидный JSON.');
+                        return;
+                    }
+                } else {
+                    // Если ответ не JSON (например, HTML страница ошибки от Django)
+                    console.error('Server returned non-JSON response. Content-Type:', contentType);
+                    console.error('Response text preview:', responseText.substring(0, 200));
+                    
+                    // Попробовать извлечь сообщение об ошибке из HTML (если есть)
+                    let errorMessage = 'Ошибка загрузки предзаказа.';
+                    
                     if (response.status === 404) {
-                        showError('Предзаказ не найден или уже использован.');
-                    } else if (response.status === 410) {
+                        errorMessage = 'Предзаказ не найден. Проверьте правильность ссылки или создайте новый заказ.';
+                    } else if (response.status === 400) {
+                        errorMessage = 'Неверный формат идентификатора заказа или параметры запроса. Проверьте ссылку.';
+                    } else if (response.status === 500) {
+                        errorMessage = 'Внутренняя ошибка сервера. Попробуйте позже или обратитесь в поддержку.';
+                    } else {
+                        errorMessage = `Ошибка сервера (код ${response.status}). Обратитесь в поддержку.`;
+                    }
+                    
+                    showError(errorMessage);
+                    return;
+                }
+                
+                console.log('Response data:', data);
+                
+                // Проверить успешность ответа - API может вернуть success: false даже при 200 статусе
+                if (data && data.success === false) {
+                    const errorMessage = data.message || data.error || data.detail || 'Предзаказ не найден или уже использован.';
+                    console.error('Pre-order not found or invalid:', errorMessage);
+                    
+                    // Определить тип ошибки по сообщению
+                    if (errorMessage.includes('not found') || errorMessage.includes('не найден')) {
+                        showError('Предзаказ не найден. Проверьте правильность ссылки или создайте новый заказ.');
+                    } else if (errorMessage.includes('already used') || errorMessage.includes('уже использован')) {
+                        showError('Этот предзаказ уже был использован. Пожалуйста, создайте новый заказ.');
+                    } else if (errorMessage.includes('expired') || errorMessage.includes('истек')) {
                         showError('Предзаказ истек. Пожалуйста, создайте новый заказ.');
                     } else {
-                        showError('Ошибка загрузки предзаказа.');
+                        showError(errorMessage);
                     }
                     return;
                 }
                 
-                const data = await response.json();
+                if (!response.ok) {
+                    const errorMessage = data.message || data.error || data.detail || 'Ошибка загрузки предзаказа.';
+                    if (response.status === 404) {
+                        showError(errorMessage || 'Предзаказ не найден. Проверьте правильность ссылки.');
+                    } else if (response.status === 410) {
+                        showError(errorMessage || 'Предзаказ истек или уже использован. Пожалуйста, создайте новый заказ.');
+                    } else if (response.status === 400) {
+                        showError(errorMessage || 'Неверные параметры запроса. Проверьте ссылку.');
+                    } else {
+                        showError(errorMessage || `Ошибка загрузки предзаказа (код ${response.status}).`);
+                    }
+                    return;
+                }
                 
-                if (data.success) {
+                // Проверить успешность ответа
+                if (data && (data.success === true || data.product)) {
+                    // Если есть product, значит это успешный ответ (может быть без поля success в некоторых версиях API)
                     preOrderData = data;
                     displayPreOrderData(data);
                     // Загрузить документы из API (для актуальных ссылок)
                     await loadDocuments();
                 } else {
-                    showError(data.message || 'Ошибка загрузки предзаказа.');
+                    // Ответ не содержит данных о предзаказе
+                    const errorMsg = data?.message || data?.error || data?.detail || 'Ошибка загрузки предзаказа.';
+                    console.error('Failed to load pre-order:', errorMsg, data);
+                    showError(errorMsg || 'Неверные параметры. Проверьте ссылку.');
                 }
             } catch (error) {
                 console.error('Error loading pre-order:', error);
-                showError('Ошибка подключения к серверу. Попробуйте обновить страницу.');
+                console.error('Error name:', error.name);
+                console.error('Error message:', error.message);
+                console.error('Error stack:', error.stack);
+                
+                // Обработать различные типы ошибок
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    showError('Ошибка подключения к серверу. Проверьте интернет-соединение и попробуйте обновить страницу.');
+                } else if (error.name === 'SyntaxError') {
+                    showError('Ошибка обработки ответа сервера. Попробуйте обновить страницу.');
+                } else {
+                    showError('Ошибка загрузки предзаказа: ' + (error.message || 'Неизвестная ошибка') + '. Попробуйте обновить страницу.');
+                }
             }
         }
         
