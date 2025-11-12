@@ -161,3 +161,62 @@ class ClientRequestPayoutView(views.APIView):
             'message': 'Payout request created'
         }, status=status.HTTP_201_CREATED)
 
+
+class ClientReferralCommissionsView(views.APIView):
+    """История начислений комиссий за рефералов"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        
+        # Получаем все комиссии пользователя с деталями
+        commissions = ReferralCommission.objects.filter(
+            referral__referrer=user
+        ).select_related(
+            'referral',
+            'referral__referred_user',
+            'order',
+            'order__product',
+            'payout'
+        ).order_by('-created_at')
+        
+        commissions_data = []
+        for commission in commissions:
+            commissions_data.append({
+                'id': str(commission.id),
+                'referral': {
+                    'id': str(commission.referral.id),
+                    'referred_user': {
+                        'email': commission.referral.referred_user.email,
+                        'name': commission.referral.referred_user.name or commission.referral.referred_user.email,
+                    }
+                },
+                'order': {
+                    'id': str(commission.order.id) if commission.order else None,
+                    'order_id': commission.order.order_id if commission.order else 'N/A',
+                    'amount': float(commission.order.amount) if commission.order else float(commission.amount),
+                    'currency': commission.order.currency if commission.order else 'RUB',
+                    'product': {
+                        'name': commission.order.product.name if commission.order and commission.order.product else 'N/A',
+                    } if commission.order and commission.order.product else None,
+                    'created_at': commission.order.created_at.isoformat() if commission.order and commission.order.created_at else None,
+                } if commission.order else None,
+                'amount': float(commission.order.amount) if commission.order else float(commission.amount),  # Сумма заказа
+                'commission_rate': float(commission.commission_rate),  # Процент комиссии
+                'commission_amount': float(commission.commission_amount),  # Сумма комиссии
+                'status': commission.status,
+                'payout': {
+                    'id': str(commission.payout.id),
+                    'status': commission.payout.status,
+                    'amount': float(commission.payout.amount),
+                    'created_at': commission.payout.created_at.isoformat() if commission.payout.created_at else None,
+                } if commission.payout else None,
+                'created_at': commission.created_at.isoformat() if commission.created_at else None,
+            })
+        
+        return Response({
+            'success': True,
+            'commissions': commissions_data,
+            'total': len(commissions_data)
+        })
+
