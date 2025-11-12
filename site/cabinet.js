@@ -1094,6 +1094,166 @@ function showPaymentsError() {
         tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-red-500">Ошибка загрузки платежей</td></tr>`;
 }
 
+// Load commissions history
+async function loadCommissions() {
+    try {
+        console.log('🔄 Loading commissions history...');
+        
+        const result = await apiRequest('/client/referrals/commissions/');
+        
+        if (!result || result.error) {
+            console.error('❌ Error loading commissions:', result?.error);
+            showCommissionsError();
+            return;
+        }
+        
+        const commissions = result.data?.commissions || result.commissions || [];
+        console.log('📊 Loaded commissions:', commissions.length);
+        
+        const tableBody = document.getElementById('commissionsTableBody');
+        const mobileList = document.getElementById('commissionsMobileList');
+        const emptyState = document.getElementById('commissionsEmpty');
+        
+        if (!tableBody || !mobileList) {
+            console.warn('Commissions table elements not found');
+            return;
+        }
+        
+        // Hide empty state by default
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+        
+        if (commissions.length === 0) {
+            // Show empty state
+            tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Начислений пока нет</td></tr>';
+            mobileList.innerHTML = '<div class="text-center p-8 text-gray-500">Начислений пока нет</div>';
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+            }
+            return;
+        }
+        
+        // Render desktop table
+        tableBody.innerHTML = commissions.map(commission => {
+            const date = commission.created_at ? new Date(commission.created_at).toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }) : '-';
+            const referredUser = commission.referral?.referred_user;
+            const referredName = referredUser?.name || referredUser?.email || 'Неизвестно';
+            const orderProduct = commission.order?.product?.name || 'Заказ';
+            const orderAmount = commission.order?.amount || commission.amount || 0;
+            const commissionAmount = commission.commission_amount || 0;
+            const commissionRate = commission.commission_rate || 0;
+            const status = commission.status || 'pending';
+            
+            // Status styling
+            const statusClass = status === 'paid' ? 'bg-green-100 text-green-700' :
+                               status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                               status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                               'bg-gray-100 text-gray-600';
+            const statusText = status === 'paid' ? 'Выплачено' :
+                              status === 'pending' ? 'Ожидает' :
+                              status === 'cancelled' ? 'Отменено' :
+                              'Неизвестно';
+            
+            return `
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm">${date}</td>
+                    <td class="px-4 py-3 text-sm">${referredName}</td>
+                    <td class="px-4 py-3 text-sm">${orderProduct}</td>
+                    <td class="px-4 py-3 text-sm font-semibold">${formatAmountRub(orderAmount)}</td>
+                    <td class="px-4 py-3 text-sm font-bold text-primary">${formatAmountRub(commissionAmount)}</td>
+                    <td class="px-4 py-3 text-sm">${commissionRate.toFixed(1)}%</td>
+                    <td class="px-4 py-3">
+                        <span class="${statusClass} px-3 py-1 rounded-full text-xs font-bold">${statusText}</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Render mobile cards
+        mobileList.innerHTML = commissions.map(commission => {
+            const date = commission.created_at ? new Date(commission.created_at).toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }) : '-';
+            const referredUser = commission.referral?.referred_user;
+            const referredName = referredUser?.name || referredUser?.email || 'Неизвестно';
+            const orderProduct = commission.order?.product?.name || 'Заказ';
+            const orderAmount = commission.order?.amount || commission.amount || 0;
+            const commissionAmount = commission.commission_amount || 0;
+            const commissionRate = commission.commission_rate || 0;
+            const status = commission.status || 'pending';
+            
+            // Status styling
+            const statusClass = status === 'paid' ? 'bg-green-100 text-green-700' :
+                               status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                               status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                               'bg-gray-100 text-gray-600';
+            const statusText = status === 'paid' ? 'Выплачено' :
+                              status === 'pending' ? 'Ожидает' :
+                              status === 'cancelled' ? 'Отменено' :
+                              'Неизвестно';
+            
+            return `
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold text-gray-900">${date}</span>
+                        <span class="${statusClass} px-3 py-1 rounded-full text-xs font-bold">${statusText}</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Реферал:</span>
+                            <span class="font-semibold">${referredName}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Заказ:</span>
+                            <span class="font-semibold">${orderProduct}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Сумма заказа:</span>
+                            <span class="font-semibold">${formatAmountRub(orderAmount)}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Комиссия:</span>
+                            <span class="font-bold text-primary">${formatAmountRub(commissionAmount)}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Процент:</span>
+                            <span class="font-semibold">${commissionRate.toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Re-initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    } catch (error) {
+        console.error('❌ Error in loadCommissions:', error);
+        showCommissionsError();
+    }
+}
+
+function showCommissionsError() {
+    const tableBody = document.getElementById('commissionsTableBody');
+    const mobileList = document.getElementById('commissionsMobileList');
+    
+    if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-red-500">Ошибка загрузки истории начислений</td></tr>';
+    }
+    
+    if (mobileList) {
+        mobileList.innerHTML = '<div class="text-center p-8 text-red-500">Ошибка загрузки истории начислений</div>';
+    }
+}
+
 // Format helpers
 function formatAmountRub(amount) {
     try {
