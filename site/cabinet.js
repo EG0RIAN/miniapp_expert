@@ -3412,18 +3412,37 @@ async function checkAndSignRequiredDocuments() {
 
 // Initialize - Load all data from API
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Cabinet page loaded, initializing...');
+    console.log('🚀 Cabinet page loaded, initializing...');
+    console.log('🔍 Checking authentication...');
     
-    // Check auth
+    // Check auth with detailed logging
+    const token = getAuthToken();
+    const userAuth = localStorage.getItem('userAuth');
+    
+    console.log('🔑 Auth check details:', {
+        hasToken: !!token,
+        tokenLength: token ? token.length : 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...${token.substring(token.length - 10)}` : 'none',
+        userAuth: userAuth,
+        allStorageKeys: Object.keys(localStorage)
+    });
+    
     if (!checkAuth()) {
-        console.log('Auth check failed, redirecting to login');
+        console.error('❌ Auth check failed, redirecting to login');
+        console.error('💡 Possible reasons:');
+        console.error('   - No token in localStorage');
+        console.error('   - userAuth is not "true"');
+        console.error('   - Token expired or invalid');
         return;
     }
     
+    console.log('✅ Auth check passed');
+    
     // Load email verification status on all pages
+    console.log('📧 Loading email verification status...');
     await loadEmailVerificationStatus();
     
-    console.log('Auth check passed, loading data...');
+    console.log('📊 Starting data loading...');
     
     // Show loading spinner
     const loadingSpinner = document.getElementById('loadingSpinner');
