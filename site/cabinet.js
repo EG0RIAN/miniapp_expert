@@ -1170,9 +1170,22 @@ async function loadCommissions() {
         }
         
         if (commissions.length === 0) {
+            // Show empty state and hide table/mobile list
+            if (tableBody) {
+                tableBody.innerHTML = '';
+            }
+            if (mobileList) {
+                mobileList.innerHTML = '';
+            }
+            // Hide table and mobile containers
+            const tableContainer = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
+            if (tableContainer) {
+                tableContainer.classList.add('hidden');
+            }
+            if (mobileList) {
+                mobileList.classList.add('hidden');
+            }
             // Show empty state
-            tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Начислений пока нет</td></tr>';
-            mobileList.innerHTML = '<div class="text-center p-8 text-gray-500">Начислений пока нет</div>';
             if (emptyState) {
                 emptyState.classList.remove('hidden');
             }
@@ -1620,14 +1633,23 @@ async function loadCommissionsHistory() {
         }
         
         if (commissions.length === 0) {
-            // Show empty state
-            tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Начислений пока нет</td></tr>';
-            mobileList.innerHTML = '<div class="text-center p-8 text-gray-500">Начислений пока нет</div>';
-            if (emptyState) {
-                emptyState.classList.remove('hidden');
+            // Show empty state and hide table/mobile list
+            if (tableBody) {
+                tableBody.innerHTML = '';
             }
+            if (mobileList) {
+                mobileList.innerHTML = '';
+            }
+            // Hide table and mobile containers
             if (commissionsTableContainer) {
                 commissionsTableContainer.classList.add('hidden');
+            }
+            if (mobileList) {
+                mobileList.classList.add('hidden');
+            }
+            // Show empty state
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
             }
             console.log('✅ No commissions found');
             return;
