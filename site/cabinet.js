@@ -1549,16 +1549,16 @@ async function loadCommissionsHistory() {
             if (emptyState) {
                 emptyState.classList.remove('hidden');
             }
-            if (commissionsTable) {
-                commissionsTable.classList.add('hidden');
+            if (commissionsTableContainer) {
+                commissionsTableContainer.classList.add('hidden');
             }
             console.log('✅ No commissions found');
             return;
         }
         
         // Show table, hide empty state
-        if (commissionsTable) {
-            commissionsTable.classList.remove('hidden');
+        if (commissionsTableContainer) {
+            commissionsTableContainer.classList.remove('hidden');
         }
         if (emptyState) {
             emptyState.classList.add('hidden');
@@ -1622,8 +1622,8 @@ async function loadCommissionsHistory() {
                             ${referralEmail ? `<div class="text-xs text-gray-500">${referralEmail}</div>` : ''}
                         </td>
                         <td class="p-4 text-sm">
-                            <div class="font-medium text-gray-900">${orderId}</div>
-                            <div class="text-xs text-gray-500">${productName}</div>
+                            <div class="font-medium text-gray-900">${productName}</div>
+                            ${orderId !== 'N/A' ? `<div class="text-xs text-gray-500">ID: ${orderId}</div>` : ''}
                         </td>
                         <td class="p-4 text-sm font-semibold text-gray-900">${formatAmount(orderAmount, orderCurrency)}</td>
                         <td class="p-4 text-sm font-bold text-primary">${formatAmount(commissionAmount, orderCurrency)}</td>
@@ -1635,8 +1635,8 @@ async function loadCommissionsHistory() {
         }
         
         // Render commissions - Mobile cards
-        if (commissionsMobileList) {
-            commissionsMobileList.innerHTML = commissions.map(commission => {
+        if (mobileList) {
+            mobileList.innerHTML = commissions.map(commission => {
                 const referralName = commission.referral?.referred_user?.name || commission.referral?.referred_user?.email || 'Неизвестно';
                 const referralEmail = commission.referral?.referred_user?.email || '';
                 const orderId = commission.order?.order_id || 'N/A';
@@ -1692,10 +1692,7 @@ async function loadCommissionsHistory() {
         console.log('✅ Commissions history loaded successfully:', commissions.length, 'commissions');
     } catch (error) {
         console.error('❌ Error in loadCommissionsHistory:', error);
-        const tbody = document.getElementById('commissionsTableBody');
-        if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-red-500">Ошибка загрузки истории начислений</td></tr>';
-        }
+        showCommissionsError();
     }
 }
 
