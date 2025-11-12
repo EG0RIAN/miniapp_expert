@@ -131,6 +131,7 @@ function showSection(sectionId) {
             break;
         case 'partners':
             loadPartnersData();
+            loadCommissions(); // Load commissions history
             break;
         case 'cards':
             loadPaymentMethods();
