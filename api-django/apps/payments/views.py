@@ -84,6 +84,13 @@ class PaymentCreateView(views.APIView):
             # Проверяем, является ли продукт подпиской
             is_subscription = pre_order.product.product_type == 'subscription'
             
+            # Генерируем CustomerKey для рекуррентных платежей
+            import uuid
+            customer_key = None
+            if is_subscription:
+                # Используем email как основу для CustomerKey или генерируем UUID
+                customer_key = f"customer_{email.replace('@', '_at_')}" if email else str(uuid.uuid4())
+            
             result = tbank.init_payment(
                 amount=float(pre_order.amount),
                 order_id=order_id,
@@ -94,6 +101,7 @@ class PaymentCreateView(views.APIView):
                 save_method=is_subscription,  # Сохраняем карту для подписок
                 is_subscription=is_subscription,
                 product_name=pre_order.product.name,
+                customer_key=customer_key,  # Передаем CustomerKey для Recurrent=Y
             )
             
             if result.get('Success'):

@@ -62,6 +62,7 @@ class TBankService:
         save_method: bool = False,
         is_subscription: bool = False,
         product_name: str = None,
+        customer_key: str = None,
     ) -> Dict:
         """Создание платежа
         
@@ -75,7 +76,10 @@ class TBankService:
             save_method: Сохранить карту для рекуррентных платежей
             is_subscription: Является ли платеж подпиской
             product_name: Название продукта для чека
+            customer_key: CustomerKey для рекуррентных платежей (обязателен при Recurrent=Y)
         """
+        import uuid
+        
         # Базовая структура платежа
         payment_data = {
             'TerminalKey': self.terminal_key,
@@ -92,6 +96,14 @@ class TBankService:
         # Для подписок включаем рекуррентные платежи
         if save_method or is_subscription:
             payment_data['Recurrent'] = 'Y'
+            # PayType=T для двухстадийного платежа (обязательно для Recurrent=Y)
+            payment_data['PayType'] = 'T'
+            # CustomerKey обязателен для Recurrent=Y
+            if customer_key:
+                payment_data['CustomerKey'] = customer_key
+            else:
+                # Генерируем CustomerKey если не передан
+                payment_data['CustomerKey'] = str(uuid.uuid4())
         
         # Добавляем объект Receipt для формирования чека
         # Согласно документации T-Bank, Receipt должен содержать:
@@ -144,6 +156,10 @@ class TBankService:
     ) -> Dict:
         """Списание по MIT (сохраненной карте) для рекуррентных платежей
         
+        Согласно документации T-Bank, для списания по RebillId используется двухшаговый процесс:
+        1. Сначала Init (без RebillId, но с Receipt)
+        2. Потом Charge с PaymentId (из Init) и RebillId
+        
         Args:
             rebill_id: ID сохраненной карты (RebillId)
             amount: Сумма списания
@@ -153,18 +169,18 @@ class TBankService:
             phone: Телефон клиента (для чека)
             product_name: Название продукта (для чека)
         """
-        payment_data = {
+        # Шаг 1: Init (без RebillId, но с Receipt)
+        init_payload = {
             'TerminalKey': self.terminal_key,
             'Amount': int(amount * 100),
             'OrderId': order_id,
-            'RebillId': rebill_id,
         }
         
         # Добавляем описание, если указано
         if description:
-            payment_data['Description'] = description[:250]
+            init_payload['Description'] = description[:250]
         
-        # Добавляем Receipt для формирования чека при рекуррентном списании
+        # Добавляем Receipt для формирования чека
         if email or phone:
             receipt = {
                 'Taxation': 'usn_income',
@@ -183,12 +199,39 @@ class TBankService:
                 receipt['Email'] = email
             if phone:
                 receipt['Phone'] = phone
-            payment_data['Receipt'] = receipt
+            init_payload['Receipt'] = receipt
         
-        payment_data['Token'] = self._generate_token(payment_data)
+        init_payload['Token'] = self._generate_token(init_payload)
         
-        response = requests.post(f"{self.api_url}/Charge", json=payment_data)
-        return response.json()
+        # Выполняем Init
+        init_response = requests.post(f"{self.api_url}/Init", json=init_payload)
+        init_result = init_response.json()
+        
+        if not init_result.get('Success'):
+            # Если Init не удался, возвращаем ошибку
+            return init_result
+        
+        payment_id = init_result.get('PaymentId')
+        if not payment_id:
+            return {
+                'Success': False,
+                'ErrorCode': 'INIT_NO_PAYMENT_ID',
+                'Message': 'Init не вернул PaymentId',
+                'Details': init_result
+            }
+        
+        # Шаг 2: Charge с PaymentId и RebillId
+        charge_payload = {
+            'TerminalKey': self.terminal_key,
+            'PaymentId': str(payment_id),
+            'RebillId': str(rebill_id),
+        }
+        
+        charge_payload['Token'] = self._generate_token(charge_payload)
+        
+        # Выполняем Charge
+        charge_response = requests.post(f"{self.api_url}/Charge", json=charge_payload)
+        return charge_response.json()
     
     def get_receipt(self, payment_id: str) -> Dict:
         """Получение чека по ID платежа
