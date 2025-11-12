@@ -301,14 +301,30 @@
                 
                 if (!response.ok) {
                     const errorMessage = data.message || data.error || data.detail || 'Ошибка загрузки предзаказа.';
+                    console.error('API returned error status:', response.status, 'Message:', errorMessage);
+                    
+                    // Обработать сообщения на английском и русском
+                    let userMessage = errorMessage;
+                    if (errorMessage.includes('not found') || errorMessage.includes('не найден')) {
+                        if (errorMessage.includes('already used') || errorMessage.includes('уже использован')) {
+                            userMessage = 'Этот предзаказ уже был использован. Пожалуйста, создайте новый заказ.';
+                        } else {
+                            userMessage = 'Предзаказ не найден. Проверьте правильность ссылки или создайте новый заказ.';
+                        }
+                    } else if (errorMessage.includes('already used') || errorMessage.includes('уже использован')) {
+                        userMessage = 'Этот предзаказ уже был использован. Пожалуйста, создайте новый заказ.';
+                    } else if (errorMessage.includes('expired') || errorMessage.includes('истек')) {
+                        userMessage = 'Предзаказ истек. Пожалуйста, создайте новый заказ.';
+                    }
+                    
                     if (response.status === 404) {
-                        showError(errorMessage || 'Предзаказ не найден. Проверьте правильность ссылки.');
+                        showError(userMessage);
                     } else if (response.status === 410) {
-                        showError(errorMessage || 'Предзаказ истек или уже использован. Пожалуйста, создайте новый заказ.');
+                        showError(userMessage);
                     } else if (response.status === 400) {
-                        showError(errorMessage || 'Неверные параметры запроса. Проверьте ссылку.');
+                        showError(userMessage || 'Неверные параметры запроса. Проверьте ссылку.');
                     } else {
-                        showError(errorMessage || `Ошибка загрузки предзаказа (код ${response.status}).`);
+                        showError(userMessage || `Ошибка загрузки предзаказа (код ${response.status}).`);
                     }
                     return;
                 }
