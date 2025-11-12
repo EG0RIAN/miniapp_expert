@@ -125,12 +125,11 @@ class TBankService:
             'Taxation': 'usn_income',  # Упрощенная система налогообложения (доходы)
             'Items': [
                 {
-                    'Amount': int(amount * 100),  # Сумма в копейках
                     'Name': product_name or description[:128],  # Название товара/услуги (макс 128 символов)
                     'Price': int(amount * 100),  # Цена в копейках
-                    'Quantity': 1,  # Количество (int, не float)
+                    'Quantity': 1,  # Количество
+                    'Amount': int(amount * 100),  # Сумма в копейках
                     'Tax': 'none',  # Налог (none - без НДС, vat10, vat20 и т.д.)
-                    # Ean13 не включаем (опционально по документации)
                 }
             ]
         }
@@ -249,12 +248,11 @@ class TBankService:
                 'Taxation': 'usn_income',
                 'Items': [
                     {
-                        'Amount': int(amount * 100),
                         'Name': (product_name or description or 'Подписка')[:128],
                         'Price': int(amount * 100),
-                        'Quantity': 1,  # int, не float
+                        'Quantity': 1,
+                        'Amount': int(amount * 100),
                         'Tax': 'none',
-                        # Ean13 не включаем (опционально)
                     }
                 ]
             }
