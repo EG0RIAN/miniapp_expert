@@ -145,6 +145,9 @@ class PaymentCreateView(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.exception(f"Payment creation exception: {str(e)}")
             return Response(
                 {'success': False, 'message': f'Payment error: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

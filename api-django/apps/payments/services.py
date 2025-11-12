@@ -138,17 +138,55 @@ class TBankService:
         debug_data['Receipt'] = '***' if 'Receipt' in payment_data else None
         logger.debug(f"T-Bank Init request: {debug_data}")
         
-        response = requests.post(f"{self.api_url}/Init", json=payment_data)
-        result = response.json()
-        
-        # Логируем ответ для отладки
-        if not result.get('Success'):
-            logger.error(
-                f"T-Bank Init error: ErrorCode={result.get('ErrorCode')}, "
-                f"Message={result.get('Message')}, Response={result}"
+        try:
+            response = requests.post(
+                f"{self.api_url}/Init", 
+                json=payment_data,
+                timeout=30,  # Таймаут 30 секунд
+                headers={
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'miniapp-expert/1.0'
+                }
             )
-        
-        return result
+            response.raise_for_status()  # Проверяем HTTP статус
+            result = response.json()
+            
+            # Логируем ответ для отладки
+            if not result.get('Success'):
+                logger.error(
+                    f"T-Bank Init error: ErrorCode={result.get('ErrorCode')}, "
+                    f"Message={result.get('Message')}, Response={result}"
+                )
+            
+            return result
+        except requests.exceptions.Timeout:
+            logger.error("T-Bank Init timeout after 30 seconds")
+            return {
+                'Success': False,
+                'ErrorCode': 'TIMEOUT',
+                'Message': 'Превышено время ожидания ответа от T-Bank'
+            }
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"T-Bank Init connection error: {e}")
+            return {
+                'Success': False,
+                'ErrorCode': 'CONNECTION_ERROR',
+                'Message': f'Ошибка подключения к T-Bank: {str(e)}'
+            }
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"T-Bank Init HTTP error: {e}")
+            return {
+                'Success': False,
+                'ErrorCode': 'HTTP_ERROR',
+                'Message': f'HTTP ошибка: {str(e)}'
+            }
+        except Exception as e:
+            logger.error(f"T-Bank Init unexpected error: {e}")
+            return {
+                'Success': False,
+                'ErrorCode': 'UNKNOWN_ERROR',
+                'Message': f'Неожиданная ошибка: {str(e)}'
+            }
     
     def get_payment_status(self, payment_id: str) -> Dict:
         """Получение статуса платежа"""
