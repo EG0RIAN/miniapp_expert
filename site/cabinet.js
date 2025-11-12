@@ -1561,17 +1561,53 @@ async function loadCommissionsHistory() {
             return;
         }
 
-        if (!result || result.error) {
-            console.error('❌ Failed to load commissions:', result?.error);
+        if (!result) {
+            console.error('❌ No result from API (may have been logged out)');
             showCommissionsError();
             return;
         }
         
-        const data = result.data || result;
-        const commissions = data.commissions || [];
+        if (result.error) {
+            console.error('❌ Failed to load commissions:', result.error);
+            console.error('❌ Error details:', {
+                status: result.error.status,
+                message: result.error.message
+            });
+            showCommissionsError();
+            return;
+        }
+        
+        // Parse API response - API returns {success: true, commissions: [...], total: ...}
+        // apiRequest wraps it in {response, data: {...}}
+        let commissions = [];
+        
+        if (result.data) {
+            console.log('📋 Commissions response structure:', {
+                hasSuccess: 'success' in result.data,
+                hasCommissions: 'commissions' in result.data,
+                success: result.data.success,
+                commissionsType: Array.isArray(result.data.commissions),
+                commissionsLength: Array.isArray(result.data.commissions) ? result.data.commissions.length : 0,
+                dataKeys: Object.keys(result.data)
+            });
+            
+            if (result.data.success && Array.isArray(result.data.commissions)) {
+                commissions = result.data.commissions;
+            } else if (Array.isArray(result.data.commissions)) {
+                // If no success field, but commissions array exists
+                commissions = result.data.commissions;
+            } else if (Array.isArray(result.data)) {
+                // If data is directly an array
+                commissions = result.data;
+            }
+        } else if (Array.isArray(result.commissions)) {
+            // If result is not wrapped in data field
+            commissions = result.commissions;
+        }
+        
         const commissionsTableContainer = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
         
-        console.log('💰 Commissions data from API:', commissions.length);
+        console.log('💰 Commissions data from API:', commissions.length, 'commissions');
         
         if (!tableBody || !mobileList) {
             console.error('❌ Commissions table elements not found');
