@@ -117,18 +117,15 @@ class TBankService:
             'Taxation': 'usn_income',  # Упрощенная система налогообложения (доходы)
             'Items': [
                 {
+                    'Amount': int(amount * 100),  # Сумма в копейках (должно быть первым по алфавиту)
                     'Name': product_name or description[:128],  # Название товара/услуги (макс 128 символов)
                     'Price': int(amount * 100),  # Цена в копейках
                     'Quantity': 1.0,  # Количество
-                    'Amount': int(amount * 100),  # Сумма в копейках
                     'Tax': 'none',  # Налог (none - без НДС, vat10, vat20 и т.д.)
-                    # Ean13 не включаем если пустой (по документации опционально)
+                    # Ean13 не включаем (опционально по документации)
                 }
             ]
         }
-        # Удаляем Ean13 если он пустой (некоторые версии API не принимают пустые строки)
-        if receipt['Items'][0].get('Ean13') == '':
-            receipt['Items'][0].pop('Ean13', None)
         payment_data['Receipt'] = receipt
         
         # Генерируем токен ПОСЛЕ формирования всех данных
@@ -206,12 +203,12 @@ class TBankService:
                 'Taxation': 'usn_income',
                 'Items': [
                     {
+                        'Amount': int(amount * 100),
                         'Name': (product_name or description or 'Подписка')[:128],
                         'Price': int(amount * 100),
                         'Quantity': 1.0,
-                        'Amount': int(amount * 100),
                         'Tax': 'none',
-                        'Ean13': '',
+                        # Ean13 не включаем (опционально)
                     }
                 ]
             }
