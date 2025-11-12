@@ -16,7 +16,7 @@ class TBankService:
         """Генерация токена для T-Bank API
         
         Алгоритм генерации токена (по документации T-Bank):
-        1. Берем все параметры кроме Token
+        1. Берем все параметры кроме Token и Receipt
         2. Добавляем Password
         3. Сортируем ключи по алфавиту
         4. Для каждого ключа преобразуем значение в строку
@@ -24,13 +24,13 @@ class TBankService:
         6. Конкатенируем все значения в одну строку (БЕЗ ключей)
         7. Хешируем через SHA256
         
-        Важно: для вложенных структур (Receipt, Items) используется JSON сериализация
-        с separators=(',', ':') для компактности
+        Важно: Receipt НЕ включается в генерацию токена!
         """
         import json
         
-        # Создаем копию параметров без Token
-        token_params = {k: v for k, v in params.items() if k != 'Token'}
+        # Создаем копию параметров без Token и Receipt
+        # ВАЖНО: Receipt НЕ участвует в генерации токена!
+        token_params = {k: v for k, v in params.items() if k not in ['Token', 'Receipt', 'DATA']}
         token_params['Password'] = self.password
         
         # Сортируем ключи и формируем строку для токена
