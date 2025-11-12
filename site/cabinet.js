@@ -1636,8 +1636,8 @@ async function loadCommissionsHistory() {
         }
         
         // Render commissions - Desktop table
-        if (tbody) {
-            tbody.innerHTML = commissions.map(commission => {
+        if (tableBody) {
+            tableBody.innerHTML = commissions.map(commission => {
                 const referralName = commission.referral?.referred_user?.name || commission.referral?.referred_user?.email || 'Неизвестно';
                 const referralEmail = commission.referral?.referred_user?.email || '';
                 const orderId = commission.order?.order_id || 'N/A';
