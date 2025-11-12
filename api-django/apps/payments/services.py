@@ -50,7 +50,15 @@ class TBankService:
         
         token_string = ''.join(token_parts)
         
-        return hashlib.sha256(token_string.encode('utf-8')).hexdigest()
+        # Логируем для отладки
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.debug(f"Token generation - sorted keys: {sorted_keys}")
+        logger.debug(f"Token string (first 300 chars): {token_string[:300]}")
+        token = hashlib.sha256(token_string.encode('utf-8')).hexdigest()
+        logger.debug(f"Generated token: {token}")
+        
+        return token
     
     def init_payment(
         self,
