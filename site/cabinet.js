@@ -1618,8 +1618,8 @@ async function loadCommissionsHistory() {
             });
         }
         
-        // Format amount
-        function formatAmount(amount, currency = 'RUB') {
+        // Format amount for commissions (renamed to avoid conflict with 'style' variable)
+        function formatCommissionAmount(amount, currency = 'RUB') {
             return new Intl.NumberFormat('ru-RU', {
                 style: 'currency',
                 currency: currency,
@@ -1655,7 +1655,7 @@ async function loadCommissionsHistory() {
                 const status = commission.status || 'pending';
                 const createdAt = commission.created_at;
                 
-            return `
+                return `
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                         <td class="p-4 text-sm text-gray-700">${formatDate(createdAt)}</td>
                         <td class="p-4 text-sm">
@@ -1666,8 +1666,8 @@ async function loadCommissionsHistory() {
                             <div class="font-medium text-gray-900">${productName}</div>
                             ${orderId !== 'N/A' ? `<div class="text-xs text-gray-500">ID: ${orderId}</div>` : ''}
                         </td>
-                        <td class="p-4 text-sm font-semibold text-gray-900">${formatAmount(orderAmount, orderCurrency)}</td>
-                        <td class="p-4 text-sm font-bold text-primary">${formatAmount(commissionAmount, orderCurrency)}</td>
+                        <td class="p-4 text-sm font-semibold text-gray-900">${formatCommissionAmount(orderAmount, orderCurrency)}</td>
+                        <td class="p-4 text-sm font-bold text-primary">${formatCommissionAmount(commissionAmount, orderCurrency)}</td>
                         <td class="p-4 text-sm text-gray-600">${commissionRate.toFixed(2)}%</td>
                         <td class="p-4 text-sm">${getStatusBadge(status)}</td>
                     </tr>
@@ -1709,11 +1709,11 @@ async function loadCommissionsHistory() {
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Сумма заказа:</span>
-                                <span class="font-semibold text-gray-900">${formatAmount(orderAmount, orderCurrency)}</span>
+                                <span class="font-semibold text-gray-900">${formatCommissionAmount(orderAmount, orderCurrency)}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Комиссия (${commissionRate.toFixed(2)}%):</span>
-                                <span class="font-bold text-primary text-lg">${formatAmount(commissionAmount, orderCurrency)}</span>
+                                <span class="font-bold text-primary text-lg">${formatCommissionAmount(commissionAmount, orderCurrency)}</span>
                             </div>
                             <div class="flex justify-between pt-2 border-t border-gray-200">
                                 <span class="text-gray-500 text-xs">Дата:</span>
@@ -1722,7 +1722,7 @@ async function loadCommissionsHistory() {
                         </div>
                     </div>
                 `;
-            }).join('');
+        }).join('');
         }
         
         // Reinitialize Lucide icons
