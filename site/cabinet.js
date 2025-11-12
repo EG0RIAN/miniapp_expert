@@ -86,7 +86,7 @@ function checkAuth() {
     return true;
 }
 
-// Logout
+// Logout - make it globally available
 function logout() {
         localStorage.removeItem('userAuth');
     localStorage.removeItem('userToken');
@@ -95,7 +95,12 @@ function logout() {
         window.location.href = '/login.html';
 }
 
-// Show section
+// Make logout globally available
+if (typeof window !== 'undefined') {
+    window.logout = logout;
+}
+
+// Show section - make it globally available
 function showSection(sectionId) {
     // Hide all sections
     document.querySelectorAll('.cabinet-section').forEach(section => {
@@ -148,7 +153,7 @@ function showSection(sectionId) {
             loadPayments();
             break;
         case 'profile':
-            loadProfile();
+    loadProfile();
             break;
         case 'partners':
             loadPartnersData();
@@ -543,13 +548,13 @@ async function loadProducts() {
         
         console.log('📦 Products loaded:', products.length, products);
         
-        const container = document.getElementById('productsList');
-        
+    const container = document.getElementById('productsList');
+    
         if (!container) {
             console.error('❌ Products container not found');
-            return;
-        }
-        
+        return;
+    }
+    
         // Clear container first
         container.innerHTML = '';
     
@@ -722,7 +727,7 @@ async function loadSubscriptions() {
         
         if (!result || result.error) {
             console.error('❌ Failed to load subscriptions:', result?.error);
-            const container = document.getElementById('subscriptionsList');
+    const container = document.getElementById('subscriptionsList');
             if (container) {
                 container.innerHTML = `
                     <div class="col-span-2 text-center py-12 text-red-500">
@@ -734,8 +739,8 @@ async function loadSubscriptions() {
                     lucide.createIcons();
                 }
             }
-            return;
-        }
+        return;
+    }
         
         // API returns {success: true, products: [...]}
         // apiRequest wraps it in {response, data: {...}}
@@ -1235,19 +1240,19 @@ async function loadCommissions() {
             
             return `
                 <div class="bg-white border-2 border-gray-200 rounded-xl p-4 space-y-3">
-                    <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between">
                         <span class="text-sm font-semibold text-gray-900">${date}</span>
                         <span class="${statusClass} px-3 py-1 rounded-full text-xs font-bold">${statusText}</span>
-                    </div>
+                </div>
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Реферал:</span>
                             <span class="font-semibold">${referredName}</span>
-                        </div>
+            </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Заказ:</span>
                             <span class="font-semibold">${orderProduct}</span>
-                        </div>
+        </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Сумма заказа:</span>
                             <span class="font-semibold">${formatAmountRub(orderAmount)}</span>
@@ -1549,7 +1554,7 @@ async function loadCommissionsHistory() {
             console.warn('Commissions table elements not found');
             return;
         }
-        
+
         if (!result || result.error) {
             console.error('❌ Failed to load commissions:', result?.error);
             showCommissionsError();
@@ -1558,14 +1563,11 @@ async function loadCommissionsHistory() {
         
         const data = result.data || result;
         const commissions = data.commissions || [];
-        const tbody = document.getElementById('commissionsTableBody');
-        const mobileList = document.getElementById('commissionsMobileList');
-        const emptyState = document.getElementById('commissionsEmpty');
         const commissionsTableContainer = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
         
         console.log('💰 Commissions data from API:', commissions.length);
         
-        if (!tbody || !mobileList) {
+        if (!tableBody || !mobileList) {
             console.error('❌ Commissions table elements not found');
             return;
         }
@@ -1647,7 +1649,7 @@ async function loadCommissionsHistory() {
                 const status = commission.status || 'pending';
                 const createdAt = commission.created_at;
                 
-                return `
+            return `
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                         <td class="p-4 text-sm text-gray-700">${formatDate(createdAt)}</td>
                         <td class="p-4 text-sm">
@@ -1664,7 +1666,7 @@ async function loadCommissionsHistory() {
                         <td class="p-4 text-sm">${getStatusBadge(status)}</td>
                     </tr>
                 `;
-            }).join('');
+        }).join('');
         }
         
         // Render commissions - Mobile cards
@@ -2801,7 +2803,7 @@ async function cancelSubscription(subscriptionId, productName) {
 function viewSubscriptionHistory(subscriptionId) {
     closeModal();
     // Switch to payments section and filter by subscription
-    showSection('payments');
+        showSection('payments');
     // TODO: Add filtering by subscription ID in payments list
     if (typeof notifyInfo === 'function') {
         notifyInfo('Переход в раздел истории платежей');
@@ -3029,9 +3031,9 @@ async function signDocument(documentType, skipConfirm = false, documentId = null
                 cancelText: 'Отмена',
                 onConfirm: () => resolve(true),
                 onCancel: () => resolve(false)
-            });
         });
-        
+    });
+    
         if (!confirmed) {
             return false;
         }

@@ -126,7 +126,7 @@
     <!-- Main Container -->
     <div class="flex pt-16" id="mainContainer" style="padding-top: 4rem;">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 fixed left-0 bottom-0 overflow-y-auto hidden md:block" id="desktopSidebar" style="top: 4rem;">
+        <aside class="w-64 bg-white border-r border-gray-200 fixed left-0 bottom-0 overflow-y-auto hidden md:block" id="desktopSidebar">
             <nav class="p-4 space-y-2">
                 <a href="#products" onclick="showSection('products'); return false;" class="sidebar-link sidebar-active flex items-center space-x-3 px-4 py-3 rounded-xl transition" data-section="products">
                     <i data-lucide="package" class="w-5 h-5"></i>
@@ -161,7 +161,7 @@
         </button>
 
         <!-- Mobile Sidebar -->
-        <aside id="mobileSidebar" class="md:hidden fixed inset-0 z-50 bg-white transform -translate-x-full transition-transform duration-300" style="top: 4rem;">
+        <aside id="mobileSidebar" class="md:hidden fixed inset-0 z-50 bg-white transform -translate-x-full transition-transform duration-300">
             <nav class="p-4 space-y-2">
                 <a href="#products" onclick="showSection('products'); closeMobileMenu(); return false;" class="sidebar-link sidebar-active flex items-center space-x-3 px-4 py-3 rounded-xl transition" data-section="products">
                     <i data-lucide="package" class="w-5 h-5"></i>
