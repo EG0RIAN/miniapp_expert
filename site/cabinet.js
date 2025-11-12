@@ -1519,14 +1519,7 @@ async function loadCommissionsHistory() {
         
         if (!result || result.error) {
             console.error('❌ Failed to load commissions:', result?.error);
-            const tbody = document.getElementById('commissionsTableBody');
-            const commissionsMobileList = document.getElementById('commissionsMobileList');
-            if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Ошибка загрузки истории начислений</td></tr>';
-            }
-            if (commissionsMobileList) {
-                commissionsMobileList.innerHTML = '<div class="text-center p-8 text-red-500">Ошибка загрузки истории начислений</div>';
-            }
+            showCommissionsError();
             return;
         }
         
@@ -1535,7 +1528,7 @@ async function loadCommissionsHistory() {
         const tbody = document.getElementById('commissionsTableBody');
         const mobileList = document.getElementById('commissionsMobileList');
         const emptyState = document.getElementById('commissionsEmpty');
-        const commissionsTable = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
+        const commissionsTableContainer = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
         
         console.log('💰 Commissions data from API:', commissions.length);
         
