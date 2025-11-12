@@ -42,8 +42,9 @@ class TBankService:
             value = token_params[key]
             # Для dict и list используем JSON сериализацию БЕЗ пробелов
             if isinstance(value, (dict, list)):
-                # Используем компактный JSON (без пробелов, без сортировки ключей внутри)
-                token_parts.append(json.dumps(value, ensure_ascii=False, separators=(',', ':')))
+                # ВАЖНО: T-Bank требует сортировку ключей внутри всех вложенных структур
+                # Используем компактный JSON с сортировкой ключей
+                token_parts.append(json.dumps(value, ensure_ascii=True, separators=(',', ':'), sort_keys=True))
             else:
                 token_parts.append(str(value))
         
@@ -130,8 +131,24 @@ class TBankService:
         # Генерируем токен ПОСЛЕ формирования всех данных
         payment_data['Token'] = self._generate_token(payment_data)
         
+        # Логируем запрос для отладки (без чувствительных данных)
+        import logging
+        logger = logging.getLogger(__name__)
+        debug_data = {k: v for k, v in payment_data.items() if k not in ['Token', 'Password', 'Receipt']}
+        debug_data['Receipt'] = '***' if 'Receipt' in payment_data else None
+        logger.debug(f"T-Bank Init request: {debug_data}")
+        
         response = requests.post(f"{self.api_url}/Init", json=payment_data)
-        return response.json()
+        result = response.json()
+        
+        # Логируем ответ для отладки
+        if not result.get('Success'):
+            logger.error(
+                f"T-Bank Init error: ErrorCode={result.get('ErrorCode')}, "
+                f"Message={result.get('Message')}, Response={result}"
+            )
+        
+        return result
     
     def get_payment_status(self, payment_id: str) -> Dict:
         """Получение статуса платежа"""

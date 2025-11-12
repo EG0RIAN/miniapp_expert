@@ -126,9 +126,23 @@ class PaymentCreateView(views.APIView):
                     'orderId': order_id,
                 })
             else:
+                # Логируем детали ошибки для отладки
+                error_message = result.get('Message', 'Payment creation failed')
+                error_code = result.get('ErrorCode', 'UNKNOWN')
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(
+                    f"T-Bank Init failed: ErrorCode={error_code}, Message={error_message}, "
+                    f"Details={result.get('Details', 'N/A')}"
+                )
                 return Response(
-                    {'success': False, 'message': result.get('Message', 'Payment creation failed')},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    {
+                        'success': False, 
+                        'message': error_message or 'Неверные параметры.',
+                        'error_code': error_code,
+                        'details': result.get('Details')
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
                 )
         except Exception as e:
             return Response(
