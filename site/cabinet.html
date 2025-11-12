@@ -124,7 +124,7 @@
     </header>
 
     <!-- Main Container -->
-    <div class="flex pt-16" id="mainContainer" style="padding-top: 4rem;">
+    <div class="flex pt-16" id="mainContainer">
         <!-- Sidebar -->
         <aside class="w-64 bg-white border-r border-gray-200 fixed left-0 bottom-0 overflow-y-auto hidden md:block" id="desktopSidebar">
             <nav class="p-4 space-y-2">
@@ -860,11 +860,25 @@
 
     <script src="notification.js?v=2"></script>
     <script src="modal.js?v=5"></script>
-    <script src="cabinet.js?v=9"></script>
+    <script src="cabinet.js?v=10"></script>
     
-    <!-- Initialize Lucide Icons -->
+    <!-- Initialize functions and apply styles -->
     <script>
+        // Make closeMobileMenu globally available immediately
+        function closeMobileMenu() {
+            const mobileSidebar = document.getElementById('mobileSidebar');
+            if (mobileSidebar) {
+                mobileSidebar.classList.add('-translate-x-full');
+            }
+        }
+        
+        // Make it globally available
+        if (typeof window !== 'undefined') {
+            window.closeMobileMenu = closeMobileMenu;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
@@ -878,14 +892,25 @@
                     mobileSidebar.classList.toggle('-translate-x-full');
                 });
             }
-        });
-        
-        function closeMobileMenu() {
-            const mobileSidebar = document.getElementById('mobileSidebar');
-            if (mobileSidebar) {
-                mobileSidebar.classList.add('-translate-x-full');
+            
+            // Apply styles via JavaScript to avoid inline style conflicts
+            const mainContainer = document.getElementById('mainContainer');
+            if (mainContainer) {
+                mainContainer.style.paddingTop = '4rem';
             }
-        }
+            
+            const desktopSidebar = document.getElementById('desktopSidebar');
+            if (desktopSidebar) {
+                desktopSidebar.style.top = '4rem';
+                desktopSidebar.style.height = 'calc(100vh - 4rem)';
+            }
+            
+            const mobileSidebarEl = document.getElementById('mobileSidebar');
+            if (mobileSidebarEl) {
+                mobileSidebarEl.style.top = '4rem';
+                mobileSidebarEl.style.height = 'calc(100vh - 4rem)';
+            }
+        });
     </script>
 </body>
 </html>

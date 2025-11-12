@@ -165,6 +165,12 @@ function showSection(sectionId) {
     }
 }
 
+// Make showSection globally available for onclick handlers in HTML
+if (typeof window !== 'undefined') {
+    window.showSection = showSection;
+    window.logout = logout;
+}
+
 // Load user profile - ONLY from API, never from localStorage
 async function loadProfile() {
     try {
@@ -1579,7 +1585,7 @@ async function loadCommissionsHistory() {
         
         if (commissions.length === 0) {
             // Show empty state
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Начислений пока нет</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Начислений пока нет</td></tr>';
             mobileList.innerHTML = '<div class="text-center p-8 text-gray-500">Начислений пока нет</div>';
             if (emptyState) {
                 emptyState.classList.remove('hidden');
