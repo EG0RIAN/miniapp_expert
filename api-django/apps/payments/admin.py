@@ -18,10 +18,10 @@ class MandateAdmin(admin.ModelAdmin):
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'user', 'amount', 'currency', 'status', 'method', 'provider_ref', 'created_at')
+    list_display = ('id', 'order', 'user', 'amount', 'currency', 'status', 'method', 'receipt_link', 'created_at')
     list_filter = ('status', 'method', 'currency', 'created_at')
     search_fields = ('order__order_id', 'user__email', 'provider_ref')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'receipt_link')
     date_hierarchy = 'created_at'
     
     fieldsets = (
@@ -29,12 +29,24 @@ class PaymentAdmin(admin.ModelAdmin):
             'fields': ('order', 'user', 'amount', 'currency', 'status', 'method')
         }),
         ('Провайдер', {
-            'fields': ('provider_ref', 'failure_reason', 'receipt_url')
+            'fields': ('provider_ref', 'failure_reason', 'receipt_url', 'receipt_link')
         }),
         ('Даты', {
             'fields': ('created_at', 'updated_at')
         }),
     )
+    
+    def receipt_link(self, obj):
+        """Отображение ссылки на чек"""
+        if obj.receipt_url:
+            return format_html(
+                '<a href="{}" target="_blank" style="background: #417690; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; display: inline-block;">📄 Открыть чек</a>',
+                obj.receipt_url
+            )
+        elif obj.status == 'success' and obj.provider_ref:
+            return format_html('<span style="color: #999;">Чек формируется...</span>')
+        return format_html('<span style="color: #999;">—</span>')
+    receipt_link.short_description = 'Чек'
 
 
 class ManualChargeAdmin(admin.ModelAdmin):
