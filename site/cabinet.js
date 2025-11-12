@@ -1192,6 +1192,18 @@ async function loadCommissions() {
             return;
         }
         
+        // Show table and mobile containers, hide empty state
+        const tableContainer = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
+        if (tableContainer) {
+            tableContainer.classList.remove('hidden');
+        }
+        if (mobileList) {
+            mobileList.classList.remove('hidden');
+        }
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+        
         // Render desktop table
         tableBody.innerHTML = commissions.map(commission => {
             const date = commission.created_at ? new Date(commission.created_at).toLocaleDateString('ru-RU', {
