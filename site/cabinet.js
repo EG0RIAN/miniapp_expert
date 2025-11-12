@@ -16,39 +16,60 @@ async function apiRequest(endpoint, options = {}) {
     
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+        console.log('🔑 Token found in localStorage, length:', token.length);
+    } else {
+        console.warn('⚠️ No token found in localStorage');
     }
     
     try {
         const url = `${API_BASE_URL}${endpoint}`;
-        console.log('API Request:', url, { headers, ...options });
+        console.log('📤 API Request:', url);
+        console.log('📋 Headers:', { ...headers, Authorization: token ? `Bearer ${token.substring(0, 20)}...` : 'none' });
         
         const response = await fetch(url, {
             ...options,
             headers,
+            credentials: 'same-origin',
         });
         
-        console.log('API Response status:', response.status, response.statusText);
+        console.log('📥 API Response status:', response.status, response.statusText);
+        console.log('📥 API Response headers:', Object.fromEntries(response.headers.entries()));
         
         if (response.status === 401) {
             // Token expired or invalid
-            console.error('Unauthorized - redirecting to login');
+            const errorText = await response.text();
+            console.error('❌ Unauthorized (401):', errorText);
+            console.error('🔍 Token was:', token ? `${token.substring(0, 20)}...` : 'missing');
+            
+            // Don't logout immediately on 401 for profile endpoint (might be token refresh issue)
+            if (endpoint === '/auth/profile/') {
+                console.warn('⚠️ Profile endpoint returned 401, but not logging out immediately');
+                return { error: { status: 401, message: 'Unauthorized' } };
+            }
+            
+            console.error('🚪 Redirecting to login...');
             logout();
             return null;
         }
         
         if (!response.ok) {
-            console.error('API Error:', response.status, response.statusText);
+            console.error('❌ API Error:', response.status, response.statusText);
             const errorText = await response.text();
-            console.error('API Error body:', errorText);
+            console.error('❌ API Error body:', errorText);
             return { error: { status: response.status, message: errorText } };
         }
         
         const data = await response.json();
-        console.log('API Response data:', data);
+        console.log('✅ API Response data:', data);
         // API returns data directly, not wrapped in 'data' field
         return { response, data: data };
     } catch (error) {
-        console.error('API request error:', error);
+        console.error('❌ API request error:', error);
+        console.error('❌ Error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         return { error };
     }
 }
@@ -153,7 +174,14 @@ async function loadProfile() {
         
         if (!result || result.error) {
             console.error('❌ Failed to load profile:', result?.error);
-            // Show error but don't block
+            
+            // If 401 error, don't show error message (logout will redirect)
+            if (result?.error?.status === 401) {
+                console.warn('⚠️ Profile endpoint returned 401, user will be redirected to login');
+                return;
+            }
+            
+            // Show error but don't block for other errors
             const userNameEl = document.getElementById('userName');
             const userEmailEl = document.getElementById('userEmail');
             if (userNameEl) {
@@ -161,6 +189,11 @@ async function loadProfile() {
             }
             if (userEmailEl) {
                 userEmailEl.textContent = 'Ошибка';
+            }
+            
+            // Show notification for non-401 errors
+            if (typeof notifyError === 'function') {
+                notifyError('Ошибка загрузки профиля. Проверьте подключение к интернету.');
             }
             return;
         }
