@@ -131,7 +131,7 @@ function showSection(sectionId) {
             break;
         case 'partners':
             loadPartnersData();
-            loadCommissions(); // Load commissions history
+            // loadCommissionsHistory() is called inside loadPartnersData()
             break;
         case 'cards':
             loadPaymentMethods();
@@ -1508,6 +1508,15 @@ async function loadCommissionsHistory() {
         const result = await apiRequest('/client/referrals/commissions/');
         console.log('📦 Commissions API response:', result);
         
+        const tableBody = document.getElementById('commissionsTableBody');
+        const mobileList = document.getElementById('commissionsMobileList');
+        const emptyState = document.getElementById('commissionsEmpty');
+        
+        if (!tableBody || !mobileList) {
+            console.warn('Commissions table elements not found');
+            return;
+        }
+        
         if (!result || result.error) {
             console.error('❌ Failed to load commissions:', result?.error);
             const tbody = document.getElementById('commissionsTableBody');
@@ -1521,30 +1530,46 @@ async function loadCommissionsHistory() {
             return;
         }
         
-        const data = result.data;
+        const data = result.data || result;
         const commissions = data.commissions || [];
         const tbody = document.getElementById('commissionsTableBody');
-        const commissionsTable = document.getElementById('commissionsTable');
-        const commissionsEmpty = document.getElementById('commissionsEmpty');
+        const mobileList = document.getElementById('commissionsMobileList');
+        const emptyState = document.getElementById('commissionsEmpty');
+        const commissionsTable = document.querySelector('#commissionsTableBody')?.closest('.overflow-x-auto');
         
         console.log('💰 Commissions data from API:', commissions.length);
         
-        if (!tbody) {
-            console.error('❌ Commissions table body not found');
+        if (!tbody || !mobileList) {
+            console.error('❌ Commissions table elements not found');
             return;
+        }
+        
+        // Hide empty state by default
+        if (emptyState) {
+            emptyState.classList.add('hidden');
         }
         
         if (commissions.length === 0) {
             // Show empty state
-            if (commissionsTable) commissionsTable.classList.add('hidden');
-            if (commissionsEmpty) commissionsEmpty.classList.remove('hidden');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-gray-500">Начислений пока нет</td></tr>';
+            mobileList.innerHTML = '<div class="text-center p-8 text-gray-500">Начислений пока нет</div>';
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+            }
+            if (commissionsTable) {
+                commissionsTable.classList.add('hidden');
+            }
             console.log('✅ No commissions found');
             return;
         }
         
         // Show table, hide empty state
-        if (commissionsTable) commissionsTable.classList.remove('hidden');
-        if (commissionsEmpty) commissionsEmpty.classList.add('hidden');
+        if (commissionsTable) {
+            commissionsTable.classList.remove('hidden');
+        }
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
         
         // Format date
         function formatDate(dateString) {
