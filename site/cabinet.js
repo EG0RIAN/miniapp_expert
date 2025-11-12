@@ -3439,13 +3439,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Pre-load all sections data in parallel (but profile is already loaded)
         console.log('Loading other sections...');
-        await Promise.all([
-            loadProducts(),
-            loadSubscriptions(),
-            loadPayments(),
-            loadPartnersData()
-        ]);
-        console.log('All sections loaded');
+        try {
+            await Promise.allSettled([
+                loadProducts(),
+                loadSubscriptions(),
+                loadPayments(),
+                loadPartnersData()
+            ]);
+            console.log('All sections loaded (some may have failed)');
+        } catch (error) {
+            console.error('Error loading sections:', error);
+        }
         
         // Check documents status (loads banner on all pages and documents in profile)
         await checkDocumentsStatus();
