@@ -870,16 +870,26 @@
 
             <!-- Cards Section -->
             <section id="section-cards" class="cabinet-section hidden">
-                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <i data-lucide="credit-card" class="w-8 h-8 text-primary"></i>
-                    <span>Привязанные карты</span>
-                </h2>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold flex items-center gap-3">
+                        <i data-lucide="credit-card" class="w-8 h-8 text-primary"></i>
+                        <span>Привязанные карты</span>
+                    </h2>
+                    <button onclick="addNewCard()" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition flex items-center gap-2">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Привязать карту</span>
+                    </button>
+                </div>
 
                 <!-- Empty State -->
                 <div id="cardsEmpty" class="hidden text-center py-12 bg-gray-50 rounded-2xl mb-6">
                         <i data-lucide="credit-card" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
                     <p class="text-lg text-gray-600 mb-2">Привязанных карт пока нет</p>
-                    <p class="text-sm text-gray-500">Карты автоматически привязываются при оплате подписки</p>
+                    <p class="text-sm text-gray-500">Привяжите карту для быстрых платежей и автоматического продления подписок</p>
+                    <button onclick="addNewCard()" class="mt-4 bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition inline-flex items-center gap-2">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Привязать первую карту</span>
+                    </button>
                     </div>
                 
                 <!-- Cards Grid -->
