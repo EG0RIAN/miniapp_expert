@@ -140,14 +140,6 @@
                     <i data-lucide="credit-card" class="w-5 h-5"></i>
                     <span class="font-semibold">Карты</span>
                 </a>
-                <a href="#my-cancellation-requests" onclick="showSection('my-cancellation-requests'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="my-cancellation-requests">
-                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                    <span class="font-semibold">Мои запросы</span>
-                </a>
-                <a href="#referral-cancellation-requests" onclick="showSection('referral-cancellation-requests'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="referral-cancellation-requests">
-                    <i data-lucide="users" class="w-5 h-5"></i>
-                    <span class="font-semibold">Запросы рефералов</span>
-                </a>
                 <a href="#payments" onclick="showSection('payments'); return false;" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition" data-section="payments">
                     <i data-lucide="receipt" class="w-5 h-5"></i>
                     <span class="font-semibold">История платежей</span>
@@ -836,94 +828,6 @@
                     </div>
                             </div>
                         </div>
-            </section>
-
-            <!-- Cancellation Requests Section (My Requests) -->
-            <section id="section-my-cancellation-requests" class="cabinet-section hidden">
-                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <i data-lucide="alert-circle" class="w-8 h-8 text-yellow-600"></i>
-                    <span>Мои запросы на отмену</span>
-                </h2>
-                
-                <!-- Empty State -->
-                <div id="myCancellationRequestsEmpty" class="text-center py-12 bg-gray-50 rounded-2xl mb-6">
-                    <i data-lucide="alert-circle" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                    <p class="text-lg text-gray-600 mb-2">Запросов на отмену пока нет</p>
-                    <p class="text-sm text-gray-500">Здесь будут отображаться ваши запросы на отмену подписок</p>
-                </div>
-                
-                <!-- Requests Container -->
-                <div id="myCancellationRequestsContainer" class="space-y-4 mb-6 hidden">
-                    <!-- Requests will be loaded here -->
-                </div>
-                
-                <div class="bg-white rounded-2xl shadow-sm p-6">
-                    <h3 class="text-xl font-bold mb-4">Как работает отмена подписки?</h3>
-                    <div class="space-y-3 text-gray-700">
-                        <p>
-                            <i data-lucide="info" class="w-5 h-5 inline-block text-primary"></i>
-                            Когда вы запрашиваете отмену подписки, запрос отправляется вашему рефералу
-                        </p>
-                        <p>
-                            <i data-lucide="clock" class="w-5 h-5 inline-block text-yellow-600"></i>
-                            У реферала есть 24 часа для принятия решения
-                        </p>
-                        <p>
-                            <i data-lucide="check-circle" class="w-5 h-5 inline-block text-green-600"></i>
-                            Реферал может одобрить или отклонить отмену
-                        </p>
-                        <p>
-                            <i data-lucide="alert-triangle" class="w-5 h-5 inline-block text-red-600"></i>
-                            Если реферал не ответит в течение 24 часов, подписка будет автоматически отменена
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Referral Cancellation Requests Section -->
-            <section id="section-referral-cancellation-requests" class="cabinet-section hidden">
-                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <i data-lucide="users" class="w-8 h-8 text-primary"></i>
-                    <span>Запросы на отмену от рефералов</span>
-                </h2>
-                
-                <!-- Empty State -->
-                <div id="referralCancellationRequestsEmpty" class="text-center py-12 bg-gray-50 rounded-2xl mb-6">
-                    <i data-lucide="users" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                    <p class="text-lg text-gray-600 mb-2">Запросов от рефералов пока нет</p>
-                    <p class="text-sm text-gray-500">Здесь будут отображаться запросы на отмену от ваших рефералов</p>
-                </div>
-                
-                <!-- Requests Container -->
-                <div id="referralCancellationRequestsContainer" class="space-y-4 mb-6 hidden">
-                    <!-- Requests will be loaded here -->
-                </div>
-                
-                <div class="bg-white rounded-2xl shadow-sm p-6">
-                    <h3 class="text-xl font-bold mb-4">Ваша роль как реферала</h3>
-                    <div class="space-y-3 text-gray-700">
-                        <p>
-                            <i data-lucide="info" class="w-5 h-5 inline-block text-primary"></i>
-                            Когда ваш реферал запрашивает отмену, вы получаете email уведомление
-                        </p>
-                        <p>
-                            <i data-lucide="clock" class="w-5 h-5 inline-block text-yellow-600"></i>
-                            У вас есть 24 часа для принятия решения
-                        </p>
-                        <p>
-                            <i data-lucide="message-circle" class="w-5 h-5 inline-block text-blue-600"></i>
-                            Вы можете связаться с рефералом и обсудить причину отмены
-                        </p>
-                        <p>
-                            <i data-lucide="check-circle" class="w-5 h-5 inline-block text-green-600"></i>
-                            Одобрите отмену, если реферал действительно хочет отменить подписку
-                        </p>
-                        <p>
-                            <i data-lucide="x-circle" class="w-5 h-5 inline-block text-red-600"></i>
-                            Отклоните отмену, если считаете что подписка будет полезна
-                        </p>
-                    </div>
-                </div>
             </section>
 
             <!-- Cards Section -->
