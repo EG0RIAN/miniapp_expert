@@ -832,21 +832,25 @@
 
             <!-- Cards Section -->
             <section id="section-cards" class="cabinet-section hidden">
-                <h1 class="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
                     <i data-lucide="credit-card" class="w-8 h-8 text-primary"></i>
                     <span>Привязанные карты</span>
-                </h1>
-
-                <!-- Cards List -->
-                <div id="cardsList" class="space-y-4 mb-6">
-                    <div class="text-center py-12 text-gray-500">
-                        <i data-lucide="credit-card" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                        <p>Загрузка карт...</p>
-                    </div>
+                </h2>
+                
+                <!-- Empty State -->
+                <div id="cardsEmpty" class="hidden text-center py-12 bg-gray-50 rounded-2xl mb-6">
+                    <i data-lucide="credit-card" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                    <p class="text-lg text-gray-600 mb-2">Привязанных карт пока нет</p>
+                    <p class="text-sm text-gray-500">Карты автоматически привязываются при оплате подписки</p>
+                </div>
+                
+                <!-- Cards Grid -->
+                <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Cards will be loaded here -->
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm p-6">
-                    <h2 class="text-xl font-bold mb-4">Как привязать карту?</h2>
+                    <h3 class="text-xl font-bold mb-4">Как привязать карту?</h3>
                     <p class="text-gray-700 mb-4">
                         Карта автоматически привязывается при первой оплате. После успешной оплаты карта будет доступна для рекуррентных платежей и будет отображаться в этом списке.
                     </p>
