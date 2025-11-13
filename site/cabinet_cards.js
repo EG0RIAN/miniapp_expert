@@ -198,36 +198,29 @@ async function addNewCard() {
             window.showLoader();
         }
         
-        // Создать тестовый заказ для привязки карты
-        const response = await fetch('https://miniapp.expert/api/payment/create-card-binding/', {
+        // Используем apiRequest из cabinet.js для правильной авторизации
+        const result = await apiRequest('/payment/create-card-binding/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            },
             body: JSON.stringify({
                 return_url: 'https://miniapp.expert/cabinet.html#cards'
-            }),
+            })
         });
         
-        const data = await response.json();
-        
-        console.log('🔍 Backend response:', data);
-        console.log('🔍 Response status:', response.status);
+        console.log('🔍 Backend response:', result);
         
         // Скрыть индикатор загрузки
         if (typeof window.hideLoader === 'function') {
             window.hideLoader();
         }
         
-        if (data.success && data.payment_url) {
+        if (result.success && result.data?.payment_url) {
             // Перенаправить на страницу оплаты T-Bank
-            window.location.href = data.payment_url;
+            window.location.href = result.data.payment_url;
         } else {
-            const errorMsg = data.error || data.message || 'Не удалось создать платеж для привязки карты';
-            const errorDetails = data.error_code ? `\nКод: ${data.error_code}` : '';
+            const errorMsg = result.message || result.error || 'Не удалось создать платеж для привязки карты';
+            const errorDetails = result.data?.error_code ? `\nКод: ${result.data.error_code}` : '';
             const fullError = errorMsg + errorDetails;
-            console.error('❌ Payment creation error:', fullError, data);
+            console.error('❌ Payment creation error:', fullError, result);
             alert('Ошибка: ' + fullError);
         }
     } catch (error) {
