@@ -210,6 +210,10 @@ class PaymentWebhookView(views.APIView):
             
             # Если платеж подтвержден, привязать к пользователю, создать продукт и транзакцию
             if status_tbank == 'CONFIRMED':
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"Processing CONFIRMED webhook for order {order_id}, payment {payment_id}")
+                
                 try:
                     with db_transaction.atomic():
                         from apps.users.services import send_welcome_email
@@ -231,6 +235,7 @@ class PaymentWebhookView(views.APIView):
                             )
                             if not created:
                                 # Обновляем данные пользователя
+                                logger.info(f"User already exists: {user.email}, updating data")
                                 if order.customer_name:
                                     user.name = order.customer_name
                                 if order.customer_phone:
@@ -240,13 +245,17 @@ class PaymentWebhookView(views.APIView):
                                 if not user.referred_by and order.referred_by:
                                     user.referred_by = order.referred_by
                                 user.save()
+                            else:
+                                logger.info(f"New user created: {user.email}")
                             
                             # Привязываем заказ к пользователю
                             order.user = user
                             order.save()
+                            logger.info(f"Order {order.order_id} linked to user {user.email}")
                             
                             # Обновляем платеж - привязываем к пользователю
                             payment.user = user
+                            logger.info(f"Payment {payment.id} linked to user {user.email}")
                             
                             # Если receipt_url еще не сохранен, пытаемся получить его еще раз через get_receipt
                             if not payment.receipt_url and payment_id:
