@@ -59,10 +59,12 @@ class CardBindingView(views.APIView):
                 amount=100,  # 1 рубль в копейках
                 order_id=order.order_id,
                 description='Привязка банковской карты',
+                email=user.email,
+                phone='',  # Телефон не обязателен для привязки карты
+                name=user.full_name or user.email.split('@')[0],  # Имя пользователя или часть email
                 customer_key=customer_key,
                 save_method=True,
-                is_subscription=False,
-                receipt=None  # Для привязки карты чек не нужен
+                is_subscription=False
             )
             
             if result.get('Success'):
