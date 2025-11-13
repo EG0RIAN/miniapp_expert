@@ -62,8 +62,6 @@ class CardBindingView(views.APIView):
                 customer_key=customer_key,
                 save_method=True,
                 is_subscription=False,
-                success_url=return_url,
-                fail_url=return_url,
                 receipt=None  # Для привязки карты чек не нужен
             )
             
