@@ -1,4 +1,7 @@
 from django.contrib import admin
+
+# Import cancellation request admin
+from .admin_cancellation import CancellationRequestAdmin
 from django.utils.html import format_html
 from .models import PaymentMethod, Mandate, Payment, ManualCharge, Transaction
 
