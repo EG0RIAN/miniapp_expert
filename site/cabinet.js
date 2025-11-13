@@ -2502,39 +2502,20 @@ function manageSubscriptionFromButton(button) {
 
 // Manage subscription - show modal with options
 async function manageSubscription(subscriptionId, productName, price, period, startDate, endDate) {
-    console.log('manageSubscription called with:', { subscriptionId, productName, price, period, startDate, endDate });
+    console.log('✅ manageSubscription called with:', { subscriptionId, productName, price, period, startDate, endDate });
     
     try {
         // Validate inputs
         if (!subscriptionId) {
             console.warn('Subscription ID is required');
+            notifyWarning('Не указан ID подписки');
             return;
         }
         
-        // Check if showModal is available - use window.showModal if available
-        const modalFunction = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
-        
-        if (!modalFunction || typeof modalFunction !== 'function') {
-            console.warn('showModal not available, waiting...');
-            // Wait briefly for modal.js to load
-            let attempts = 0;
-            const maxAttempts = 10;
-            const checkModal = setInterval(() => {
-                attempts++;
-                const fn = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
-                if (fn && typeof fn === 'function') {
-                    clearInterval(checkModal);
-                    console.log('showModal loaded, retrying...');
-                    setTimeout(() => {
-                        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
-                    }, 50);
-                } else if (attempts >= maxAttempts) {
-                    clearInterval(checkModal);
-                    console.warn('showModal not available, skipping modal display');
-                    // Silently fail - don't show error
-                    return;
-                }
-            }, 100);
+        // Check if showModal is available
+        if (typeof showModal !== 'function') {
+            console.error('showModal is not a function, type:', typeof showModal);
+            notifyError('Модальное окно недоступно. Перезагрузите страницу.');
             return;
         }
         
