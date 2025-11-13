@@ -293,14 +293,14 @@ window.showModal = showModal;
 window.closeModal = closeModal;
 window.confirmModal = confirmModal;
 window.promptModal = promptModal;
-
+    
 console.log('✅ Modal functions exported:', {
     showModal: typeof window.showModal,
     closeModal: typeof window.closeModal,
     confirmModal: typeof window.confirmModal,
     promptModal: typeof window.promptModal
 });
-
+    
 // Dispatch event that modal is ready (for other scripts to listen)
 try {
     const event = new Event('modalReady');
