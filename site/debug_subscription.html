@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Subscription Button</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">Debug: Subscription Button</h1>
+    
+    <div class="mb-4 p-4 bg-gray-100 rounded">
+        <h2 class="font-bold mb-2">Test Button (same as cabinet):</h2>
+        <button 
+            data-subscription-id="test-123"
+            data-product-name="Test Product"
+            data-price="5000"
+            data-period="monthly"
+            data-start-date="2025-11-13"
+            data-end-date="2025-12-13"
+            type="button"
+            onclick="if(typeof manageSubscriptionFromButton === 'function') { manageSubscriptionFromButton(this); } else { console.error('manageSubscriptionFromButton is not defined'); alert('Функция управления подпиской не загружена. Обновите страницу.'); }" 
+            class="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+            Управлять подпиской
+        </button>
+    </div>
+    
+    <div class="mb-4 p-4 bg-gray-100 rounded">
+        <h2 class="font-bold mb-2">Simple Test Button:</h2>
+        <button 
+            onclick="testFunction()" 
+            class="bg-green-600 text-white px-4 py-2 rounded"
+        >
+            Test Direct Call
+        </button>
+    </div>
+    
+    <div id="log" class="p-4 bg-white border rounded">
+        <h2 class="font-bold mb-2">Console Log:</h2>
+        <pre id="logContent" class="text-xs"></pre>
+    </div>
+    
+    <script src="notification.js?v=2"></script>
+    <script src="modal.js?v=5"></script>
+    <script src="cabinet.js"></script>
+    
+    <script>
+        function log(msg) {
+            const logEl = document.getElementById('logContent');
+            logEl.textContent += new Date().toLocaleTimeString() + ': ' + msg + '\n';
+            console.log(msg);
+        }
+        
+        function testFunction() {
+            log('Test function called!');
+            log('typeof window.manageSubscription: ' + typeof window.manageSubscription);
+            log('typeof window.manageSubscriptionFromButton: ' + typeof window.manageSubscriptionFromButton);
+            log('typeof showModal: ' + typeof showModal);
+            log('typeof notifyError: ' + typeof notifyError);
+            
+            if (typeof window.manageSubscription === 'function') {
+                log('Calling manageSubscription directly...');
+                window.manageSubscription('test-123', 'Test Product', '5000', 'monthly', '2025-11-13', '2025-12-13');
+            } else {
+                log('ERROR: manageSubscription not available');
+            }
+        }
+        
+        // Check on load
+        window.addEventListener('load', () => {
+            log('Page loaded');
+            log('typeof window.manageSubscription: ' + typeof window.manageSubscription);
+            log('typeof window.manageSubscriptionFromButton: ' + typeof window.manageSubscriptionFromButton);
+        });
+        
+        // Override console.log
+        const originalLog = console.log;
+        console.log = function(...args) {
+            const logEl = document.getElementById('logContent');
+            logEl.textContent += new Date().toLocaleTimeString() + ': ' + args.join(' ') + '\n';
+            originalLog.apply(console, args);
+        };
+        
+        const originalError = console.error;
+        console.error = function(...args) {
+            const logEl = document.getElementById('logContent');
+            logEl.textContent += new Date().toLocaleTimeString() + ' ERROR: ' + args.join(' ') + '\n';
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+</html>
+

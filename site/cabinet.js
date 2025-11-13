@@ -2441,17 +2441,12 @@ async function loadPaymentMethods() {
 
 // Manage subscription from button - wrapper to get data from data attributes
 function manageSubscriptionFromButton(button) {
+    console.log('✅ manageSubscriptionFromButton called', button);
+    
     try {
-        console.log('manageSubscriptionFromButton called', button);
-        console.log('Available functions:', {
-            showModal: typeof showModal,
-            closeModal: typeof closeModal,
-            manageSubscription: typeof manageSubscription,
-            notifyError: typeof notifyError
-        });
-        
         if (!button) {
-            console.warn('Button element is null');
+            console.error('❌ Button element is null');
+            if (typeof notifyError === 'function') notifyError('Ошибка: кнопка не найдена');
             return;
         }
         
@@ -2462,41 +2457,35 @@ function manageSubscriptionFromButton(button) {
         const startDate = button.getAttribute('data-start-date');
         const endDate = button.getAttribute('data-end-date');
         
-        console.log('Extracted data:', { subscriptionId, productName, price, period, startDate, endDate });
+        console.log('📋 Button data:', { subscriptionId, productName, price, period, startDate, endDate });
         
         if (!subscriptionId) {
-            console.warn('Subscription ID is missing');
+            console.error('❌ subscriptionId is missing from button');
+            if (typeof notifyError === 'function') notifyError('Ошибка: ID подписки не найден');
             return;
         }
         
-        // Check if modal functions are available - wait if needed
-        const checkAndCall = () => {
-            const modalFn = window.showModal || (typeof showModal !== 'undefined' ? showModal : null);
-            if (modalFn && typeof modalFn === 'function' && typeof manageSubscription === 'function') {
-                manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
-                return true;
+        // Check if manageSubscription is available
+        if (typeof manageSubscription !== 'function') {
+            console.error('❌ manageSubscription is not a function');
+            if (typeof notifyError === 'function') {
+                notifyError('Ошибка: функция управления не загружена. Перезагрузите страницу.');
+            } else {
+                alert('Ошибка: функция управления не загружена. Перезагрузите страницу.');
             }
-            return false;
-        };
-        
-        // Try immediately
-        if (!checkAndCall()) {
-            // Wait for modal.js to load (max 2 seconds)
-            let waitCount = 0;
-            const checkModal = setInterval(() => {
-                waitCount++;
-                if (checkAndCall()) {
-                    clearInterval(checkModal);
-                } else if (waitCount >= 20) {
-                    clearInterval(checkModal);
-                    console.warn('Modal functions not available, skipping');
-                    // Silently fail - don't show error to user
-                }
-            }, 100);
+            return;
         }
+        
+        // Call the function
+        console.log('🚀 Calling manageSubscription...');
+        manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
     } catch (error) {
-        console.error('Error in manageSubscriptionFromButton:', error);
-        // Silently fail - don't show error to user
+        console.error('❌ Error in manageSubscriptionFromButton:', error);
+        if (typeof notifyError === 'function') {
+            notifyError('Ошибка при открытии окна управления подпиской');
+        } else {
+            alert('Ошибка при открытии окна управления подпиской');
+        }
     }
 }
 
