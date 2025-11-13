@@ -2476,6 +2476,18 @@ function manageSubscriptionFromButton(button) {
             return;
         }
         
+        // Check if showModal is available
+        if (typeof showModal !== 'function') {
+            console.error('❌ showModal is not a function, type:', typeof showModal);
+            console.error('window.showModal type:', typeof window.showModal);
+            if (typeof notifyError === 'function') {
+                notifyError('Модальное окно не загружено. Проверьте modal.js');
+            } else {
+                alert('Модальное окно не загружено. Проверьте modal.js');
+            }
+            return;
+        }
+        
         // Call the function
         console.log('🚀 Calling manageSubscription...');
         manageSubscription(subscriptionId, productName, price, period, startDate, endDate);
