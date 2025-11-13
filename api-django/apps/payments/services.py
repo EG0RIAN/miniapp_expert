@@ -206,6 +206,41 @@ class TBankService:
         response = requests.post(f"{self.api_url}/GetState", json=payload)
         return response.json()
     
+    def confirm_payment(self, payment_id: str, amount: int = None) -> Dict:
+        """Подтверждение авторизованного платежа (двухстадийная оплата)
+        
+        Args:
+            payment_id: ID платежа в T-Bank
+            amount: Сумма подтверждения в копейках (если None, подтверждается полная сумма)
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        payload = {
+            'TerminalKey': self.terminal_key,
+            'PaymentId': str(payment_id),
+        }
+        
+        if amount is not None:
+            payload['Amount'] = int(amount)
+        
+        payload['Token'] = self._generate_token(payload)
+        
+        logger.info(f"Confirming payment {payment_id} with amount {amount}")
+        
+        try:
+            response = requests.post(f"{self.api_url}/Confirm", json=payload, timeout=30)
+            result = response.json()
+            logger.info(f"Confirm response: {result}")
+            return result
+        except Exception as e:
+            logger.error(f"Error confirming payment: {e}")
+            return {
+                'Success': False,
+                'ErrorCode': 'CONFIRM_ERROR',
+                'Message': str(e)
+            }
+    
     def charge_mit(
         self,
         rebill_id: str,

@@ -183,7 +183,14 @@ class PaymentWebhookView(views.APIView):
             # Обновление платежа
             payment = Payment.objects.filter(order=order).first()
             if payment:
-                payment.status = 'success' if status_tbank == 'CONFIRMED' else 'failed'
+                # Обрабатываем разные статусы T-Bank
+                if status_tbank == 'CONFIRMED':
+                    payment.status = 'success'
+                elif status_tbank == 'AUTHORIZED':
+                    payment.status = 'pending'  # Ждем подтверждения
+                else:
+                    payment.status = 'failed'
+                
                 payment.provider_ref = payment_id
                 
                 # Получаем URL чека из webhook (T-Bank может отправлять ReceiptURL, ReceiptUrl или Receipt)
@@ -215,6 +222,39 @@ class PaymentWebhookView(views.APIView):
                     print(f"Warning: Receipt URL не получен для платежа {payment_id}")
                 
                 payment.save()
+            
+            # Если платеж авторизован, автоматически подтверждаем его
+            if status_tbank == 'AUTHORIZED':
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"Processing AUTHORIZED webhook for order {order_id}, payment {payment_id}")
+                
+                # Автоматически подтверждаем платеж
+                try:
+                    tbank = TBankService()
+                    confirm_result = tbank.confirm_payment(payment_id)
+                    
+                    if confirm_result.get('Success'):
+                        logger.info(f"Payment {payment_id} confirmed successfully, new status: {confirm_result.get('Status')}")
+                        # Обновляем статус
+                        order.status = 'CONFIRMED'
+                        order.save()
+                        payment.status = 'success'
+                        payment.save()
+                        # Меняем статус для дальнейшей обработки
+                        status_tbank = 'CONFIRMED'
+                    else:
+                        logger.error(f"Failed to confirm payment {payment_id}: {confirm_result.get('Message')}")
+                        payment.status = 'failed'
+                        payment.failure_reason = f"Confirm failed: {confirm_result.get('Message')}"
+                        payment.save()
+                        return Response('OK', status=status.HTTP_200_OK)
+                except Exception as e:
+                    logger.exception(f"Error confirming payment {payment_id}: {e}")
+                    payment.status = 'failed'
+                    payment.failure_reason = f"Confirm error: {str(e)}"
+                    payment.save()
+                    return Response('OK', status=status.HTTP_200_OK)
             
             # Если платеж подтвержден, привязать к пользователю, создать продукт и транзакцию
             if status_tbank == 'CONFIRMED':
