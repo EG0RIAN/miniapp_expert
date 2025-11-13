@@ -3540,6 +3540,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             await Promise.allSettled([
                 loadProducts(),
                 loadSubscriptions(),
+                loadPaymentMethods(),
                 loadPayments(),
                 loadPartnersData()
             ]);
