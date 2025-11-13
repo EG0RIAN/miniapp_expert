@@ -432,18 +432,23 @@ class PaymentWebhookView(views.APIView):
                                     else:
                                         logger.info(f"UserProduct уже существует (one_time) для пользователя {user.email}, продукт {order.product.name}")
                             
-                            # Создать транзакцию
-                            transaction = Transaction.objects.create(
-                                user=user,
-                                order=order,
+                            # Создать транзакцию с get_or_create для idempotency
+                            transaction, trans_created = Transaction.objects.get_or_create(
                                 payment=payment,
-                                transaction_type='payment',
-                                amount=order.amount,
-                                currency=order.currency,
-                                description=order.description,
-                                provider_ref=payment_id,
+                                defaults={
+                                    'user': user,
+                                    'order': order,
+                                    'transaction_type': 'payment',
+                                    'amount': order.amount,
+                                    'currency': order.currency,
+                                    'description': order.description,
+                                    'provider_ref': payment_id,
+                                }
                             )
-                            print(f"Transaction создана для пользователя {user.email}, сумма {order.amount} {order.currency}, платеж {payment_id}")
+                            if trans_created:
+                                logger.info(f"Transaction создана для пользователя {user.email}, сумма {order.amount} {order.currency}, платеж {payment_id}")
+                            else:
+                                logger.info(f"Transaction уже существует для платежа {payment_id}")
                             
                             # Начислить комиссию рефералу, если есть
                             if order.referred_by and order.referred_by != user:
