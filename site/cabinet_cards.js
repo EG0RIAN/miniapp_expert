@@ -186,17 +186,17 @@ async function addNewCard() {
     console.log('🔵 addNewCard called');
     
     try {
-        // Показать модальное окно с объяснением
-        const confirmed = await confirmModal(
-            'Для привязки карты будет создан тестовый платеж на 1 ₽, который сразу вернется на вашу карту.\n\nПродолжить?',
-            'Привязка карты'
-        );
+        // Показать модальное окно с подтверждением используя confirm
+        const confirmed = confirm('Для привязки карты будет создан тестовый платеж на 1 ₽, который сразу вернется на вашу карту.\n\nПродолжить?');
         
         if (!confirmed) {
             return;
         }
         
-        showLoader();
+        // Показать индикатор загрузки
+        if (typeof window.showLoader === 'function') {
+            window.showLoader();
+        }
         
         // Создать тестовый заказ для привязки карты
         const response = await fetch('https://miniapp.expert/api/payment/create-card-binding/', {
@@ -212,28 +212,26 @@ async function addNewCard() {
         
         const data = await response.json();
         
-        hideLoader();
+        // Скрыть индикатор загрузки
+        if (typeof window.hideLoader === 'function') {
+            window.hideLoader();
+        }
         
         if (data.success && data.payment_url) {
             // Перенаправить на страницу оплаты T-Bank
             window.location.href = data.payment_url;
         } else {
-            showModal({
-                title: 'Ошибка',
-                message: data.error || 'Не удалось создать платеж для привязки карты',
-                type: 'error',
-                confirmText: 'ОК',
-            });
+            alert('Ошибка: ' + (data.error || 'Не удалось создать платеж для привязки карты'));
         }
     } catch (error) {
         console.error('Error adding new card:', error);
-        hideLoader();
-        showModal({
-            title: 'Ошибка',
-            message: 'Произошла ошибка при привязке карты',
-            type: 'error',
-            confirmText: 'ОК',
-        });
+        
+        // Скрыть индикатор загрузки
+        if (typeof window.hideLoader === 'function') {
+            window.hideLoader();
+        }
+        
+        alert('Произошла ошибка при привязке карты. Попробуйте позже.');
     }
 }
 
