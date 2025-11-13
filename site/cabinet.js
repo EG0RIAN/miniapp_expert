@@ -880,12 +880,51 @@ async function loadSubscriptions() {
             const adminUrl = sub.product?.admin_url || sub.admin_url || null;
             
             // Determine button classes and behavior
-            const appButtonClass = appUrl 
-                ? 'bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-sm cursor-pointer' 
-                : 'bg-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
-            const adminButtonClass = adminUrl 
-                ? 'border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm cursor-pointer' 
-                : 'border-2 border-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
+            const baseAppButtonClass = 'group flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition shadow-sm';
+            const baseAdminButtonClass = 'group flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition border';
+            
+            const appButtonClass = appUrl
+                ? `${baseAppButtonClass} bg-primary text-white hover:bg-primary/90 hover:shadow-md cursor-pointer`
+                : `${baseAppButtonClass} bg-gray-200 text-gray-500 cursor-not-allowed opacity-80`;
+            const adminButtonClass = adminUrl
+                ? `${baseAdminButtonClass} border-primary text-primary hover:bg-primary/10 hover:shadow-sm cursor-pointer`
+                : `${baseAdminButtonClass} border-gray-300 text-gray-400 cursor-not-allowed opacity-80`;
+            
+            const appButtonTemplate = appUrl ? `
+                <button 
+                    type="button"
+                    data-copy-value="${appUrl}"
+                    class="${appButtonClass} subscription-copy-app-btn"
+                >
+                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </span>
+                    <span class="leading-tight">Скопировать приложение</span>
+                </button>
+            ` : `
+                <span class="${appButtonClass}" title="URL приложения не указан">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </span>
+                    <span class="leading-tight">Скопировать приложение</span>
+                </span>
+            `;
+            
+            const adminButtonTemplate = adminUrl ? `
+                <a href="${adminUrl}" target="_blank" rel="noopener" class="${adminButtonClass}">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </span>
+                    <span class="leading-tight">Открыть админку</span>
+                </a>
+            ` : `
+                <span class="${adminButtonClass}" title="URL админки не указан">
+                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
+                        <i data-lucide="slash" class="w-4 h-4"></i>
+                    </span>
+                    <span class="leading-tight">Админка недоступна</span>
+                </span>
+            `;
             
             return `
                 <div class="bg-white rounded-2xl shadow-sm p-6 border-2 ${sub.status === 'active' ? 'border-green-500/20' : 'border-gray-200'}">
@@ -938,40 +977,8 @@ async function loadSubscriptions() {
                     </div>
                     ${sub.status === 'active' ? `
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-                            ${appUrl ? `
-                                <button 
-                                    type="button"
-                                    data-copy-value="${appUrl}"
-                                    class="${appButtonClass} subscription-copy-app-btn"
-                                >
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </span>
-                                    <span>Скопировать приложение</span>
-                                </button>
-                            ` : `
-                                <span class="${appButtonClass}" title="URL приложения не указан">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </span>
-                                    <span>Скопировать приложение</span>
-                                </span>
-                            `}
-                            ${adminUrl ? `
-                                <a href="${adminUrl}" target="_blank" rel="noopener" class="${adminButtonClass}">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
-                                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                                    </span>
-                                    <span>Открыть админку</span>
-                                </a>
-                            ` : `
-                                <span class="${adminButtonClass}" title="URL админки не указан">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
-                                        <i data-lucide="slash" class="w-4 h-4"></i>
-                                    </span>
-                                    <span>Админка недоступна</span>
-                                </span>
-                            `}
+                            ${appButtonTemplate}
+                            ${adminButtonTemplate}
                         </div>
                         <button 
                             data-subscription-id="${sub.id}"
@@ -983,40 +990,8 @@ async function loadSubscriptions() {
                         </button>
                     ` : sub.status === 'expired' ? `
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-                            ${appUrl ? `
-                                <button 
-                                    type="button"
-                                    data-copy-value="${appUrl}"
-                                    class="${appButtonClass} subscription-copy-app-btn"
-                                >
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Скопировать приложение</span>
-                                </button>
-                            ` : `
-                                <span class="${appButtonClass}" title="URL приложения не указан">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Скопировать приложение</span>
-                                </span>
-                            `}
-                            ${adminUrl ? `
-                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
-                                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Открыть админку</span>
-                                </a>
-                            ` : `
-                                <span class="${adminButtonClass}" title="URL админки не указан">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
-                                        <i data-lucide="slash" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Админка недоступна</span>
-                                </span>
-                            `}
+                            ${appButtonTemplate}
+                            ${adminButtonTemplate}
                         </div>
                         <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
@@ -1024,40 +999,8 @@ async function loadSubscriptions() {
                         </a>
                     ` : `
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-                            ${appUrl ? `
-                                <button 
-                                    type="button"
-                                    data-copy-value="${appUrl}"
-                                    class="${appButtonClass} subscription-copy-app-btn"
-                                >
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Скопировать приложение</span>
-                                </button>
-                            ` : `
-                                <span class="${appButtonClass}" title="URL приложения не указан">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
-                                        <i data-lucide="copy" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Скопировать приложение</span>
-                                </span>
-                            `}
-                            ${adminUrl ? `
-                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
-                                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Открыть админку</span>
-                                </a>
-                            ` : `
-                                <span class="${adminButtonClass}" title="URL админки не указан">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
-                                        <i data-lucide="slash" class="w-4 h-4"></i>
-                                    </span>
-                                    <span class="leading-tight">Админка недоступна</span>
-                                </span>
-                            `}
+                            ${appButtonTemplate}
+                            ${adminButtonTemplate}
                         </div>
                         <a href="/payment.html?product=${encodeURIComponent(productName)}&price=${price}&subscription=monthly" 
                            class="block w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition text-center">
