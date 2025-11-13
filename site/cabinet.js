@@ -973,28 +973,14 @@ async function loadSubscriptions() {
                                 </span>
                             `}
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <button 
-                                data-subscription-id="${sub.id}"
-                                data-product-name="${safeProductName}"
-                                data-price="${String(price || 0)}"
-                                data-period="${String(subscriptionPeriod || 'monthly')}"
-                                data-start-date="${String(sub.start_date || '')}"
-                                data-end-date="${String(sub.end_date || '')}"
-                                type="button"
-                                class="bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition subscription-manage-btn"
-                            >
-                                Управлять подпиской
-                            </button>
-                            <button 
-                                data-subscription-id="${sub.id}"
-                                data-product-name="${safeProductName}"
-                                type="button"
-                                class="border border-red-400 text-red-500 py-2 rounded-xl font-semibold hover:bg-red-50 transition subscription-cancel-direct-btn"
-                            >
-                                Отменить подписку
-                            </button>
-                        </div>
+                        <button 
+                            data-subscription-id="${sub.id}"
+                            data-product-name="${safeProductName}"
+                            type="button"
+                            class="w-full border border-red-400 text-red-500 py-2 rounded-xl font-semibold hover:bg-red-50 transition subscription-cancel-direct-btn"
+                        >
+                            Отменить подписку
+                        </button>
                     ` : sub.status === 'expired' ? `
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                             ${appUrl ? `
