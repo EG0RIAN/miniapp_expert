@@ -670,21 +670,29 @@ async function loadProducts() {
                         ${endDate ? `<p class="text-gray-600 mb-4 text-sm">Действует до: ${endDate}</p>` : ''}
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             ${appUrl ? `
-                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
-                                    Приложение
-                                </a>
+                                <button 
+                                    type="button"
+                                    data-copy-value="${appUrl}"
+                                    class="${appButtonClass} subscription-copy-app-btn"
+                                >
+                                    Скопировать
+                                </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    Приложение
+                                    Скопировать
                                 </span>
                             `}
                             ${adminUrl ? `
-                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
-                                    Админка
-                                </a>
+                                <button 
+                                    type="button"
+                                    data-copy-value="${adminUrl}"
+                                    class="${adminButtonClass} subscription-copy-admin-btn"
+                                >
+                                    Скопировать
+                                </button>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Админка
+                                    Скопировать
                                 </span>
                             `}
                 </div>
@@ -917,21 +925,29 @@ async function loadSubscriptions() {
                     ${sub.status === 'active' ? `
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             ${appUrl ? `
-                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
-                                    Приложение
-                                </a>
+                                <button 
+                                    type="button"
+                                    data-copy-value="${appUrl}"
+                                    class="${appButtonClass} subscription-copy-app-btn"
+                                >
+                                    Скопировать
+                                </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    Приложение
+                                    Скопировать
                                 </span>
                             `}
                             ${adminUrl ? `
-                                <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
-                                    Админка
-                                </a>
+                                <button 
+                                    type="button"
+                                    data-copy-value="${adminUrl}"
+                                    class="${adminButtonClass} subscription-copy-admin-btn"
+                                >
+                                    Скопировать
+                                </button>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Админка
+                                    Скопировать
                                 </span>
                             `}
                         </div>
@@ -950,12 +966,16 @@ async function loadSubscriptions() {
                     ` : sub.status === 'expired' ? `
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             ${appUrl ? `
-                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
-                                    Приложение
-                                </a>
+                                <button 
+                                    type="button"
+                                    data-copy-value="${appUrl}"
+                                    class="${appButtonClass} subscription-copy-app-btn"
+                                >
+                                    Скопировать
+                                </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    Приложение
+                                    Скопировать
                                 </span>
                             `}
                             ${adminUrl ? `
@@ -1003,6 +1023,7 @@ async function loadSubscriptions() {
         }).join('');
         
         // Attach event listeners for subscription management buttons
+        attachSubscriptionCopyHandlers(container);
         attachSubscriptionManageHandlers(container);
         
         if (typeof lucide !== 'undefined') {
@@ -1067,6 +1088,42 @@ function attachSubscriptionManageHandlers(container) {
     });
     
     console.log('✅ Subscription manage buttons listeners attached:', buttons.length);
+}
+
+// Attach copy-to-clipboard handlers for app/admin buttons
+function attachSubscriptionCopyHandlers(container) {
+    const buttons = container.querySelectorAll('.subscription-copy-app-btn, .subscription-copy-admin-btn');
+    
+    buttons.forEach((button) => {
+        if (button.dataset.copyHandlerAttached === 'true') {
+            return;
+        }
+        
+        const handler = async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const value = button.getAttribute('data-copy-value');
+            if (!value) {
+                notifyWarning?.('Ссылка не указана');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(value);
+                notifySuccess?.('Ссылка скопирована в буфер обмена');
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                notifyError?.('Не удалось скопировать ссылку');
+            }
+        };
+        
+        button.addEventListener('click', handler);
+        button.dataset.copyHandlerAttached = 'true';
+        button._copyHandler = handler;
+    });
+    
+    console.log('✅ Subscription copy buttons listeners attached:', buttons.length);
 }
 
 // Load payments
