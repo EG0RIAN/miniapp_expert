@@ -2442,21 +2442,43 @@ async function loadPaymentMethods() {
 // Ensure modal.js is loaded dynamically if missing
 async function ensureModalLoaded() {
     if (typeof showModal === 'function') return true;
+
+    console.log('🔍 Checking if modal.js is already in DOM...');
+    const existingScript = document.querySelector('script[src*="/modal.js"]');
+    if (existingScript) {
+        console.log('✅ modal.js script already exists in DOM');
+        // Wait a bit for it to execute
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (typeof showModal === 'function') return true;
+    }
+
     try {
-        if (!window._modalLoadPromise) {
-            console.log('🔄 Loading modal.js dynamically...');
-            window._modalLoadPromise = new Promise((resolve, reject) => {
-                const s = document.createElement('script');
-                s.src = '/modal.js?v=6&ts=' + Date.now();
-                s.async = true;
-                s.onload = () => {
-                    console.log('✅ modal.js loaded dynamically');
-                    resolve(true);
-                };
-                s.onerror = () => reject(new Error('modal.js load error'));
-                document.head.appendChild(s);
-            });
-        }
+        console.log('🔄 Loading modal.js dynamically...');
+        window._modalLoadPromise = new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = '/modal.js?v=6&ts=' + Date.now();
+            s.async = true;
+            s.onload = () => {
+                console.log('✅ modal.js loaded, waiting for execution...');
+                // Wait a bit for execution
+                setTimeout(() => {
+                    console.log('🔍 Checking showModal after load:', typeof showModal);
+                    if (typeof showModal === 'function') {
+                        resolve(true);
+                    } else {
+                        console.error('❌ showModal still undefined after load');
+                        console.log('Available window properties:', Object.keys(window).filter(k => k.includes('modal') || k.includes('Modal')));
+                        reject(new Error('showModal not available after load'));
+                    }
+                }, 100);
+            };
+            s.onerror = (e) => {
+                console.error('❌ modal.js load error:', e);
+                reject(new Error('modal.js load error'));
+            };
+            console.log('📝 Adding script to DOM:', s.src);
+            document.head.appendChild(s);
+        });
         await window._modalLoadPromise;
     } catch (e) {
         console.error('❌ Failed to load modal.js dynamically:', e);
