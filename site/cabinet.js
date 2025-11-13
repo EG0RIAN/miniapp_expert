@@ -683,14 +683,14 @@ async function loadProducts() {
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Скопировать приложение</span>
+                                    <span class="leading-tight">Скопировать приложение</span>
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Скопировать приложение</span>
+                                    <span class="leading-tight">Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
@@ -698,14 +698,14 @@ async function loadProducts() {
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
                                         <i data-lucide="external-link" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Открыть админку</span>
+                                    <span class="leading-tight">Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
                                         <i data-lucide="slash" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Админка недоступна</span>
+                                    <span class="leading-tight">Админка недоступна</span>
                                 </span>
                             `}
                 </div>
@@ -992,14 +992,14 @@ async function loadSubscriptions() {
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Скопировать приложение</span>
+                                    <span class="leading-tight">Скопировать приложение</span>
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Скопировать приложение</span>
+                                    <span class="leading-tight">Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
@@ -1007,14 +1007,14 @@ async function loadSubscriptions() {
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
                                         <i data-lucide="external-link" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Открыть админку</span>
+                                    <span class="leading-tight">Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
                                         <i data-lucide="slash" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Админка недоступна</span>
+                                    <span class="leading-tight">Админка недоступна</span>
                                 </span>
                             `}
                         </div>
@@ -1033,14 +1033,14 @@ async function loadSubscriptions() {
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Скопировать приложение</span>
+                                    <span class="leading-tight">Скопировать приложение</span>
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Скопировать приложение</span>
+                                    <span class="leading-tight">Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
@@ -1048,14 +1048,14 @@ async function loadSubscriptions() {
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
                                         <i data-lucide="external-link" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Открыть админку</span>
+                                    <span class="leading-tight">Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
                                     <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
                                         <i data-lucide="slash" class="w-4 h-4"></i>
                                     </span>
-                                    <span>Админка недоступна</span>
+                                    <span class="leading-tight">Админка недоступна</span>
                                 </span>
                             `}
                         </div>
