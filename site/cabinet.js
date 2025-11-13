@@ -645,12 +645,13 @@ async function loadProducts() {
             const adminUrl = product.product?.admin_url || product.admin_url || null;
             
             // Determine button classes and behavior
-            const appButtonClass = appUrl 
-                ? 'bg-primary text-white text-center py-3 rounded-xl font-semibold hover:bg-primary/90 transition text-sm cursor-pointer' 
-                : 'bg-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
-            const adminButtonClass = adminUrl 
-                ? 'border-2 border-primary text-primary text-center py-3 rounded-xl font-semibold hover:bg-primary/10 transition text-sm cursor-pointer' 
-                : 'border-2 border-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold text-sm cursor-not-allowed';
+            const appButtonClass = `flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition ${
+                appUrl ? 'bg-primary text-white hover:bg-primary/90 cursor-pointer' : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            }`;
+            
+            const adminButtonClass = `flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition border-2 ${
+                adminUrl ? 'border-primary text-primary hover:bg-primary/10 cursor-pointer' : 'border-gray-300 text-gray-500 cursor-not-allowed'
+            }`;
             
             return `
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-primary/20 card-hover">
@@ -675,22 +676,24 @@ async function loadProducts() {
                                     data-copy-value="${appUrl}"
                                     class="${appButtonClass} subscription-copy-app-btn"
                                 >
-                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
-                                    Скопировать
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>Скопировать приложение</span>
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
-                                    Скопировать
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
                                 <a href="${adminUrl}" target="_blank" rel="noopener" class="${adminButtonClass}">
-                                    Админка
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <span>Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Админка
+                                    <i data-lucide="slash" class="w-4 h-4"></i>
+                                    <span>Админка недоступна</span>
                                 </span>
                             `}
                 </div>
@@ -967,22 +970,24 @@ async function loadSubscriptions() {
                                     data-copy-value="${appUrl}"
                                     class="${appButtonClass} subscription-copy-app-btn"
                                 >
-                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
-                                    Скопировать
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>Скопировать приложение</span>
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
-                                    Скопировать
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
                                 <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
-                                    Админка
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <span>Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Админка
+                                    <i data-lucide="slash" class="w-4 h-4"></i>
+                                    <span>Админка недоступна</span>
                                 </span>
                             `}
                         </div>
@@ -993,21 +998,29 @@ async function loadSubscriptions() {
                     ` : `
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             ${appUrl ? `
-                                <a href="${appUrl}" target="_blank" class="${appButtonClass}">
-                                    Приложение
-                                </a>
+                                <button 
+                                    type="button"
+                                    data-copy-value="${appUrl}"
+                                    class="${appButtonClass} subscription-copy-app-btn"
+                                >
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>Скопировать приложение</span>
+                                </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    Приложение
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span>Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
                                 <a href="${adminUrl}" target="_blank" class="${adminButtonClass}">
-                                    Админка
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    <span>Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Админка
+                                    <i data-lucide="slash" class="w-4 h-4"></i>
+                                    <span>Админка недоступна</span>
                                 </span>
                             `}
                         </div>
