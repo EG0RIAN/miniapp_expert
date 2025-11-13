@@ -179,3 +179,71 @@ async function deleteCard(methodId, isDefault) {
     }
 }
 
+/**
+ * Добавить новую карту (привязка через тестовый платеж)
+ */
+async function addNewCard() {
+    console.log('🔵 addNewCard called');
+    
+    try {
+        // Показать модальное окно с объяснением
+        const confirmed = await confirmModal(
+            'Для привязки карты будет создан тестовый платеж на 1 ₽, который сразу вернется на вашу карту.\n\nПродолжить?',
+            'Привязка карты'
+        );
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        showLoader();
+        
+        // Создать тестовый заказ для привязки карты
+        const response = await fetch('https://miniapp.expert/api/payment/create-card-binding/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: JSON.stringify({
+                return_url: 'https://miniapp.expert/cabinet.html#cards'
+            }),
+        });
+        
+        const data = await response.json();
+        
+        hideLoader();
+        
+        if (data.success && data.payment_url) {
+            // Перенаправить на страницу оплаты T-Bank
+            window.location.href = data.payment_url;
+        } else {
+            showModal({
+                title: 'Ошибка',
+                message: data.error || 'Не удалось создать платеж для привязки карты',
+                type: 'error',
+                confirmText: 'ОК',
+            });
+        }
+    } catch (error) {
+        console.error('Error adding new card:', error);
+        hideLoader();
+        showModal({
+            title: 'Ошибка',
+            message: 'Произошла ошибка при привязке карты',
+            type: 'error',
+            confirmText: 'ОК',
+        });
+    }
+}
+
+// Export functions globally
+window.setDefaultCard = setDefaultCard;
+window.deleteCard = deleteCard;
+window.addNewCard = addNewCard;
+
+console.log('✅ Cabinet cards functions exported:', {
+    setDefaultCard: typeof window.setDefaultCard,
+    deleteCard: typeof window.deleteCard,
+    addNewCard: typeof window.addNewCard
+});
