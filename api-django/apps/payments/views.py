@@ -158,12 +158,19 @@ class PaymentWebhookView(views.APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         status_tbank = request.data.get('Status')
         payment_id = request.data.get('PaymentId')
         order_id = request.data.get('OrderId')
+        
+        logger.info(f"Webhook received: OrderId={order_id}, PaymentId={payment_id}, Status={status_tbank}")
+        
         # T-Bank может отправлять RebillId в разных местах webhook - получаем позже при обработке подписки
         
         if not order_id:
+            logger.warning("Webhook without OrderId, skipping")
             return Response('OK', status=status.HTTP_200_OK)
         
         try:
@@ -171,6 +178,7 @@ class PaymentWebhookView(views.APIView):
             order.status = status_tbank
             order.payment_id = payment_id
             order.save()
+            logger.info(f"Order {order_id} updated with status {status_tbank}")
             
             # Обновление платежа
             payment = Payment.objects.filter(order=order).first()
@@ -386,32 +394,43 @@ class PaymentWebhookView(views.APIView):
                                             user_product.payment_method = payment_method
                                         user_product.status = 'active'
                                         user_product.save()
-                                        print(f"UserProduct обновлен для пользователя {user.email}, продукт {order.product.name}")
+                                        logger.info(f"UserProduct обновлен для пользователя {user.email}, продукт {order.product.name}")
                                     else:
-                                        # Создаем новый продукт пользователя (подписка)
-                                        user_product = UserProduct.objects.create(
+                                        # Создаем новый продукт пользователя (подписка) с get_or_create для idempotency
+                                        user_product, created = UserProduct.objects.get_or_create(
                                             user=user,
                                             product=order.product,
                                             status='active',
-                                            start_date=start_date,
-                                            end_date=end_date,
-                                            renewal_price=order.product.price,
-                                            payment_method=payment_method,  # Связываем с PaymentMethod для автоматического списания
+                                            defaults={
+                                                'start_date': start_date,
+                                                'end_date': end_date,
+                                                'renewal_price': order.product.price,
+                                                'payment_method': payment_method,
+                                            }
                                         )
-                                        print(f"UserProduct создан для пользователя {user.email}, продукт {order.product.name}")
+                                        if created:
+                                            logger.info(f"UserProduct создан для пользователя {user.email}, продукт {order.product.name}")
+                                        else:
+                                            logger.info(f"UserProduct уже существует для пользователя {user.email}, продукт {order.product.name}")
                                 else:
                                     # Для одноразовых продуктов (one_time) всегда создаем новый UserProduct
                                     # Пользователь может иметь несколько одноразовых продуктов
-                                    user_product = UserProduct.objects.create(
+                                    # Используем get_or_create для idempotency
+                                    user_product, created = UserProduct.objects.get_or_create(
                                         user=user,
                                         product=order.product,
                                         status='active',
-                                        start_date=start_date,
-                                        end_date=None,  # Для одноразовых продуктов end_date не устанавливается
-                                        renewal_price=None,  # Для одноразовых продуктов renewal_price не нужен
-                                        payment_method=None,  # Для одноразовых продуктов payment_method не нужен
+                                        defaults={
+                                            'start_date': start_date,
+                                            'end_date': None,
+                                            'renewal_price': None,
+                                            'payment_method': None,
+                                        }
                                     )
-                                    print(f"UserProduct создан (one_time) для пользователя {user.email}, продукт {order.product.name}")
+                                    if created:
+                                        logger.info(f"UserProduct создан (one_time) для пользователя {user.email}, продукт {order.product.name}")
+                                    else:
+                                        logger.info(f"UserProduct уже существует (one_time) для пользователя {user.email}, продукт {order.product.name}")
                             
                             # Создать транзакцию
                             transaction = Transaction.objects.create(
@@ -477,9 +496,10 @@ class PaymentWebhookView(views.APIView):
                             print(f"✅ Успешная оплата обработана: пользователь {user.email}, продукт {order.product.name if order.product else 'N/A'}, сумма {order.amount} {order.currency}, receipt_url: {payment.receipt_url or 'не получен'}")
                             
                 except Exception as e:
-                    print(f"❌ Error processing payment confirmation: {e}")
+                    logger.error(f"❌ Error processing payment confirmation for order {order_id}: {e}")
                     import traceback
                     traceback.print_exc()
+                    logger.error(traceback.format_exc())
                 
         except OrderModel.DoesNotExist:
             pass
