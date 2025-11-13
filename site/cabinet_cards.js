@@ -207,6 +207,9 @@ async function addNewCard() {
         });
         
         console.log('🔍 Backend response:', result);
+        console.log('🔍 result.success:', result.success);
+        console.log('🔍 result.data:', result.data);
+        console.log('🔍 result.message:', result.message);
         
         // Скрыть индикатор загрузки
         if (typeof window.hideLoader === 'function') {
@@ -215,12 +218,28 @@ async function addNewCard() {
         
         if (result.success && result.data?.payment_url) {
             // Перенаправить на страницу оплаты T-Bank
+            console.log('✅ Redirecting to:', result.data.payment_url);
             window.location.href = result.data.payment_url;
         } else {
-            const errorMsg = result.message || result.error || 'Не удалось создать платеж для привязки карты';
-            const errorDetails = result.data?.error_code ? `\nКод: ${result.data.error_code}` : '';
+            // Извлекаем сообщение об ошибке
+            let errorMsg = 'Не удалось создать платеж для привязки карты';
+            
+            if (typeof result === 'string') {
+                errorMsg = result;
+            } else if (result.message) {
+                errorMsg = result.message;
+            } else if (result.data && result.data.error) {
+                errorMsg = result.data.error;
+            } else if (result.error) {
+                errorMsg = result.error;
+            }
+            
+            const errorDetails = result.data?.error_code ? `\nКод ошибки: ${result.data.error_code}` : '';
             const fullError = errorMsg + errorDetails;
-            console.error('❌ Payment creation error:', fullError, result);
+            
+            console.error('❌ Payment creation error:', fullError);
+            console.error('❌ Full result object:', JSON.stringify(result, null, 2));
+            
             alert('Ошибка: ' + fullError);
         }
     } catch (error) {
