@@ -102,21 +102,20 @@ class Document(models.Model):
     
     def get_absolute_url(self):
         """Возвращает URL документа"""
-        # Always use slug for document URL if available
-        if self.slug:
-            return f'/document/{self.slug}.html'
+        # Use static HTML file paths for standard document types
+        if self.document_type == 'privacy':
+            return '/privacy.html'
+        elif self.document_type == 'affiliate_terms':
+            return '/affiliate-terms.html'
+        elif self.document_type == 'cabinet_terms':
+            return '/cabinet-terms.html'
+        elif self.document_type == 'subscription_terms':
+            return '/subscription-terms.html'
         else:
-            # Fallback to document type URL
-            if self.document_type == 'privacy':
-                return '/privacy.html'
-            elif self.document_type == 'affiliate_terms':
-                return '/affiliate-terms.html'
-            elif self.document_type == 'cabinet_terms':
-                return '/cabinet-terms.html'
-            elif self.document_type == 'subscription_terms':
-                return '/subscription-terms.html'
-            else:
-                return '/'
+            # For custom document types, use slug-based URL (for future dynamic pages)
+            if self.slug:
+                return f'/document/{self.slug}.html'
+            return '/'
 
 
 class DocumentAcceptance(models.Model):
