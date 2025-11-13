@@ -66,7 +66,10 @@ class PreOrderCreateView(views.APIView):
         
         # Если есть условия подписки, добавляем их
         if product.subscription_terms:
-            product_data['subscription_terms'] = DocumentPublicSerializer(product.subscription_terms).data
+            product_data['subscription_terms'] = DocumentPublicSerializer(
+                product.subscription_terms,
+                context={'request': request}
+            ).data
         
         return Response({
             'success': True,
@@ -105,7 +108,10 @@ class PreOrderDetailView(views.APIView):
             
             # Если есть условия подписки, добавляем их
             if pre_order.product.subscription_terms:
-                product_data['subscription_terms'] = DocumentPublicSerializer(pre_order.product.subscription_terms).data
+                product_data['subscription_terms'] = DocumentPublicSerializer(
+                    pre_order.product.subscription_terms,
+                    context={'request': request}
+                ).data
             
             return Response({
                 'success': True,

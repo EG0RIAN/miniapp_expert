@@ -33,7 +33,7 @@ class PublicDocumentView(views.APIView):
                         status=status.HTTP_404_NOT_FOUND
                     )
                 
-                serializer = DocumentPublicSerializer(document)
+                serializer = DocumentPublicSerializer(document, context={'request': request})
                 return Response({
                     'success': True,
                     'document': serializer.data
@@ -50,7 +50,7 @@ class PublicDocumentView(views.APIView):
                 is_active=True,
                 is_published=True
             )
-            serializer = DocumentPublicSerializer(documents, many=True)
+            serializer = DocumentPublicSerializer(documents, many=True, context={'request': request})
             return Response({
                 'success': True,
                 'documents': serializer.data

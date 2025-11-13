@@ -31,7 +31,7 @@ class DocumentAdminViewSet(viewsets.ModelViewSet):
         document_type = request.query_params.get('type', None)
         if document_type:
             queryset = queryset.filter(document_type=document_type)
-        serializer = DocumentPublicSerializer(queryset, many=True)
+        serializer = DocumentPublicSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
     
     @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
@@ -40,6 +40,6 @@ class DocumentAdminViewSet(viewsets.ModelViewSet):
         document = self.get_object()
         if not document.is_active or not document.is_published:
             return Response({'error': 'Документ не найден'}, status=404)
-        serializer = DocumentPublicSerializer(document)
+        serializer = DocumentPublicSerializer(document, context={'request': request})
         return Response(serializer.data)
 

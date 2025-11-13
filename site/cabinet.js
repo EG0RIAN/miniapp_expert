@@ -883,10 +883,10 @@ async function loadSubscriptions() {
             const baseAppButtonClass = 'group flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition shadow-sm';
             const baseAdminButtonClass = 'group flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition border';
             
-            const appButtonClass = appUrl
+            const appButtonClass = appUrl 
                 ? `${baseAppButtonClass} bg-primary text-white hover:bg-primary/90 hover:shadow-md cursor-pointer`
                 : `${baseAppButtonClass} bg-gray-200 text-gray-500 cursor-not-allowed opacity-80`;
-            const adminButtonClass = adminUrl
+            const adminButtonClass = adminUrl 
                 ? `${baseAdminButtonClass} border-primary text-primary hover:bg-primary/10 hover:shadow-sm cursor-pointer`
                 : `${baseAdminButtonClass} border-gray-300 text-gray-400 cursor-not-allowed opacity-80`;
             
@@ -3131,12 +3131,12 @@ async function checkDocumentsStatus() {
                         const label = documentTypeLabels[doc.document_type] || doc.title;
                         const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
                         // Use slug from API response for document URL
-                        const docUrl = doc.slug ? `/document/${doc.slug}.html` : (
+                        const docUrl = doc.url || (doc.slug ? `/document/${doc.slug}.html` : (
                             doc.document_type === 'privacy' ? '/privacy.html' :
                             doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
                             doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
                             doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
-                        );
+                        ));
                         
                         return `
                             <div class="bg-white rounded-lg p-3 border border-yellow-300 mb-2">
@@ -3220,12 +3220,12 @@ async function loadSignedDocumentsInProfile(signedDocuments) {
         }) : '';
         
         // Use slug from API response, fallback to document type URL
-        const docUrl = doc.slug ? `/document/${doc.slug}.html` : (
+        const docUrl = doc.url || (doc.slug ? `/document/${doc.slug}.html` : (
             doc.document_type === 'privacy' ? '/privacy.html' :
             doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
             doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
             doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
-        );
+        ));
         
         return `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
@@ -3334,12 +3334,12 @@ function showDocumentsModal() {
     const documentsHtml = globalDocumentsToSign.map(doc => {
         const label = documentTypeLabels[doc.document_type] || doc.title;
         const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
-        const docUrl = doc.slug ? `/document/${doc.slug}.html` : (
+        const docUrl = doc.url || (doc.slug ? `/document/${doc.slug}.html` : (
             doc.document_type === 'privacy' ? '/privacy.html' :
             doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
             doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
             doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
-        );
+        ));
         
         return `
             <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">

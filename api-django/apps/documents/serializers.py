@@ -31,6 +31,8 @@ class DocumentSerializer(serializers.ModelSerializer):
 class DocumentPublicSerializer(serializers.ModelSerializer):
     """Serializer для публичного API (без служебных полей)"""
     
+    url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Document
         fields = [
@@ -43,7 +45,15 @@ class DocumentPublicSerializer(serializers.ModelSerializer):
             'meta_description',
             'updated_at',
             'version',
+            'url',
         ]
+    
+    def get_url(self, obj):
+        request = self.context.get('request')
+        absolute_url = obj.get_absolute_url()
+        if request and absolute_url.startswith('/'):
+            return request.build_absolute_uri(absolute_url)
+        return absolute_url
 
 
 class DocumentAcceptanceSerializer(serializers.ModelSerializer):

@@ -74,8 +74,10 @@ class ClientDocumentsView(views.APIView):
         signed_documents = []
         documents_to_sign = []
         
+        serializer_context = {'request': request}
+        
         for doc in documents:
-            serializer = DocumentPublicSerializer(doc)
+            serializer = DocumentPublicSerializer(doc, context=serializer_context)
             doc_data = serializer.data
             
             # Проверяем, подписан ли документ
