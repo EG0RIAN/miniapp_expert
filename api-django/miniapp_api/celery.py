@@ -6,9 +6,9 @@ from celery import Celery
 from celery.schedules import crontab
 
 # Set the default Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'miniapp_api.settings')
 
-app = Celery('api')
+app = Celery('miniapp_api')
 
 # Load task modules from all registered Django app configs.
 app.config_from_object('django.conf:settings', namespace='CELERY')
@@ -43,4 +43,3 @@ app.conf.update(
 @app.task(bind=True)
 def debug_task(self):
     print(f'Request: {self.request!r}')
-
