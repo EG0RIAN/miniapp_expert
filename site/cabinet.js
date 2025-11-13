@@ -95,9 +95,14 @@ function logout() {
         window.location.href = '/login.html';
 }
 
-// Make logout globally available
+// Make functions globally available
 if (typeof window !== 'undefined') {
     window.logout = logout;
+    // Export subscription management functions
+    window.manageSubscription = manageSubscription;
+    window.manageSubscriptionFromButton = manageSubscriptionFromButton;
+    window.cancelSubscription = cancelSubscription;
+    window.viewSubscriptionHistory = viewSubscriptionHistory;
 }
 
 // Show section - make it globally available
