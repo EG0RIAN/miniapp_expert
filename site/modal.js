@@ -2,6 +2,8 @@
  * Modal System - красивые модальные окна вместо prompt() и confirm()
  */
 
+console.log('🔵 modal.js loading...');
+
 // Create modal container if it doesn't exist
 function createModalContainer() {
     if (!document.getElementById('modal-container')) {
@@ -285,33 +287,33 @@ style.textContent = `
 document.head.appendChild(style);
 
 // Ensure all modal functions are globally available immediately
-if (typeof window !== 'undefined') {
-    // Register functions immediately when script loads
-    window.showModal = showModal;
-    window.closeModal = closeModal;
-    window.confirmModal = confirmModal;
-    window.promptModal = promptModal;
-    
-    // Also register in global scope for compatibility
-    if (typeof globalThis !== 'undefined') {
-        globalThis.showModal = showModal;
-        globalThis.closeModal = closeModal;
-    }
-    
-    // Dispatch event that modal is ready (for other scripts to listen)
-    if (typeof document !== 'undefined' && document.createEvent) {
-        try {
-            const event = new Event('modalReady');
-            window.dispatchEvent(event);
-        } catch (e) {
-            // Fallback for older browsers
-            try {
-                const event = document.createEvent('Event');
-                event.initEvent('modalReady', true, true);
-                window.dispatchEvent(event);
-            } catch (e2) {
-                // Ignore if events not supported
-            }
-        }
+console.log('🔵 Exporting modal functions to window...');
+
+window.showModal = showModal;
+window.closeModal = closeModal;
+window.confirmModal = confirmModal;
+window.promptModal = promptModal;
+
+console.log('✅ Modal functions exported:', {
+    showModal: typeof window.showModal,
+    closeModal: typeof window.closeModal,
+    confirmModal: typeof window.confirmModal,
+    promptModal: typeof window.promptModal
+});
+
+// Dispatch event that modal is ready (for other scripts to listen)
+try {
+    const event = new Event('modalReady');
+    window.dispatchEvent(event);
+    console.log('✅ modalReady event dispatched');
+} catch (e) {
+    // Fallback for older browsers
+    try {
+        const event = document.createEvent('Event');
+        event.initEvent('modalReady', true, true);
+        window.dispatchEvent(event);
+        console.log('✅ modalReady event dispatched (fallback)');
+    } catch (e2) {
+        console.warn('⚠️ Could not dispatch modalReady event:', e2);
     }
 }
