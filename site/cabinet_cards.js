@@ -212,6 +212,9 @@ async function addNewCard() {
         
         const data = await response.json();
         
+        console.log('🔍 Backend response:', data);
+        console.log('🔍 Response status:', response.status);
+        
         // Скрыть индикатор загрузки
         if (typeof window.hideLoader === 'function') {
             window.hideLoader();
@@ -221,7 +224,11 @@ async function addNewCard() {
             // Перенаправить на страницу оплаты T-Bank
             window.location.href = data.payment_url;
         } else {
-            alert('Ошибка: ' + (data.error || 'Не удалось создать платеж для привязки карты'));
+            const errorMsg = data.error || data.message || 'Не удалось создать платеж для привязки карты';
+            const errorDetails = data.error_code ? `\nКод: ${data.error_code}` : '';
+            const fullError = errorMsg + errorDetails;
+            console.error('❌ Payment creation error:', fullError, data);
+            alert('Ошибка: ' + fullError);
         }
     } catch (error) {
         console.error('Error adding new card:', error);
