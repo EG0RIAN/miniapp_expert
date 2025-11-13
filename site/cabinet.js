@@ -855,6 +855,7 @@ async function loadSubscriptions() {
             const nextPayment = sub.end_date ? new Date(sub.end_date).toLocaleDateString('ru-RU') : '-';
             const price = sub.renewal_price || sub.product?.price || sub.price || 0;
             const productName = sub.product?.name || sub.name || 'Подписка';
+            const safeProductName = String(productName).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             const productDescription = sub.product?.description || sub.description || '';
             const subscriptionPeriod = sub.product?.subscription_period || sub.subscription_period || 'monthly';
             const periodText = subscriptionPeriod === 'monthly' ? 'мес' : 
@@ -936,44 +937,64 @@ async function loadSubscriptions() {
                         ` : ''}
                     </div>
                     ${sub.status === 'active' ? `
-                        <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                             ${appUrl ? `
                                 <button 
                                     type="button"
                                     data-copy-value="${appUrl}"
                                     class="${appButtonClass} subscription-copy-app-btn"
                                 >
-                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
-                                    Скопировать
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/15 group-hover:bg-white/25 transition">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </span>
+                                    <span>Скопировать приложение</span>
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
-                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
-                                    Скопировать
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 transition">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </span>
+                                    <span>Скопировать приложение</span>
                                 </span>
                             `}
                             ${adminUrl ? `
                                 <a href="${adminUrl}" target="_blank" rel="noopener" class="${adminButtonClass}">
-                                    Админка
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition">
+                                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    </span>
+                                    <span>Открыть админку</span>
                                 </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Админка
+                                    <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 transition">
+                                        <i data-lucide="slash" class="w-4 h-4"></i>
+                                    </span>
+                                    <span>Админка недоступна</span>
                                 </span>
                             `}
                         </div>
-                        <button 
-                            data-subscription-id="${sub.id}"
-                            data-product-name="${String(sub.product?.name || sub.name || 'Подписка').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
-                            data-price="${String(price || 0)}"
-                            data-period="${String(subscriptionPeriod || 'monthly')}"
-                            data-start-date="${String(sub.start_date || '')}"
-                            data-end-date="${String(sub.end_date || '')}"
-                            type="button"
-                            class="w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition subscription-manage-btn"
-                        >
-                            Управлять подпиской
-                        </button>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button 
+                                data-subscription-id="${sub.id}"
+                                data-product-name="${safeProductName}"
+                                data-price="${String(price || 0)}"
+                                data-period="${String(subscriptionPeriod || 'monthly')}"
+                                data-start-date="${String(sub.start_date || '')}"
+                                data-end-date="${String(sub.end_date || '')}"
+                                type="button"
+                                class="bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition subscription-manage-btn"
+                            >
+                                Управлять подпиской
+                            </button>
+                            <button 
+                                data-subscription-id="${sub.id}"
+                                data-product-name="${safeProductName}"
+                                type="button"
+                                class="border border-red-400 text-red-500 py-2 rounded-xl font-semibold hover:bg-red-50 transition subscription-cancel-direct-btn"
+                            >
+                                Отменить подписку
+                            </button>
+                        </div>
                     ` : sub.status === 'expired' ? `
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                             ${appUrl ? `
@@ -1064,6 +1085,7 @@ async function loadSubscriptions() {
         // Attach event listeners for subscription management buttons
         attachSubscriptionCopyHandlers(container);
         attachSubscriptionManageHandlers(container);
+        attachSubscriptionCancelHandlers(container);
         
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
@@ -1163,6 +1185,46 @@ function attachSubscriptionCopyHandlers(container) {
     });
     
     console.log('✅ Subscription copy buttons listeners attached:', buttons.length);
+}
+
+// Attach cancel subscription button handlers
+function attachSubscriptionCancelHandlers(container) {
+    const buttons = container.querySelectorAll('.subscription-cancel-direct-btn');
+    
+    buttons.forEach((button) => {
+        if (button.dataset.cancelHandlerAttached === 'true') {
+            return;
+        }
+        
+        const handler = async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const subscriptionId = button.getAttribute('data-subscription-id');
+            let productName = button.getAttribute('data-product-name') || 'Подписка';
+            productName = productName.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+            
+            if (!subscriptionId) {
+                notifyWarning?.('ID подписки не найден');
+                return;
+            }
+            
+            try {
+                await cancelSubscription(subscriptionId, productName);
+            } catch (error) {
+                console.error('Error cancelling subscription via direct button:', error);
+                notifyError?.('Не удалось отменить подписку');
+            }
+        };
+        
+        button.addEventListener('click', handler);
+        button.dataset.cancelHandlerAttached = 'true';
+        button._cancelHandler = handler;
+    });
+    
+    if (buttons.length) {
+        console.log('✅ Subscription cancel buttons listeners attached:', buttons.length);
+    }
 }
 
 // Load payments
