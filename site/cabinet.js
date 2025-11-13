@@ -675,24 +675,22 @@ async function loadProducts() {
                                     data-copy-value="${appUrl}"
                                     class="${appButtonClass} subscription-copy-app-btn"
                                 >
+                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
                                     Скопировать
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
+                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
                                     Скопировать
                                 </span>
                             `}
                             ${adminUrl ? `
-                                <button 
-                                    type="button"
-                                    data-copy-value="${adminUrl}"
-                                    class="${adminButtonClass} subscription-copy-admin-btn"
-                                >
-                                    Скопировать
-                                </button>
+                                <a href="${adminUrl}" target="_blank" rel="noopener" class="${adminButtonClass}">
+                                    Админка
+                                </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Скопировать
+                                    Админка
                                 </span>
                             `}
                 </div>
@@ -930,24 +928,22 @@ async function loadSubscriptions() {
                                     data-copy-value="${appUrl}"
                                     class="${appButtonClass} subscription-copy-app-btn"
                                 >
+                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
                                     Скопировать
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
+                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
                                     Скопировать
                                 </span>
                             `}
                             ${adminUrl ? `
-                                <button 
-                                    type="button"
-                                    data-copy-value="${adminUrl}"
-                                    class="${adminButtonClass} subscription-copy-admin-btn"
-                                >
-                                    Скопировать
-                                </button>
+                                <a href="${adminUrl}" target="_blank" rel="noopener" class="${adminButtonClass}">
+                                    Админка
+                                </a>
                             ` : `
                                 <span class="${adminButtonClass}" title="URL админки не указан">
-                                    Скопировать
+                                    Админка
                                 </span>
                             `}
                         </div>
@@ -971,10 +967,12 @@ async function loadSubscriptions() {
                                     data-copy-value="${appUrl}"
                                     class="${appButtonClass} subscription-copy-app-btn"
                                 >
+                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
                                     Скопировать
                                 </button>
                             ` : `
                                 <span class="${appButtonClass}" title="URL приложения не указан">
+                                    <i data-lucide="copy" class="w-4 h-4 mr-2"></i>
                                     Скопировать
                                 </span>
                             `}
