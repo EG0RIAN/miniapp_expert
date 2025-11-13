@@ -32,10 +32,11 @@ class CardBindingView(views.APIView):
             order = OrderModel.objects.create(
                 order_id=f"card_bind_{user.id}_{uuid.uuid4().hex[:8]}",
                 user=user,
-                total_amount=1.00,  # 1 рубль
+                amount=1.00,  # 1 рубль
                 currency='RUB',
                 status='NEW',
-                order_type='CARD_BINDING'
+                description='Привязка банковской карты',
+                customer_email=user.email
             )
             
             # Создать платеж
