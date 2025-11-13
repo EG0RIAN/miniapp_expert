@@ -826,8 +826,46 @@
                             </div>
                         </div>
                     </div>
-                            </div>
+                </div>
+
+                <!-- Referral Cancellation Requests -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 mt-6">
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                        <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-600"></i>
+                        <span>Запросы на отмену от рефералов</span>
+                    </h2>
+                    
+                    <!-- Empty State -->
+                    <div id="referralCancellationRequestsEmpty" class="text-center py-8 bg-gray-50 rounded-xl mb-4">
+                        <i data-lucide="users" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                        <p class="text-gray-600 mb-1">Запросов от рефералов пока нет</p>
+                        <p class="text-sm text-gray-500">Здесь будут отображаться запросы на отмену от ваших рефералов</p>
+                    </div>
+                    
+                    <!-- Requests Container -->
+                    <div id="referralCancellationRequestsContainer" class="space-y-4 mb-4 hidden">
+                        <!-- Requests will be loaded here -->
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <h3 class="font-semibold mb-2 text-blue-900">Ваша роль как реферала</h3>
+                        <div class="space-y-2 text-sm text-blue-800">
+                            <p>
+                                <i data-lucide="info" class="w-4 h-4 inline-block"></i>
+                                Когда ваш реферал запрашивает отмену, вы получаете email
+                            </p>
+                            <p>
+                                <i data-lucide="clock" class="w-4 h-4 inline-block"></i>
+                                У вас есть 24 часа для принятия решения
+                            </p>
+                            <p>
+                                <i data-lucide="message-circle" class="w-4 h-4 inline-block"></i>
+                                Свяжитесь с рефералом и обсудите причину отмены
+                            </p>
                         </div>
+                    </div>
+                </div>
+                </div>
             </section>
 
             <!-- Cards Section -->
