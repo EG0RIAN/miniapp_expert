@@ -2439,8 +2439,34 @@ async function loadPaymentMethods() {
     }
 }
 
+// Ensure modal.js is loaded dynamically if missing
+async function ensureModalLoaded() {
+    if (typeof showModal === 'function') return true;
+    try {
+        if (!window._modalLoadPromise) {
+            console.log('🔄 Loading modal.js dynamically...');
+            window._modalLoadPromise = new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = '/modal.js?v=6&ts=' + Date.now();
+                s.async = true;
+                s.onload = () => {
+                    console.log('✅ modal.js loaded dynamically');
+                    resolve(true);
+                };
+                s.onerror = () => reject(new Error('modal.js load error'));
+                document.head.appendChild(s);
+            });
+        }
+        await window._modalLoadPromise;
+    } catch (e) {
+        console.error('❌ Failed to load modal.js dynamically:', e);
+        return false;
+    }
+    return typeof showModal === 'function';
+}
+
 // Manage subscription from button - wrapper to get data from data attributes
-function manageSubscriptionFromButton(button) {
+async function manageSubscriptionFromButton(button) {
     console.log('✅ manageSubscriptionFromButton called', button);
     
     try {
@@ -2476,16 +2502,18 @@ function manageSubscriptionFromButton(button) {
             return;
         }
         
-        // Check if showModal is available
+        // Ensure modal is available (try dynamic load once)
         if (typeof showModal !== 'function') {
-            console.error('❌ showModal is not a function, type:', typeof showModal);
-            console.error('window.showModal type:', typeof window.showModal);
-            if (typeof notifyError === 'function') {
-                notifyError('Модальное окно не загружено. Проверьте modal.js');
-            } else {
-                alert('Модальное окно не загружено. Проверьте modal.js');
+            const loaded = await ensureModalLoaded();
+            if (!loaded) {
+                console.error('❌ showModal still not available after dynamic load');
+                if (typeof notifyError === 'function') {
+                    notifyError('Модальное окно не загружено. Проверьте modal.js');
+                } else {
+                    alert('Модальное окно не загружено. Проверьте modal.js');
+                }
+                return;
             }
-            return;
         }
         
         // Call the function
