@@ -55,13 +55,16 @@ class CardBindingView(views.APIView):
             # Генерировать CustomerKey для пользователя
             customer_key = f"user_{user.id}"
             
+            customer_name = user.name or (user.email.split('@')[0] if user.email else 'Client')
+            customer_phone = user.phone or '+70000000000'
+            
             result = tbank.init_payment(
                 amount=100,  # 1 рубль в копейках
                 order_id=order.order_id,
                 description='Привязка банковской карты',
                 email=user.email,
-                phone='',  # Телефон не обязателен для привязки карты
-                name=user.full_name or user.email.split('@')[0],  # Имя пользователя или часть email
+                phone=customer_phone,
+                name=customer_name,
                 customer_key=customer_key,
                 save_method=True,
                 is_subscription=False
