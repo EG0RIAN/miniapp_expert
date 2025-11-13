@@ -210,3 +210,11 @@ API_BASE_URL = config('API_BASE_URL', default='https://miniapp.expert')
 # Magic link secret
 MAGIC_SECRET = config('MAGIC_SECRET', default='change-me-in-production')
 
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
