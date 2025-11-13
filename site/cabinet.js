@@ -3130,13 +3130,8 @@ async function checkDocumentsStatus() {
                         };
                         const label = documentTypeLabels[doc.document_type] || doc.title;
                         const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
-                        // Use slug from API response for document URL
-                        const docUrl = doc.url || (doc.slug ? `/document/${doc.slug}.html` : (
-                            doc.document_type === 'privacy' ? '/privacy.html' :
-                            doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
-                            doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
-                            doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
-                        ));
+                        // Use URL from API response (backend handles document type routing)
+                        const docUrl = doc.url || '#';
                         
                         return `
                             <div class="bg-white rounded-lg p-3 border border-yellow-300 mb-2">
@@ -3219,13 +3214,8 @@ async function loadSignedDocumentsInProfile(signedDocuments) {
             day: 'numeric'
         }) : '';
         
-        // Use slug from API response, fallback to document type URL
-        const docUrl = doc.url || (doc.slug ? `/document/${doc.slug}.html` : (
-            doc.document_type === 'privacy' ? '/privacy.html' :
-            doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
-            doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
-            doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
-        ));
+        // Use URL from API response (backend handles document type routing)
+        const docUrl = doc.url || '#';
         
         return `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
@@ -3334,12 +3324,8 @@ function showDocumentsModal() {
     const documentsHtml = globalDocumentsToSign.map(doc => {
         const label = documentTypeLabels[doc.document_type] || doc.title;
         const hasNewVersion = doc.is_signed && doc.signed_version < doc.current_version;
-        const docUrl = doc.url || (doc.slug ? `/document/${doc.slug}.html` : (
-            doc.document_type === 'privacy' ? '/privacy.html' :
-            doc.document_type === 'affiliate_terms' ? '/affiliate-terms.html' :
-            doc.document_type === 'cabinet_terms' ? '/cabinet-terms.html' :
-            doc.document_type === 'subscription_terms' ? '/subscription-terms.html' : '#'
-        ));
+        // Use URL from API response (backend handles document type routing)
+        const docUrl = doc.url || '#';
         
         return `
             <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
