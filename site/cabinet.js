@@ -943,8 +943,7 @@ async function loadSubscriptions() {
                             data-start-date="${String(sub.start_date || '')}"
                             data-end-date="${String(sub.end_date || '')}"
                             type="button"
-                            onclick="if(typeof manageSubscriptionFromButton === 'function') { manageSubscriptionFromButton(this); } else { console.error('manageSubscriptionFromButton is not defined'); alert('Функция управления подпиской не загружена. Обновите страницу.'); }" 
-                            class="w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition"
+                            class="w-full bg-primary text-white py-2 rounded-xl font-semibold hover:bg-primary/90 transition subscription-manage-btn"
                         >
                             Управлять подпиской
                         </button>
@@ -1003,6 +1002,9 @@ async function loadSubscriptions() {
             `;
         }).join('');
         
+        // Attach event listeners for subscription management buttons
+        attachSubscriptionManageHandlers(container);
+        
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
@@ -1024,6 +1026,47 @@ async function loadSubscriptions() {
             }
         }
     }
+}
+
+// Attach event listeners to subscription management buttons
+function attachSubscriptionManageHandlers(container) {
+    if (!container) {
+        container = document;
+    }
+    
+    const buttons = container.querySelectorAll('.subscription-manage-btn');
+    if (!buttons || buttons.length === 0) {
+        console.log('ℹ️ No subscription manage buttons found to attach handlers');
+        return;
+    }
+    
+    buttons.forEach((button) => {
+        if (button.dataset.manageHandlerAttached === 'true') {
+            return;
+        }
+        
+        const handler = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (typeof manageSubscriptionFromButton === 'function') {
+                manageSubscriptionFromButton(button);
+            } else {
+                console.error('manageSubscriptionFromButton is not defined');
+                if (typeof notifyError === 'function') {
+                    notifyError('Функция управления подпиской не загружена. Обновите страницу.');
+                } else {
+                    alert('Функция управления подпиской не загружена. Обновите страницу.');
+                }
+            }
+        };
+        
+        button.addEventListener('click', handler);
+        button.dataset.manageHandlerAttached = 'true';
+        button._manageHandler = handler;
+    });
+    
+    console.log('✅ Subscription manage buttons listeners attached:', buttons.length);
 }
 
 // Load payments
