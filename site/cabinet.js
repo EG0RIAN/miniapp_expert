@@ -3654,3 +3654,14 @@ async function checkAndSignRequiredDocuments() {
         console.error('Error checking required documents:', error);
     }
 }
+
+
+// Export subscription management functions globally (after they are defined)
+if (typeof window !== 'undefined') {
+    window.manageSubscription = manageSubscription;
+    window.manageSubscriptionFromButton = manageSubscriptionFromButton;
+    window.cancelSubscription = cancelSubscription;
+    window.viewSubscriptionHistory = viewSubscriptionHistory;
+    
+    console.log('✅ Subscription management functions exported to window');
+}
