@@ -26,6 +26,14 @@ app.conf.beat_schedule = {
         'task': 'apps.payments.tasks.send_subscription_reminders',
         'schedule': crontab(hour=9, minute=0),  # Каждый день в 09:00
     },
+    'process-expired-cancellation-requests-hourly': {
+        'task': 'apps.payments.tasks_cancellation.process_expired_cancellation_requests',
+        'schedule': crontab(minute=0),  # Каждый час
+    },
+    'send-cancellation-reminders-hourly': {
+        'task': 'apps.payments.tasks_cancellation.send_cancellation_reminders',
+        'schedule': crontab(minute=30),  # Каждый час в :30
+    },
 }
 
 # Celery configuration
