@@ -16,3 +16,4 @@ gunicorn==21.2.0
 pyotp==2.9.0
 qrcode[pil]==8.2
 
+whitenoise==6.11.0
