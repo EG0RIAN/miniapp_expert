@@ -28,20 +28,24 @@ help: ## Show this help message
 
 install: ## Install all dependencies (Docker, Python, Node.js)
 	@echo "$(GREEN)Installing dependencies...$(NC)"
-	@echo "$(YELLOW)1. Installing Docker containers...$(NC)"
-	$(DOCKER_COMPOSE) up -d postgres pocketbase
-	@echo "$(YELLOW)2. Setting up Python environment...$(NC)"
+	@echo "$(YELLOW)1. Setting up Python environment...$(NC)"
 	cd $(DJANGO_DIR) && $(PYTHON) -m venv venv
 	cd $(DJANGO_DIR) && . venv/bin/activate && $(PIP) install -r requirements.txt
-	@echo "$(YELLOW)3. Installing Node.js dependencies for site...$(NC)"
+	@echo "$(YELLOW)2. Installing Node.js dependencies for site...$(NC)"
 	cd $(SITE_DIR) && npm install
+	@echo "$(YELLOW)3. Starting Docker containers...$(NC)"
+	@if [ -f docker-compose.yml ]; then \
+		$(DOCKER_COMPOSE) up -d postgres pocketbase; \
+	else \
+		echo "$(RED)Warning: docker-compose.yml not found, skipping Docker services$(NC)"; \
+	fi
 	@echo "$(GREEN)✓ All dependencies installed$(NC)"
 
 setup-env: ## Setup .env files from templates
 	@echo "$(YELLOW)Setting up environment files...$(NC)"
 	@if [ ! -f $(DJANGO_DIR)/.env ]; then \
 		echo "$(RED)Creating .env for Django...$(NC)"; \
-		echo "SECRET_KEY=$$($(PYTHON) -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')" > $(DJANGO_DIR)/.env; \
+		echo "SECRET_KEY=$$(openssl rand -hex 32)" > $(DJANGO_DIR)/.env; \
 		echo "DEBUG=True" >> $(DJANGO_DIR)/.env; \
 		echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> $(DJANGO_DIR)/.env; \
 		echo "DATABASE_URL=postgresql://miniuser:minipass@localhost:5432/miniapp" >> $(DJANGO_DIR)/.env; \
@@ -56,7 +60,7 @@ setup-env: ## Setup .env files from templates
 		echo "APP_BASE_URL=http://localhost:8000" >> $(DJANGO_DIR)/.env; \
 		echo "FRONTEND_BASE_URL=http://localhost:1234" >> $(DJANGO_DIR)/.env; \
 		echo "API_BASE_URL=http://localhost:8000" >> $(DJANGO_DIR)/.env; \
-		echo "MAGIC_SECRET=$$($(PYTHON) -c 'import secrets; print(secrets.token_urlsafe(32))')" >> $(DJANGO_DIR)/.env; \
+		echo "MAGIC_SECRET=$$(openssl rand -base64 32)" >> $(DJANGO_DIR)/.env; \
 		echo "CORS_ALLOWED_ORIGINS=http://localhost:1234,http://127.0.0.1:1234" >> $(DJANGO_DIR)/.env; \
 		echo "SMTP_HOST=smtp.mail.ru" >> $(DJANGO_DIR)/.env; \
 		echo "SMTP_PORT=465" >> $(DJANGO_DIR)/.env; \
@@ -80,10 +84,16 @@ setup-db: install ## Setup database (run migrations)
 
 start-db: ## Start PostgreSQL and PocketBase containers
 	@echo "$(GREEN)Starting database services...$(NC)"
-	$(DOCKER_COMPOSE) up -d postgres pocketbase
-	@echo "$(GREEN)✓ PostgreSQL and PocketBase started$(NC)"
-	@echo "  $(BLUE)PostgreSQL:$(NC) localhost:5432"
-	@echo "  $(BLUE)PocketBase:$(NC) http://localhost:8090"
+	@if [ -f docker-compose.yml ]; then \
+		$(DOCKER_COMPOSE) up -d postgres pocketbase; \
+		echo "$(GREEN)✓ PostgreSQL and PocketBase started$(NC)"; \
+		echo "  $(BLUE)PostgreSQL:$(NC) localhost:5432"; \
+		echo "  $(BLUE)PocketBase:$(NC) http://localhost:8090"; \
+	else \
+		echo "$(RED)Error: docker-compose.yml not found$(NC)"; \
+		echo "$(YELLOW)PostgreSQL must be installed manually or use remote DB$(NC)"; \
+		exit 1; \
+	fi
 
 stop-db: ## Stop database containers
 	@echo "$(YELLOW)Stopping database services...$(NC)"

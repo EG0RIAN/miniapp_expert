@@ -3,69 +3,32 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: miniapp_postgres
+    container_name: miniapp_postgres_local
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-miniapp}
-      - POSTGRES_USER=${POSTGRES_USER:-miniuser}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-minipass}
+      - POSTGRES_DB=miniapp
+      - POSTGRES_USER=miniuser
+      - POSTGRES_PASSWORD=minipass
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_local:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-miniuser}"]
+      test: ["CMD-SHELL", "pg_isready -U miniuser"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
   pocketbase:
-    build:
-      context: ./pocketbase
-      dockerfile: Dockerfile
-    container_name: miniapp_pocketbase
+    image: ghcr.io/muchobien/pocketbase:latest
+    container_name: miniapp_pocketbase_local
     volumes:
-      - pocketbase_data:/pb/pb_data
-    expose:
-      - "8090"
-    restart: unless-stopped
-
-  api:
-    build:
-      context: ./api-adonis
-      dockerfile: Dockerfile
-    container_name: miniapp_api
-    environment:
-      - APP_KEY=sLBCvfQglYDYoln91PlBfnKolfEGETdIS6xH2cTAN08
-      - NODE_ENV=production
-      - HOST=0.0.0.0
-      - PORT=3333
-      - LOG_LEVEL=info
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=${POSTGRES_DB:-miniapp}
-      - DB_USER=${POSTGRES_USER:-miniuser}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-minipass}
-      - PB_URL=http://pocketbase:8090
-      - PB_ADMIN_EMAIL=${PB_ADMIN_EMAIL}
-      - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD}
-      - TBANK_TERMINAL_KEY=${TBANK_TERMINAL_KEY}
-      - TBANK_PASSWORD=${TBANK_PASSWORD}
-      - TBANK_API_URL=${TBANK_API_URL:-https://securepay.tinkoff.ru/v2}
-      - APP_BASE_URL=${APP_BASE_URL:-https://miniapp.expert}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - MAIL_FROM=${MAIL_FROM}
-      - MAGIC_SECRET=${MAGIC_SECRET}
+      - pocketbase_data_local:/pb/pb_data
     ports:
-      - "3333:3333"
-    depends_on:
-      - postgres
-      - pocketbase
+      - "8090:8090"
     restart: unless-stopped
 
 volumes:
-  postgres_data:
-  pocketbase_data:
+  postgres_data_local:
+  pocketbase_data_local:
+
