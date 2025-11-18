@@ -112,10 +112,10 @@ class Document(models.Model):
         elif self.document_type == 'subscription_terms':
             return '/subscription-terms.html'
         else:
-            # For custom document types, use slug-based URL (for future dynamic pages)
+        # For custom document types, use slug-based URL (for future dynamic pages)
             if self.slug:
                 return f'/document/{self.slug}.html'
-            return '/'
+                return '/'
 
 
 class DocumentAcceptance(models.Model):

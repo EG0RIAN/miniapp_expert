@@ -289,10 +289,10 @@ document.head.appendChild(style);
 // Ensure all modal functions are globally available immediately
 console.log('🔵 Exporting modal functions to window...');
 
-window.showModal = showModal;
-window.closeModal = closeModal;
-window.confirmModal = confirmModal;
-window.promptModal = promptModal;
+    window.showModal = showModal;
+    window.closeModal = closeModal;
+    window.confirmModal = confirmModal;
+    window.promptModal = promptModal;
     
 console.log('✅ Modal functions exported:', {
     showModal: typeof window.showModal,
@@ -301,19 +301,19 @@ console.log('✅ Modal functions exported:', {
     promptModal: typeof window.promptModal
 });
     
-// Dispatch event that modal is ready (for other scripts to listen)
-try {
-    const event = new Event('modalReady');
-    window.dispatchEvent(event);
+    // Dispatch event that modal is ready (for other scripts to listen)
+        try {
+            const event = new Event('modalReady');
+            window.dispatchEvent(event);
     console.log('✅ modalReady event dispatched');
-} catch (e) {
-    // Fallback for older browsers
-    try {
-        const event = document.createEvent('Event');
-        event.initEvent('modalReady', true, true);
-        window.dispatchEvent(event);
+        } catch (e) {
+            // Fallback for older browsers
+            try {
+                const event = document.createEvent('Event');
+                event.initEvent('modalReady', true, true);
+                window.dispatchEvent(event);
         console.log('✅ modalReady event dispatched (fallback)');
-    } catch (e2) {
+            } catch (e2) {
         console.warn('⚠️ Could not dispatch modalReady event:', e2);
     }
 }
