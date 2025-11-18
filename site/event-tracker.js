@@ -1,4 +1,6 @@
 (() => {
+  const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
+  
   const sessionId = (function(){
     let id = sessionStorage.getItem('sessionId');
     if (!id) { id = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2); sessionStorage.setItem('sessionId', id); }
@@ -11,7 +13,7 @@
   })();
 
   function post(url, body) {
-    try { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); } catch(e) {}
+    try { fetch(API_BASE_URL + url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'include' }); } catch(e) {}
   }
 
   function track(event, data) {
