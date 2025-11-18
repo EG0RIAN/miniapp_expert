@@ -79,7 +79,7 @@ setup-env: ## Setup .env files from templates
 setup-db: install ## Setup database (run migrations)
 	@echo "$(YELLOW)Setting up database...$(NC)"
 	@sleep 3  # Wait for PostgreSQL to be ready
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py migrate
+	cd $(DJANGO_DIR) && venv/bin/python manage.py migrate
 	@echo "$(GREEN)✓ Database migrations applied$(NC)"
 
 start-db: ## Start PostgreSQL and PocketBase containers
@@ -117,8 +117,9 @@ stop-redis: ## Stop Redis
 
 start-celery: start-redis ## Start Celery worker and beat
 	@echo "$(GREEN)Starting Celery worker and beat...$(NC)"
-	cd $(DJANGO_DIR) && . venv/bin/activate && celery -A miniapp_api worker --loglevel=info --detach --pidfile=/tmp/celery-worker.pid
-	cd $(DJANGO_DIR) && . venv/bin/activate && celery -A miniapp_api beat --loglevel=info --detach --pidfile=/tmp/celery-beat.pid
+	@mkdir -p $(DJANGO_DIR)/logs
+	cd $(DJANGO_DIR) && venv/bin/celery -A miniapp_api worker --loglevel=info --detach --pidfile=/tmp/celery-worker.pid --logfile=logs/celery-worker.log
+	cd $(DJANGO_DIR) && venv/bin/celery -A miniapp_api beat --loglevel=info --detach --pidfile=/tmp/celery-beat.pid --logfile=logs/celery-beat.log
 	@echo "$(GREEN)✓ Celery started$(NC)"
 
 stop-celery: ## Stop Celery worker and beat
@@ -129,7 +130,8 @@ stop-celery: ## Stop Celery worker and beat
 
 start-backend: start-db start-redis ## Start Django backend (Gunicorn on port 8000)
 	@echo "$(GREEN)Starting Django backend...$(NC)"
-	cd $(DJANGO_DIR) && . venv/bin/activate && gunicorn miniapp_api.wsgi:application --bind 127.0.0.1:8000 --workers 2 --timeout 120 --daemon --access-logfile logs/access.log --error-logfile logs/error.log --pid /tmp/gunicorn.pid
+	@mkdir -p $(DJANGO_DIR)/logs
+	cd $(DJANGO_DIR) && venv/bin/gunicorn miniapp_api.wsgi:application --bind 127.0.0.1:8000 --workers 2 --timeout 120 --daemon --access-logfile logs/access.log --error-logfile logs/error.log --pid /tmp/gunicorn.pid
 	@echo "$(GREEN)✓ Django backend started on http://localhost:8000$(NC)"
 	@echo "  $(BLUE)Admin:$(NC) http://localhost:8000/admin/"
 	@echo "  $(BLUE)API:$(NC) http://localhost:8000/api/"
@@ -190,28 +192,28 @@ logs-celery: ## Show Celery logs
 
 migrate: ## Run Django migrations
 	@echo "$(YELLOW)Running migrations...$(NC)"
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py migrate
+	cd $(DJANGO_DIR) && venv/bin/python manage.py migrate
 	@echo "$(GREEN)✓ Migrations applied$(NC)"
 
 makemigrations: ## Create new Django migrations
 	@echo "$(YELLOW)Creating migrations...$(NC)"
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py makemigrations
+	cd $(DJANGO_DIR) && venv/bin/python manage.py makemigrations
 	@echo "$(GREEN)✓ Migrations created$(NC)"
 
 shell: ## Open Django shell
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py shell
+	cd $(DJANGO_DIR) && venv/bin/python manage.py shell
 
 createsuperuser: ## Create Django superuser
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py createsuperuser
+	cd $(DJANGO_DIR) && venv/bin/python manage.py createsuperuser
 
 collectstatic: ## Collect static files
 	@echo "$(YELLOW)Collecting static files...$(NC)"
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py collectstatic --noinput
+	cd $(DJANGO_DIR) && venv/bin/python manage.py collectstatic --noinput
 	@echo "$(GREEN)✓ Static files collected$(NC)"
 
 test: ## Run tests
 	@echo "$(YELLOW)Running tests...$(NC)"
-	cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py test
+	cd $(DJANGO_DIR) && venv/bin/python manage.py test
 	@echo "$(GREEN)✓ Tests completed$(NC)"
 
 clean: stop-all ## Clean up temporary files and stop all services
@@ -234,7 +236,7 @@ reset-db: ## Reset database (WARNING: deletes all data)
 		$(DOCKER_COMPOSE) up -d postgres pocketbase; \
 		sleep 3; \
 		echo "$(YELLOW)Running migrations...$(NC)"; \
-		cd $(DJANGO_DIR) && . venv/bin/activate && $(PYTHON) manage.py migrate; \
+		cd $(DJANGO_DIR) && venv/bin/python manage.py migrate; \
 		echo "$(GREEN)✓ Database reset complete$(NC)"; \
 	else \
 		echo "$(GREEN)Cancelled$(NC)"; \
