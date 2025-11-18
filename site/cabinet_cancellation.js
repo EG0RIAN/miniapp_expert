@@ -5,7 +5,7 @@
 console.log('🔵 Loading cabinet_cancellation.js...');
 
 // API базовый URL
-const API_BASE_URL = 'https://miniapp.expert/api';
+const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : 'https://miniapp.expert/api';
 
 /**
  * Запросить отмену подписки
