@@ -34,3 +34,35 @@ class AuditLog(models.Model):
     def __str__(self):
         return f"{self.action} on {self.entity_type}#{self.entity_id} by {self.actor_email}"
 
+
+class TrackingEvent(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    session_id = models.CharField(max_length=120, blank=True, db_index=True)
+    user_identifier = models.CharField(max_length=120, blank=True, db_index=True)
+    event = models.CharField(max_length=100, db_index=True)
+    category = models.CharField(max_length=50, blank=True, db_index=True)
+    page = models.CharField(max_length=255, blank=True)
+    referrer = models.TextField(blank=True)
+    cart_id = models.CharField(max_length=120, blank=True, db_index=True)
+    cart_status = models.CharField(max_length=50, blank=True)
+    payload = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = 'tracking_events'
+        verbose_name = 'Событие фронтенда'
+        verbose_name_plural = 'События фронтенда'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['event', 'category']),
+            models.Index(fields=['session_id']),
+            models.Index(fields=['user_identifier']),
+            models.Index(fields=['cart_id']),
+            models.Index(fields=['-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.event} [{self.session_id or 'anon'}]"
+

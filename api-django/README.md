@@ -59,6 +59,14 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+### Важные переменные окружения
+
+- `API_BASE_URL` — внутренний URL API (используется фронтом и сервисами)
+- `PUBLIC_API_BASE_URL` — внешний URL API, доступный из интернета. Используется для формирования webhook-адресов; обязательно указывайте домен (например, `https://miniapp.expert`), если `API_BASE_URL` смотрит на `localhost` или внутреннюю сеть.
+- `PAYMENT_NOTIFICATION_URL` — (опционально) полный URL webhook-а T-Bank. Если не задан, собирается как `<PUBLIC_API_BASE_URL>/api/payment/webhook`.
+
+Без корректного `PUBLIC_API_BASE_URL`/`PAYMENT_NOTIFICATION_URL` T-Bank не сможет доставить уведомление об оплате, и привязка карты останется в статусе `pending`.
+
 ### Docker
 
 ```bash

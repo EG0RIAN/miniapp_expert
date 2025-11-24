@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/admin/', include('apps.users.admin_urls')),
     path('api/admin/', include('apps.affiliates.admin_urls')),
     path('api/admin/', include('apps.documents.admin_urls')),
+    path('api/', include('apps.audit.urls')),
     path('api/documents/', include('apps.documents.api_urls')),  # API для документов
     path('api/client/dashboard/', ClientDashboardView.as_view(), name='client-dashboard'),
     path('api/client/', include('apps.orders.client_urls')),

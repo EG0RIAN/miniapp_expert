@@ -79,6 +79,7 @@ class Order(models.Model):
     # Referral info
     referral_code = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     referred_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_orders')
+    is_card_binding = models.BooleanField(default=False, help_text='Флаг, что заказ используется для привязки карты')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -92,6 +92,7 @@ class Payment(models.Model):
     provider_ref = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     failure_reason = models.TextField(blank=True, null=True)
     receipt_url = models.URLField(blank=True, null=True)
+    purpose = models.CharField(max_length=50, blank=True, null=True, help_text='Например: card_binding, purchase')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

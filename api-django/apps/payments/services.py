@@ -72,6 +72,7 @@ class TBankService:
         is_subscription: bool = False,
         product_name: str = None,
         customer_key: str = None,
+        extra_data: dict = None,
     ) -> Dict:
         """Создание платежа
         
@@ -98,9 +99,10 @@ class TBankService:
         }
         
         # URL для редиректов после оплаты
-        payment_data['SuccessURL'] = f"{settings.FRONTEND_BASE_URL}/payment-success.html?orderId={order_id}"
-        payment_data['FailURL'] = f"{settings.FRONTEND_BASE_URL}/payment-failed.html?orderId={order_id}"
-        payment_data['NotificationURL'] = f"{settings.API_BASE_URL}/api/payment/webhook"
+        frontend_base = settings.FRONTEND_BASE_URL.rstrip('/')
+        payment_data['SuccessURL'] = f"{frontend_base}/payment-success.html?orderId={order_id}"
+        payment_data['FailURL'] = f"{frontend_base}/payment-failed.html?orderId={order_id}"
+        payment_data['NotificationURL'] = settings.PAYMENT_NOTIFICATION_URL
         
         # Для подписок включаем рекуррентные платежи
         if save_method or is_subscription:
@@ -134,6 +136,9 @@ class TBankService:
             ]
         }
         payment_data['Receipt'] = receipt
+        
+        if extra_data:
+            payment_data['DATA'] = extra_data
         
         # Генерируем токен ПОСЛЕ формирования всех данных
         payment_data['Token'] = self._generate_token(payment_data)
@@ -238,6 +243,32 @@ class TBankService:
             return {
                 'Success': False,
                 'ErrorCode': 'CONFIRM_ERROR',
+                'Message': str(e)
+            }
+
+    def cancel_payment(self, payment_id: str, amount: int = None) -> Dict:
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        payload = {
+            'TerminalKey': self.terminal_key,
+            'PaymentId': str(payment_id),
+        }
+        if amount is not None:
+            payload['Amount'] = int(amount)
+        
+        payload['Token'] = self._generate_token(payload)
+        
+        try:
+            response = requests.post(f"{self.api_url}/Cancel", json=payload, timeout=30)
+            result = response.json()
+            logger.info(f"Cancel response for payment {payment_id}: {result}")
+            return result
+        except Exception as e:
+            logger.error(f"Error cancelling payment {payment_id}: {e}")
+            return {
+                'Success': False,
+                'ErrorCode': 'CANCEL_ERROR',
                 'Message': str(e)
             }
     

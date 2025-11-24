@@ -6,6 +6,7 @@ node_modules/
 .idea/
 install-final.log
 venv/
+.venv/
 bot/venv/
 __pycache__/
 *.pyc

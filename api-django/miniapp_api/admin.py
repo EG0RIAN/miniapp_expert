@@ -89,9 +89,10 @@ def _register_all_models():
         admin_site.register(ReferralCommission, ReferralCommissionAdmin)
         
         # Аудит
-        from apps.audit.models import AuditLog
-        from apps.audit.admin import AuditLogAdmin
+        from apps.audit.models import AuditLog, TrackingEvent
+        from apps.audit.admin import AuditLogAdmin, TrackingEventAdmin
         admin_site.register(AuditLog, AuditLogAdmin)
+        admin_site.register(TrackingEvent, TrackingEventAdmin)
         
         # Документы
         from apps.documents.models import Document, DocumentAcceptance

@@ -1,3 +1,4 @@
+import logging
 from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -7,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.db import transaction as db_transaction
 from datetime import timedelta
 from .models import Payment, Transaction
+from .crypto import encrypt_string
 from .services import TBankService
 from apps.orders.models import Order as OrderModel
 from apps.products.models import UserProduct
@@ -182,6 +184,9 @@ class PaymentWebhookView(views.APIView):
             
             # Обновление платежа
             payment = Payment.objects.filter(order=order).first()
+
+            if order.is_card_binding:
+                return self._handle_card_binding(request, order, payment, status_tbank, payment_id)
             if payment:
                 # Обрабатываем разные статусы T-Bank
                 if status_tbank == 'CONFIRMED':
@@ -550,6 +555,118 @@ class PaymentWebhookView(views.APIView):
             pass
         
         return Response('OK', status=status.HTTP_200_OK)
+
+    def _handle_card_binding(self, request, order, payment, status_tbank, payment_id):
+        logger = logging.getLogger(__name__)
+        tbank = TBankService()
+        
+        if status_tbank == 'AUTHORIZED':
+            rebill_id = self._extract_rebill_id(request.data, payment_id, tbank)
+            if rebill_id and order.user:
+                try:
+                    self._store_payment_method(order.user, rebill_id, request.data)
+                    logger.info(f"Stored payment method for user {order.user.email} via binding flow")
+                except Exception as e:
+                    logger.error(f"Failed to store payment method in binding flow: {e}")
+            
+            cancel_result = tbank.cancel_payment(payment_id)
+            if payment:
+                payment.status = 'success' if cancel_result.get('Success') else 'failed'
+                payment.failure_reason = None if cancel_result.get('Success') else f"Cancel error: {cancel_result.get('Message')}"
+                payment.save()
+            order.status = 'CANCELLED' if cancel_result.get('Success') else status_tbank
+            order.save()
+            return Response('OK', status=status.HTTP_200_OK)
+        
+        if status_tbank in ('CANCELED', 'CANCELLED', 'REVERSED', 'REFUNDED', 'PARTIAL_REFUNDED'):
+            if payment:
+                payment.status = 'cancelled'
+                payment.save()
+            order.status = status_tbank
+            order.save()
+            return Response('OK', status=status.HTTP_200_OK)
+        
+        # Ignore other statuses for binding flow
+        return Response('OK', status=status.HTTP_200_OK)
+
+    def _extract_rebill_id(self, payload, payment_id, tbank: TBankService):
+        logger = logging.getLogger(__name__)
+        rebill_id = payload.get('RebillId') or payload.get('CardId')
+        if isinstance(rebill_id, dict):
+            rebill_id = rebill_id.get('RebillId') or rebill_id.get('CardId')
+        
+        if rebill_id:
+            return rebill_id
+        
+        try:
+            status_info = tbank.get_payment_status(payment_id)
+            rebill_id = status_info.get('RebillId') or status_info.get('CardId')
+        except Exception as e:
+            logger.error(f"Failed to fetch payment status for {payment_id}: {e}")
+            rebill_id = None
+        return rebill_id
+
+    def _store_payment_method(self, user, rebill_id, payload):
+        from apps.payments.models import PaymentMethod, Mandate
+        from django.utils import timezone
+
+        pan_mask = payload.get('Pan')
+        exp_date = payload.get('ExpDate')
+        card_type = payload.get('CardType')
+
+        card_info = payload.get('CardId')
+        if isinstance(card_info, dict):
+            pan_mask = card_info.get('Pan', pan_mask or '**** **** **** ****')
+            exp_date = card_info.get('ExpDate', exp_date)
+            card_type = card_info.get('CardType', card_type)
+        
+        try:
+            rebill_id_enc = encrypt_string(str(rebill_id))
+        except Exception:
+            rebill_id_enc = None
+
+        payment_method, created = PaymentMethod.objects.get_or_create(
+            user=user,
+            rebill_id=str(rebill_id),
+            defaults={
+                'provider': 'tbank',
+                'pan_mask': pan_mask or '**** **** **** ****',
+                'exp_date': exp_date or '',
+                'card_type': card_type or '',
+                'status': 'active',
+                'is_default': True,
+                'rebill_id_enc': rebill_id_enc,
+            }
+        )
+
+        if not created:
+            payment_method.status = 'active'
+            payment_method.is_default = True
+            if pan_mask:
+                payment_method.pan_mask = pan_mask
+            if exp_date:
+                payment_method.exp_date = exp_date
+            if card_type:
+                payment_method.card_type = card_type
+            if rebill_id_enc:
+                payment_method.rebill_id_enc = rebill_id_enc
+            payment_method.save()
+
+        mandate, mandate_created = Mandate.objects.get_or_create(
+            user=user,
+            mandate_number=f"TBANK_{rebill_id}",
+            defaults={
+                'type': 'rko',
+                'bank': 'tbank',
+                'status': 'active',
+                'signed_at': timezone.now(),
+            }
+        )
+
+        if not mandate_created and mandate.status != 'active':
+            mandate.status = 'active'
+            mandate.signed_at = timezone.now()
+            mandate.save()
 
 
 class PaymentStatusView(views.APIView):

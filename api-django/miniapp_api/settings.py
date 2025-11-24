@@ -207,6 +207,11 @@ EMAIL_ALT_USE_SSL = config('EMAIL_ALT_USE_SSL', default=True, cast=bool)
 APP_BASE_URL = config('APP_BASE_URL', default='https://miniapp.expert')
 FRONTEND_BASE_URL = config('FRONTEND_BASE_URL', default='https://miniapp.expert')
 API_BASE_URL = config('API_BASE_URL', default='https://miniapp.expert')
+PUBLIC_API_BASE_URL = config('PUBLIC_API_BASE_URL', default=API_BASE_URL)
+PAYMENT_NOTIFICATION_URL = config(
+    'PAYMENT_NOTIFICATION_URL',
+    default=f"{PUBLIC_API_BASE_URL.rstrip('/')}/api/payment/webhook"
+)
 
 # Magic link secret
 MAGIC_SECRET = config('MAGIC_SECRET', default='change-me-in-production')

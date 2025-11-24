@@ -36,7 +36,8 @@ class CardBindingView(views.APIView):
                 currency='RUB',
                 status='NEW',
                 description='Привязка банковской карты',
-                customer_email=user.email
+                customer_email=user.email,
+                is_card_binding=True
             )
             
             # Создать платеж
@@ -46,7 +47,8 @@ class CardBindingView(views.APIView):
                 amount=1.00,
                 currency='RUB',
                 status='pending',
-                method='card'
+                method='card',
+                purpose='card_binding'
             )
             
             # Инициализировать платеж в T-Bank
@@ -58,8 +60,15 @@ class CardBindingView(views.APIView):
             customer_name = user.name or (user.email.split('@')[0] if user.email else 'Client')
             customer_phone = user.phone or '+70000000000'
             
+            logger.info(
+                "Starting card binding payment: user=%s order=%s phone=%s",
+                user.email,
+                order.order_id,
+                customer_phone,
+            )
+            
             result = tbank.init_payment(
-                amount=100,  # 1 рубль в копейках
+                amount=1.00,
                 order_id=order.order_id,
                 description='Привязка банковской карты',
                 email=user.email,
@@ -67,7 +76,20 @@ class CardBindingView(views.APIView):
                 name=customer_name,
                 customer_key=customer_key,
                 save_method=True,
-                is_subscription=False
+                is_subscription=False,
+                extra_data={
+                    'purpose': 'card_binding',
+                    'user_id': str(user.id),
+                }
+            )
+            
+            logger.info(
+                "T-Bank init response for order %s: success=%s status=%s error=%s code=%s",
+                order.order_id,
+                result.get('Success'),
+                result.get('Status'),
+                result.get('Message'),
+                result.get('ErrorCode'),
             )
             
             if result.get('Success'):
@@ -91,7 +113,13 @@ class CardBindingView(views.APIView):
                 error_message = result.get('Message', 'Ошибка при создании платежа')
                 error_code = result.get('ErrorCode', 'UNKNOWN')
                 
-                logger.error(f"T-Bank error for card binding: {error_code} - {error_message}")
+                logger.error(
+                    "T-Bank error for card binding order %s: %s - %s (response=%s)",
+                    order.order_id,
+                    error_code,
+                    error_message,
+                    result,
+                )
                 
                 payment.status = 'failed'
                 payment.failure_reason = f"{error_code}: {error_message}"

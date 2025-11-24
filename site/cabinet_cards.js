@@ -7,9 +7,20 @@ async function loadPaymentMethods() {
     try {
         console.log('Loading payment methods...');
         const result = await apiRequest('/client/payment-methods/');
-        
-        if (result.success && result.data?.methods) {
-            displayPaymentMethods(result.data.methods);
+        if (!result) {
+            displayPaymentMethods([]);
+            return;
+        }
+
+        if (result.error) {
+            console.error('API error while loading payment methods:', result.error);
+            displayPaymentMethods([]);
+            return;
+        }
+
+        const payload = result.data;
+        if (payload?.methods) {
+            displayPaymentMethods(payload.methods);
         } else {
             displayPaymentMethods([]);
         }
@@ -134,11 +145,11 @@ async function setDefaultCard(methodId) {
             body: JSON.stringify({ is_default: true })
         });
         
-        if (result.success) {
+        if (result?.data?.success) {
             notifySuccess('Основная карта изменена');
             await loadPaymentMethods();
         } else {
-            notifyError(result.message || 'Не удалось изменить основную карту');
+            notifyError(result?.data?.message || 'Не удалось изменить основную карту');
         }
     } catch (error) {
         console.error('Error setting default card:', error);
@@ -165,11 +176,11 @@ async function deleteCard(methodId, isDefault) {
             method: 'DELETE'
         });
         
-        if (result.success) {
+        if (result?.data?.success) {
             notifySuccess('Карта удалена');
             await loadPaymentMethods();
         } else {
-            notifyError(result.message || 'Не удалось удалить карту');
+            notifyError(result?.data?.message || 'Не удалось удалить карту');
         }
     } catch (error) {
         console.error('Error deleting card:', error);
@@ -205,40 +216,49 @@ async function addNewCard() {
                 return_url: 'https://miniapp.expert/cabinet.html#cards'
             })
         });
-        
+        if (!result) {
+            alert('Сессия истекла. Перезайдите в личный кабинет.');
+            return;
+        }
+
         console.log('🔍 Backend response:', result);
-        console.log('🔍 result.success:', result.success);
-        console.log('🔍 result.data:', result.data);
-        console.log('🔍 result.message:', result.message);
-        
+        console.log('🔍 payload:', result.data);
+
         // Скрыть индикатор загрузки
         if (typeof window.hideLoader === 'function') {
             window.hideLoader();
         }
-        
-        if (result.success && result.data?.payment_url) {
+
+        if (result.error) {
+            const apiError = result.error?.message || 'Не удалось создать платеж для привязки карты';
+            console.error('❌ API transport error:', apiError);
+            alert('Ошибка: ' + apiError);
+            return;
+        }
+
+        const payload = result.data || {};
+
+        if (payload.success && payload.payment_url) {
             // Перенаправить на страницу оплаты T-Bank
-            console.log('✅ Redirecting to:', result.data.payment_url);
-            window.location.href = result.data.payment_url;
+            console.log('✅ Redirecting to:', payload.payment_url);
+            window.location.href = payload.payment_url;
         } else {
             // Извлекаем сообщение об ошибке
             let errorMsg = 'Не удалось создать платеж для привязки карты';
             
-            if (typeof result === 'string') {
-                errorMsg = result;
-            } else if (result.message) {
-                errorMsg = result.message;
-            } else if (result.data && result.data.error) {
-                errorMsg = result.data.error;
-            } else if (result.error) {
-                errorMsg = result.error;
+            if (typeof payload === 'string') {
+                errorMsg = payload;
+            } else if (payload.message) {
+                errorMsg = payload.message;
+            } else if (payload.error) {
+                errorMsg = payload.error;
             }
             
-            const errorDetails = result.data?.error_code ? `\nКод ошибки: ${result.data.error_code}` : '';
+            const errorDetails = payload.error_code ? `\nКод ошибки: ${payload.error_code}` : '';
             const fullError = errorMsg + errorDetails;
             
             console.error('❌ Payment creation error:', fullError);
-            console.error('❌ Full result object:', JSON.stringify(result, null, 2));
+            console.error('❌ Full result object:', JSON.stringify(payload, null, 2));
             
             alert('Ошибка: ' + fullError);
         }
