@@ -61,6 +61,15 @@ class CancelSubscriptionView(views.APIView):
         user_product.status = 'cancelled'
         user_product.save()
         
+        # Отправить email о отмене подписки
+        try:
+            from apps.products.email_services import send_subscription_cancelled_email
+            send_subscription_cancelled_email(request.user, user_product)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Failed to send subscription cancelled email: {e}')
+        
         return Response({
             'success': True,
             'message': 'Подписка отменена. Она будет действовать до окончания текущего периода оплаты.'

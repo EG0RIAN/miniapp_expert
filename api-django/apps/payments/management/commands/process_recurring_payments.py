@@ -42,12 +42,14 @@ class Command(BaseCommand):
         
         self.stdout.write(f'Поиск подписок для списания за {target_date.date()}...')
         
-        # Находим активные подписки, которые истекают сегодня или раньше
+        # Находим активные подписки, которые истекают в течение 3 дней (или pending в grace period)
         # и у которых есть привязанный платежный метод (RebillId)
+        grace_period_date = target_date + timedelta(days=3)
+        
         user_products = UserProduct.objects.filter(
-            status='active',
+            status__in=['active', 'pending'],  # Включаем pending для повторных попыток
             product__product_type='subscription',
-            end_date__lte=target_date,
+            end_date__lte=grace_period_date,  # За 3 дня до истечения
             payment_method__isnull=False,
             payment_method__status='active'
         ).select_related('user', 'product', 'payment_method')
@@ -145,37 +147,139 @@ class Command(BaseCommand):
                         f'product={product.name}, amount={product.price}, '
                         f'payment_id={result.get("PaymentId")}'
                     )
+                    
+                    # Отправить email о успешном продлении
+                    try:
+                        from apps.products.email_services import send_subscription_renewed_email
+                        send_subscription_renewed_email(user, user_product, product.price)
+                        self.stdout.write('   📧 Email о продлении отправлен')
+                    except Exception as email_error:
+                        logger.error(f'Failed to send renewal email: {email_error}')
                 else:
                     # Списание не удалось
                     payment.status = 'failed'
-                    payment.failure_reason = result.get('Message', 'Unknown error')
+                    failure_message = result.get('Message', 'Unknown error')
+                    payment.failure_reason = failure_message
                     payment.save()
                     
                     order.status = 'DECLINED'
                     order.save()
                     
-                    # Помечаем подписку как истекшую
-                    user_product.status = 'expired'
-                    user_product.save()
-                    
-                    failed_count += 1
                     self.stdout.write(
                         self.style.ERROR(
-                            f'   ❌ Ошибка списания: {result.get("Message", "Unknown")}'
-                        )
-                    )
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f'   ⚠️  Подписка отменена'
+                            f'   ❌ Ошибка списания: {failure_message}'
                         )
                     )
                     
-                    logger.error(
-                        f'Recurring payment failed: user={user.email}, '
-                        f'product={product.name}, error={result.get("Message")}'
-                    )
+                    # Попробовать списать с других привязанных карт
+                    alternative_cards = PaymentMethod.objects.filter(
+                        user=user,
+                        status='active'
+                    ).exclude(id=payment_method.id)
                     
-                    # TODO: Отправить email пользователю о неудачном списании
+                    retry_success = False
+                    for alt_card in alternative_cards:
+                        self.stdout.write(f'   🔄 Пробуем другую карту: {alt_card.pan_mask}')
+                        
+                        try:
+                            retry_result = tbank.charge_by_rebill(
+                                rebill_id=alt_card.rebill_id,
+                                amount=float(product.price),
+                                order_id=order.order_id,
+                                description=f'Автоматическое продление подписки (повтор): {product.name}',
+                                email=user.email,
+                                phone=user.phone,
+                                product_name=product.name,
+                            )
+                            
+                            if retry_result.get('Success') and retry_result.get('Status') in ['CONFIRMED', 'AUTHORIZED']:
+                                # Успешно списали с другой карты
+                                payment.status = 'success'
+                                payment.provider_ref = retry_result.get('PaymentId')
+                                payment.save()
+                                
+                                order.status = 'CONFIRMED'
+                                order.payment_id = retry_result.get('PaymentId')
+                                order.save()
+                                
+                                # Продлеваем подписку
+                                if product.subscription_period == 'monthly':
+                                    new_end_date = user_product.end_date + timedelta(days=30)
+                                elif product.subscription_period == 'yearly':
+                                    new_end_date = user_product.end_date + timedelta(days=365)
+                                else:
+                                    new_end_date = user_product.end_date + timedelta(days=30)
+                                
+                                user_product.end_date = new_end_date
+                                user_product.payment_method = alt_card  # Обновляем карту по умолчанию
+                                user_product.save()
+                                
+                                retry_success = True
+                                success_count += 1
+                                
+                                self.stdout.write(
+                                    self.style.SUCCESS(
+                                        f'   ✅ Успешно списано с другой карты! PaymentId: {retry_result.get("PaymentId")}'
+                                    )
+                                )
+                                
+                                # Отправить email о успешном продлении
+                                try:
+                                    from apps.products.email_services import send_subscription_renewed_email
+                                    send_subscription_renewed_email(user, user_product, product.price)
+                                except Exception as email_error:
+                                    logger.error(f'Failed to send renewal email: {email_error}')
+                                
+                                break
+                        except Exception as retry_error:
+                            logger.error(f'Retry with alternative card failed: {retry_error}')
+                            continue
+                    
+                    if not retry_success:
+                        # Все попытки не удались - даем grace period 3 дня
+                        days_until_expiry = (user_product.end_date - now).days
+                        
+                        if days_until_expiry > -3:
+                            # Еще в пределах grace period - оставляем active, но ставим pending
+                            user_product.status = 'pending'
+                            user_product.save()
+                            
+                            self.stdout.write(
+                                self.style.WARNING(
+                                    f'   ⏸️  Подписка приостановлена (grace period: {3 + days_until_expiry} дней)'
+                                )
+                            )
+                        else:
+                            # Grace period истек - отменяем подписку
+                            user_product.status = 'expired'
+                            user_product.save()
+                            
+                            self.stdout.write(
+                                self.style.ERROR(
+                                    f'   ❌ Подписка отменена (grace period истек)'
+                                )
+                            )
+                            
+                            # Отправить email о приостановке
+                            try:
+                                from apps.products.email_services import send_subscription_suspended_email
+                                send_subscription_suspended_email(user, user_product)
+                            except Exception as email_error:
+                                logger.error(f'Failed to send suspended email: {email_error}')
+                        
+                        # Отправить email о неудачном списании
+                        try:
+                            from apps.products.email_services import send_renewal_failed_email
+                            send_renewal_failed_email(user, user_product, failure_message)
+                            self.stdout.write('   📧 Email о неудачном списании отправлен')
+                        except Exception as email_error:
+                            logger.error(f'Failed to send renewal failed email: {email_error}')
+                        
+                        failed_count += 1
+                        logger.error(
+                            f'Recurring payment failed: user={user.email}, '
+                            f'product={product.name}, error={failure_message}'
+                        )
                 
             except Exception as e:
                 failed_count += 1

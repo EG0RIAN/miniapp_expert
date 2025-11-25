@@ -3259,8 +3259,8 @@ async function signDocument(documentType, skipConfirm = false, documentId = null
                 cancelText: 'Отмена',
                 onConfirm: () => resolve(true),
                 onCancel: () => resolve(false)
+            });
         });
-    });
     
         if (!confirmed) {
             return false;

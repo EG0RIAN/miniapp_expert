@@ -1,4 +1,4 @@
-.PHONY: help up down restart rebuild docker-rebuild docker-clean logs ps api-shell celery-shell beat-shell migrate makemigrations collectstatic createsuperuser shell
+.PHONY: help up down restart rebuild docker-rebuild docker-clean logs ps api-shell celery-shell beat-shell migrate makemigrations collectstatic createsuperuser shell recurring-payments test-recurring status
 
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.yml
@@ -63,8 +63,22 @@ createsuperuser: ## Create Django superuser
 shell: ## Open Django shell
 	$(COMPOSE) -f $(COMPOSE_FILE) run --rm api python manage.py shell
 
+recurring-payments: ## Process recurring payments (manual run)
+	@echo "$(GREEN)Running recurring payments processing...$(NC)"
+	$(COMPOSE) -f $(COMPOSE_FILE) exec api python manage.py process_recurring_payments
 
+test-recurring: ## Test recurring payments (dry-run)
+	@echo "$(YELLOW)Running recurring payments test (dry-run)...$(NC)"
+	$(COMPOSE) -f $(COMPOSE_FILE) exec api python manage.py process_recurring_payments --dry-run
 
-
+status: ## Show celery and services status
+	@echo "$(BLUE)=== Container Status ===$(NC)"
+	$(COMPOSE) -f $(COMPOSE_FILE) ps
+	@echo ""
+	@echo "$(BLUE)=== Celery Worker Status ===$(NC)"
+	$(COMPOSE) -f $(COMPOSE_FILE) exec celery-worker celery -A miniapp_api inspect active || echo "$(YELLOW)Celery worker not running$(NC)"
+	@echo ""
+	@echo "$(BLUE)=== Celery Beat Schedule ===$(NC)"
+	$(COMPOSE) -f $(COMPOSE_FILE) exec celery-beat celery -A miniapp_api inspect scheduled || echo "$(YELLOW)Celery beat not running$(NC)"
 
 

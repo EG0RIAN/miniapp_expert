@@ -477,6 +477,15 @@ class PaymentWebhookView(views.APIView):
                                     else:
                                         logger.info(f"UserProduct уже существует (one_time) для пользователя {user.email}, продукт {order.product.name}")
                             
+                            # Отправить email о активации подписки
+                            if user_product and order.product and order.product.product_type == 'subscription':
+                                try:
+                                    from apps.products.email_services import send_subscription_activated_email
+                                    send_subscription_activated_email(user, user_product)
+                                    logger.info(f"Subscription activated email sent to {user.email}")
+                                except Exception as e:
+                                    logger.error(f"Failed to send subscription activated email: {e}")
+                            
                             # Создать транзакцию с get_or_create для idempotency
                             transaction, trans_created = Transaction.objects.get_or_create(
                                 payment=payment,
