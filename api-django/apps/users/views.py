@@ -175,17 +175,79 @@ class RegisterView(views.APIView):
 
 class ProfileView(views.APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
-        return Response(UserSerializer(request.user).data)
-    
+        user_data = UserSerializer(request.user).data
+
+        # Проверяем, нужно ли показать модалку с документами при первом входе
+        # Если пользователь не видел документы ранее
+        from apps.documents.models import DocumentAcceptance, Document
+
+        needs_documents_modal = False
+        documents_to_sign = []
+
+        if not request.user.has_seen_documents:
+            # Получаем необходимые документы (privacy, cabinet_terms, affiliate_terms)
+            required_doc_types = ['privacy', 'cabinet_terms', 'affiliate_terms']
+
+            for doc_type in required_doc_types:
+                doc = Document.objects.filter(
+                    document_type=doc_type,
+                    is_active=True,
+                    is_published=True
+                ).first()
+
+                if doc:
+                    # Проверяем, подписан ли этот документ
+                    has_signed = DocumentAcceptance.objects.filter(
+                        user=request.user,
+                        document=doc,
+                        version=doc.version
+                    ).exists()
+
+                    if not has_signed:
+                        needs_documents_modal = True
+                        from apps.documents.serializers import DocumentPublicSerializer
+                        documents_to_sign.append(DocumentPublicSerializer(
+                            doc, context={'request': request}
+                        ).data)
+
+        return Response({
+            **user_data,
+            'needs_documents_modal': needs_documents_modal,
+            'documents_to_sign': documents_to_sign if needs_documents_modal else []
+        })
+
     def patch(self, request):
         user = request.user
+
+        # Если пользователь отметил, что видел документы, обновляем флаг
+        if 'mark_documents_seen' in request.data and request.data.get('mark_documents_seen'):
+            user.has_seen_documents = True
+            user.save(update_fields=['has_seen_documents'])
+
+        # Обновляем другие поля пользователя
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MarkDocumentsSeenView(views.APIView):
+    """Отметить, что пользователь видел модалку с документами при первом входе"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Отметить, что пользователь видел документы"""
+        user = request.user
+        user.has_seen_documents = True
+        user.save(update_fields=['has_seen_documents'])
+
+        return Response({
+            'success': True,
+            'message': 'Документы отмечены как просмотренные'
+        })
 
 
 class ResendVerificationEmailView(views.APIView):

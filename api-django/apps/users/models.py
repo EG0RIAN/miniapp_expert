@@ -50,6 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=20, blank=True, null=True)
     totp_secret = models.CharField(max_length=32, blank=True, null=True, help_text='TOTP секрет для Google Authenticator')
     totp_enabled = models.BooleanField(default=False, help_text='Включен ли TOTP (Google Authenticator)')
+    has_seen_documents = models.BooleanField(default=False, verbose_name='Пользователь видел модалку с документами при первом входе')
     date_joined = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

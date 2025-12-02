@@ -1,11 +1,12 @@
 from django.urls import path
-from .views import HealthView, LoginView, RegisterView, ProfileView, VerifyEmailView, RequestPasswordResetView, ResetPasswordView, ResendVerificationEmailView, AcceptAffiliateTermsView
+from .views import HealthView, LoginView, RegisterView, ProfileView, VerifyEmailView, RequestPasswordResetView, ResetPasswordView, ResendVerificationEmailView, AcceptAffiliateTermsView, MarkDocumentsSeenView
 
 urlpatterns = [
     path('health/', HealthView.as_view(), name='health'),
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('mark-documents-seen/', MarkDocumentsSeenView.as_view(), name='mark-documents-seen'),
     path('verify-email/', VerifyEmailView.as_view(), name='verify-email'),
     path('resend-verification/', ResendVerificationEmailView.as_view(), name='resend-verification'),
     path('accept-affiliate-terms/', AcceptAffiliateTermsView.as_view(), name='accept-affiliate-terms'),
