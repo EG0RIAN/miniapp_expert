@@ -16,6 +16,13 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Auto-discover tasks in all installed apps
 app.autodiscover_tasks()
 
+# Explicitly import non-standard task modules so Celery worker registers them
+try:
+    import apps.payments.tasks_cancellation  # noqa: F401
+except Exception:
+    # If module is missing, avoid breaking startup; logged in worker/beat
+    pass
+
 # Celery Beat schedule for periodic tasks
 app.conf.beat_schedule = {
     'process-recurring-payments-daily': {
