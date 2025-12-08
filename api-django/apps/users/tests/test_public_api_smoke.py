@@ -86,3 +86,29 @@ class PublicApiSmokeTests(APITestCase):
         self.assertEqual(dashboard.status_code, status.HTTP_200_OK, dashboard.data)
         self.assertTrue(dashboard.json().get("success"))
 
+    def test_audit_events_endpoints(self):
+        # /api/events (анонимно)
+        payload = {"event_type": "page_view", "metadata": {"path": "/"}}
+        resp = self.client.post("/api/events", payload, format="json")
+        # API может возвращать 200 или 201; главное — success=True
+        self.assertIn(resp.status_code, (status.HTTP_200_OK, status.HTTP_201_CREATED), resp.content)
+        self.assertTrue(resp.json().get("success"))
+
+        # /api/cart/track (анонимно)
+        payload = {"product_id": "test", "action": "add"}
+        resp = self.client.post("/api/cart/track", payload, format="json")
+        self.assertIn(resp.status_code, (status.HTTP_200_OK, status.HTTP_201_CREATED), resp.content)
+        self.assertTrue(resp.json().get("success"))
+
+    def test_client_documents_list(self):
+        # Регистрация и авторизация
+        _, _, token = self._register_user()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        resp = self.client.get("/api/client/documents/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+        data = resp.json()
+        # ожидаем ключи с подписанными и требующими подписи документами
+        self.assertIn("signed_documents", data)
+        self.assertIn("documents_to_sign", data)
+
