@@ -10,3 +10,4 @@ venv/
 bot/venv/
 __pycache__/
 *.pyc
+celerybeat-schedule*
